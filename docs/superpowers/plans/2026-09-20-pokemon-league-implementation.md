@@ -1707,3 +1707,72 @@ so if charts don't render correctly once deployed, that would be new
 information (this exact code was verified working earlier in this same
 session, before any of today's edits, and is unchanged from that
 verified state).
+
+## Post-launch fix: ridge regularization was too weak, causing anchor-dependence when strengthened (2026-09-20)
+
+A reviewer in another session flagged that the deck leaderboard's Darkness
+deck (owner C, a 2-1 record) was ranked last with a rating of -2241 and a
+95% CI of +/-60,619 -- wider than the entire rating scale, which should
+read as "this number is noise" rather than a ranking signal. Root cause:
+`RIDGE = 1e-6` in `src/bradley-terry.js` (Task 4) was a numerical-stability
+nub, not a real Bayesian shrinkage prior. With only 10 real matches and one
+deck near a 4-of-5 record against it, the unpenalized logistic fit hits
+quasi-complete separation -- `theta` runs toward +/-26 in log-odds space,
+and `toEloScale`'s x400/ln(10) scaling turns that into four-digit swings
+with tens-of-thousands-wide confidence intervals. Verified this diagnosis
+directly against `data/matches.json` before changing anything, rather than
+trusting the report.
+
+Swept `RIDGE` from 1e-6 through 1 against both the real pathological data
+and the well-identified `richMatches` fixture in
+`tests/bradley-terry.test.js`: 0.1 cuts the real data's CI width by over
+100x (60,619 -> 519 on the recomputed live figures) while shifting the
+well-identified fixture's point estimates by only ~2% (versus ~8% at
+RIDGE=1, where the prior visibly pulls even good data toward the population
+mean). Chose 0.1 from that sweep rather than copying a suggested range
+verbatim; chose a well-tuned L2 prior over implementing Firth's
+penalized-likelihood correction, since the simpler fix adequately solves
+the problem at this project's small scale without adding risk to an
+already heavily-reviewed core file.
+
+Raising `RIDGE` uncovered a real, separate bug: a naive `RIDGE * identity`
+penalty on the anchored free parameters is not gauge-invariant -- it
+penalizes an entity's deviation from the arbitrary anchor's zero
+(`buildIndex` always anchors `ids[0]`) rather than from its own family's
+mean. This is invisible at a near-zero ridge but becomes a genuine
+correctness bug once the ridge is strong enough to matter -- re-fitting the
+real match data with the deck array reordered (a different anchor)
+produced up to 124 Elo points of difference for the same deck, caught by
+the pre-existing anchor-invariance test in `tests/bradley-terry.test.js`
+failing (diff=0.043 against a 1e-4 tolerance) after the naive version of
+this fix was first tried.
+
+Fixed by adding `buildRidgeMatrix(numFree, playerFreeCount, deckFreeCount)`
+to `src/bradley-terry.js`, which builds a block-diagonal "centering matrix"
+per family (players, decks) such that `theta^T * R * theta` equals the
+sum, over the whole family including the anchor, of `(rawValue -
+familyMean)^2` -- i.e. diagonal entries `(1 - 1/m)`, off-diagonal entries
+`-1/m`, zero across family blocks, where `m` is that family's entity
+count. `computeNegHessian` and `fitBradleyTerry`'s gradient now apply
+`RIDGE * ridgeMatrix` instead of a flat `RIDGE` on the diagonal. This
+restores anchor-invariance to machine precision, verified against both the
+pathological real data and `richMatches` with a fully different anchor
+ordering.
+
+Updated stale numeric comments this change made inaccurate: the
+anchor-invariance test's old comment (in `tests/bradley-terry.test.js`)
+attributed the test's tolerance to "a tiny (1e-6) ridge's legitimate
+anchor-dependent noise," which is no longer the mechanism -- anchor
+invariance is now exact by construction regardless of `RIDGE`'s value. In
+`tests/recommendations.test.js`, the `makeMatches` fixture comment's
+claimed margin (~0.29) and the `upsetEvery = 3` "needs n >~ 26" claim were
+both tuned against the old ridge; recomputed under RIDGE=0.1 the `n = 20`
+margin is ~0.66 and `upsetEvery = 3` now separates around n ~ 16, not 26.
+No test assertions needed to change -- all 6 suites passed both before and
+after the comment fixes -- but the numeric commentary was corrected to
+match, per this project's established practice of not trusting "tests
+pass" alone as proof that precisely-tuned documentation is still accurate.
+
+No changes to `index.html`, `tailwind.css`, or any other source file --
+this was confined entirely to `src/bradley-terry.js`'s ridge application
+and the two test files' explanatory comments.

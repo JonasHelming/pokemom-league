@@ -1,6 +1,36 @@
 import { invert, matVec, dot, quadForm } from './linalg.js';
 
-const RIDGE = 1e-6;
+// A real Bayesian shrinkage prior (Gaussian, variance 1/RIDGE on each free
+// parameter), not a numerical-stability nub. At the near-zero value this
+// used to be (1e-6), a player or deck with a near-perfect record hits
+// quasi-complete separation (the unpenalized MLE runs toward +/-infinity),
+// and the tiny ridge does nothing to stop it — theta reaching +/-26 and
+// confidence ranges tens of thousands of Elo points wide on real 10-match
+// data, verified directly against data/matches.json. Swept 1e-6 through 1
+// against both that pathological real data AND the well-identified
+// richMatches fixture in tests/bradley-terry.test.js: 0.1 cuts the
+// pathological case's confidence range by >100x (60,619 -> 503) while
+// shifting the well-identified fixture's point estimates by only ~2%
+// (versus ~8% at RIDGE=1, where the prior starts visibly pulling even
+// good data toward the population mean). Chosen deliberately from that
+// sweep, not copied from a suggested range — if the family's real data
+// volume changes substantially, re-run the sweep rather than assume this
+// value still holds.
+const RIDGE = 0.1;
+// IMPORTANT: this must be applied via buildRidgeMatrix's gauge-invariant
+// centering matrix (below), never as a flat `RIDGE * identity` on the raw
+// anchored free parameters. A flat ridge penalizes deviation from whichever
+// entity happens to be the anchor's implicit zero — which is an arbitrary
+// bookkeeping choice (buildIndex always anchors ids[0]) — rather than from
+// each family's own mean. That's invisible at a near-zero ridge (1e-6), but
+// once the ridge is strong enough to matter, it breaks anchor-invariance
+// for real: re-fitting the exact same match data with a different
+// player/deck array ordering (a different anchor) produced up to 124 Elo
+// points of difference on real data at RIDGE=0.1 with a flat penalty — a
+// genuine correctness bug, not a rounding artifact. The centering-matrix
+// penalty below restores exact (machine-precision) anchor-invariance,
+// verified against both the pathological real data and the richMatches
+// fixture with a fully different anchor ordering.
 const MAX_ITERATIONS = 100;
 const CONVERGENCE_THRESHOLD = 1e-9;
 
@@ -29,7 +59,39 @@ export function buildDesignRow(playerA, deckA, playerB, deckB, playerIndex, deck
   return x;
 }
 
-function computeNegHessian(rows, theta, numFree) {
+// Builds the (numFree x numFree) matrix R such that theta^T * R * theta
+// equals sum-over-the-whole-family-including-the-anchor of
+// (rawValue_i - familyMean)^2, for each family separately (block-diagonal:
+// zero for any player-deck cross term). This is the penalty ACTUALLY
+// applied (scaled by RIDGE) — see the comment on RIDGE above for why a
+// flat identity penalty is wrong here. Derivation: with m entities in a
+// family (m-1 free parameters theta_1..theta_{m-1}, anchor fixed at 0) and
+// mean = (sum theta_j)/m, expanding sum_i (rawValue_i - mean)^2 over all m
+// entities (including the anchor's own (0-mean)^2 term) gives exactly
+// sum_j theta_j^2 - (1/m)*(sum_j theta_j)^2 = theta^T*(I - (1/m)*J)*theta,
+// where J is the all-ones matrix restricted to that family's free indices
+// — i.e. diagonal entries (1 - 1/m), off-diagonal entries (-1/m), only
+// within a single family's block.
+function buildRidgeMatrix(numFree, playerFreeCount, deckFreeCount) {
+  const numPlayers = playerFreeCount + 1;
+  const numDecks = deckFreeCount + 1;
+  const R = Array.from({ length: numFree }, () => new Array(numFree).fill(0));
+
+  for (let j = 0; j < playerFreeCount; j++) {
+    for (let k = 0; k < playerFreeCount; k++) {
+      R[j][k] = (j === k ? 1 : 0) - 1 / numPlayers;
+    }
+  }
+  for (let j = playerFreeCount; j < numFree; j++) {
+    for (let k = playerFreeCount; k < numFree; k++) {
+      R[j][k] = (j === k ? 1 : 0) - 1 / numDecks;
+    }
+  }
+
+  return R;
+}
+
+function computeNegHessian(rows, theta, numFree, ridgeMatrix) {
   const negHessian = Array.from({ length: numFree }, () => new Array(numFree).fill(0));
   for (const { x } of rows) {
     const p = sigmoid(dot(theta, x));
@@ -40,7 +102,11 @@ function computeNegHessian(rows, theta, numFree) {
       }
     }
   }
-  for (let i = 0; i < numFree; i++) negHessian[i][i] += RIDGE;
+  for (let i = 0; i < numFree; i++) {
+    for (let j = 0; j < numFree; j++) {
+      negHessian[i][j] += RIDGE * ridgeMatrix[i][j];
+    }
+  }
   return negHessian;
 }
 
@@ -48,6 +114,7 @@ export function fitBradleyTerry(matches, playerIds, deckIds) {
   const { index: playerIndex, anchor: playerAnchor } = buildIndex(playerIds, 0);
   const { index: deckIndex, anchor: deckAnchor } = buildIndex(deckIds, playerIds.length - 1);
   const numFree = (playerIds.length - 1) + (deckIds.length - 1);
+  const ridgeMatrix = buildRidgeMatrix(numFree, playerIds.length - 1, deckIds.length - 1);
 
   const rows = matches.map((m) => ({
     x: buildDesignRow(m.player1, m.deck1, m.player2, m.deck2, playerIndex, deckIndex, numFree),
@@ -65,9 +132,10 @@ export function fitBradleyTerry(matches, playerIds, deckIds) {
       const p = sigmoid(dot(theta, x));
       for (let i = 0; i < numFree; i++) grad[i] += (y - p) * x[i];
     }
-    for (let i = 0; i < numFree; i++) grad[i] -= RIDGE * theta[i];
+    const ridgeGrad = matVec(ridgeMatrix, theta);
+    for (let i = 0; i < numFree; i++) grad[i] -= RIDGE * ridgeGrad[i];
 
-    const negHessian = computeNegHessian(rows, theta, numFree);
+    const negHessian = computeNegHessian(rows, theta, numFree, ridgeMatrix);
     const cov = invert(negHessian);
     const delta = matVec(cov, grad);
     theta = theta.map((v, i) => v + delta[i]);
@@ -78,7 +146,7 @@ export function fitBradleyTerry(matches, playerIds, deckIds) {
     }
   }
 
-  const cov = invert(computeNegHessian(rows, theta, numFree));
+  const cov = invert(computeNegHessian(rows, theta, numFree, ridgeMatrix));
 
   return { playerIndex, deckIndex, playerAnchor, deckAnchor, theta, cov, numFree, converged, iterations };
 }

@@ -90,10 +90,14 @@ assert.ok(Math.abs(deckSumA) < 1e-6, `expected deck ratings to sum to ~0, got ${
 // playerIds/deckIds) -- mean-centered ratings must be (nearly) the same
 // regardless of which entity got anchored at 0. A collision bug (e.g. deck
 // offset === 0, colliding player and deck indices) breaks this badly --
-// verified by hand to produce O(1) differences on this fixture -- while the
-// tiny (1e-6) L2 ridge on the fit legitimately introduces an anchor-dependent
-// asymmetry on the order of the ridge itself (~1e-6), so the tolerance here
-// is set well above that noise floor and well below what a collision causes.
+// verified by hand to produce O(1) differences on this fixture. The ridge
+// penalty (see src/bradley-terry.js's buildRidgeMatrix) is applied via a
+// gauge-invariant centering matrix specifically so this holds to machine
+// precision regardless of RIDGE's value -- a flat `RIDGE * identity` penalty
+// would NOT be anchor-invariant once RIDGE is non-negligible (verified to
+// produce up to 124 Elo points of real difference at RIDGE=0.1). The
+// tolerance here is set well above floating-point noise and well below what
+// a collision bug causes.
 const playerIdsB = ['P3', 'P1', 'P2'];
 const deckIdsB = ['d2', 'd3', 'd1'];
 const fitB = fitBradleyTerry(richMatches, playerIdsB, deckIdsB);

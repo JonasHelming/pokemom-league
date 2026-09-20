@@ -43,12 +43,14 @@ import {
 // rank) — an odd `upsetEvery` fixes it by making the upset land on both
 // parities, so every covariate pattern sees some losses and `se` shrinks
 // cleanly like 1/sqrt(n). `upsetEvery = 5` (an 80% win rate for the
-// stronger deck) combined with `n = 20` gives a comfortable margin (~0.29
-// on the required CI gap) that holds stably for n in [15, 30], not just at
-// n = 20 exactly. Odd parity alone isn't sufficient, though: `upsetEvery =
-// 3` (67% win rate) has the right parity but too small an effect size to
-// separate at n = 20 (it needs n ≳ 26), so don't assume any odd value
-// works at any n.
+// stronger deck) combined with `n = 20` gives a comfortable margin (~0.66
+// on the required CI gap under the current RIDGE — see src/bradley-terry.js
+// — re-verify this number if RIDGE changes again) that holds stably for n
+// in [15, 30], not just at n = 20 exactly. Odd parity alone isn't a
+// guarantee at any n, though: `upsetEvery = 3` (67% win rate) has the right
+// parity but a smaller effect size, so it separates later — around n ≈ 16
+// under the current ridge, non-monotonically before that — so don't assume
+// any odd value works at n = 20 without checking.
 function makeMatches(n, upsetEvery = 5) {
   return Array.from({ length: n }, (_, i) => {
     const aUsesX = i % 2 === 0;
