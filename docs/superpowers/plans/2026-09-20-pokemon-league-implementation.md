@@ -677,12 +677,18 @@ import { flagWeakDecks, suggestMatchups, countMatchesByDeck } from '../src/recom
 // converge to, so `se` actually shrinks like 1/sqrt(n) as more matches are
 // added — which is what makes `flagWeakDecks` able to fire at all.
 //
-// `upsetEvery = 8` (~87.5% win rate for the stronger deck) and `n = 20` below
-// are starting points, not verified exact values — verify numerically per
-// Step 2 of this task, and adjust `upsetEvery`/`n` if the assertions don't
-// hold with a comfortable margin, while keeping this same technique (crossed
-// pairing + periodic deterministic upset).
-function makeMatches(n, upsetEvery = 8) {
+// Numerically verified (see the Task 6 implementation report): even
+// `upsetEvery` values (4, 6, 8, ...) are pathological here, because
+// `isUpset` (`i % upsetEvery === upsetEvery - 1`) then always coincides with
+// the same parity of `i`, so the upset always lands on the *same*
+// pilot/deck pairing — reintroducing a confound between "player" and "deck"
+// effects and producing near-complete separation (huge, non-shrinking `se`)
+// no matter how large `n` gets. An odd `upsetEvery` decorrelates the upset
+// from the pilot-crossing parity, so both pilots experience the upset over
+// time and `se` shrinks cleanly like 1/sqrt(n). `upsetEvery = 5` (an 80% win
+// rate for the stronger deck) combined with `n = 20` gives a comfortable
+// margin that holds stably for n in [15, 30], not just at n = 20 exactly.
+function makeMatches(n, upsetEvery = 5) {
   return Array.from({ length: n }, (_, i) => {
     const aUsesX = i % 2 === 0;
     const isUpset = i % upsetEvery === upsetEvery - 1;
