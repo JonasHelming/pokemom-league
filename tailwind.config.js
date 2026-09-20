@@ -9,6 +9,9 @@ export default {
         typeGrass: '#4ade80',
         typeElectric: '#facc15',
       },
+      screens: {
+        tv: '1920px',
+      },
     },
   },
   plugins: [],
