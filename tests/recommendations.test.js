@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { fitBradleyTerry } from '../src/bradley-terry.js';
-import { flagWeakDecks, suggestMatchups, countMatchesByDeck } from '../src/recommendations.js';
+import { flagWeakDecks, suggestMatchups, countMatchesByDeck, selectBestCandidate } from '../src/recommendations.js';
 
 // Deck x beats deck y most of the time (not always — see below), and
 // piloting alternates between A and B every match. The crossed pairing is
@@ -77,21 +77,61 @@ assert.deepEqual(flaggedLoneDeck, []);
 assert.equal(countMatchesByDeck(enoughData).get('x'), enoughData.length);
 assert.equal(countMatchesByDeck(enoughData).get('y'), enoughData.length);
 
-// The family's chosen defaults (minMatches=5, ~80% confidence) are looser
-// than the 8-match/95% examples above by design (a fun signal for ordering
-// new cards, not a rigorous claim) — numerically verified: this fixture
-// doesn't yet separate at n=5 (not enough data), but does by n=10.
-const fitAtFive = fitBradleyTerry(makeMatches(5), ['A', 'B'], ['x', 'y']);
-assert.deepEqual(flagWeakDecks(fitAtFive, ['x', 'y'], makeMatches(5)), []);
+// The family's chosen defaults (minMatches=5, ~80% confidence, both now
+// named parameters instead of hardcoded 8/1.96) are looser than the
+// explicit-8-match examples above by design (a fun signal for ordering new
+// cards, not a rigorous claim). Two independent things are verified here,
+// deliberately not conflated:
+//
+// (a) the minMatches=5 floor is actually enforced — using a 4-matches-per
+// -deck PREFIX of the well-behaved n=20 fixture (not a fresh small-n
+// fixture), so this isolates the count gate itself rather than accidentally
+// depending on the fixture's own small-n statistical fragility (this exact
+// fixture has documented period-alignment quirks below n=10 — see the
+// comment on `makeMatches` above). The count gate fires and returns []
+// before any CI math even runs, regardless of what that math would say.
+const belowFloor = enoughData.slice(0, 4);
+assert.equal(countMatchesByDeck(belowFloor).get('y'), 4);
+const fitBelowFloor = fitBradleyTerry(belowFloor, ['A', 'B'], ['x', 'y']);
+assert.deepEqual(flagWeakDecks(fitBelowFloor, ['x', 'y'], belowFloor), []);
+
+// (b) the ~80% confidence default actually flags earlier than the old 95%
+// level would: at n=10 this fixture's required gap sits between the two
+// thresholds, so it flags at the new default but would not have at 1.96.
 const tenMatches = makeMatches(10);
 const fitAtTen = fitBradleyTerry(tenMatches, ['A', 'B'], ['x', 'y']);
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches), ['y']);
+assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 5, 1.96), []);
+
+// selectBestCandidate: the core "prefer competitive over merely informative"
+// rule, tested directly with fabricated candidates — no fit required — so
+// it doesn't depend on hand-tuning another statistical fixture. This is the
+// exact behavior that fixed a real bug found in review: on live data, a
+// pure information-gain ranking chose a 0.9%-predicted "blowout" over a
+// genuinely close 66.7%-predicted option for the same pair, because the
+// blowout involved a far less-tested deck.
+const lopsidedButInformative = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'y', predictedWinProbA: 0.01, gain: 1_000_000 };
+const closeButUninformative = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'z', predictedWinProbA: 0.5, gain: 1 };
+const pickedCompetitive = selectBestCandidate([lopsidedButInformative, closeButUninformative]);
+assert.equal(pickedCompetitive.deckB, 'z', 'a genuinely competitive option must win even with far less gain');
+assert.equal(pickedCompetitive.competitiveMatchAvailable, true);
+
+// With no competitive option at all, it must fall back to the most
+// informative one rather than returning nothing.
+const pickedFallback = selectBestCandidate([lopsidedButInformative]);
+assert.equal(pickedFallback.deckB, 'y');
+assert.equal(pickedFallback.competitiveMatchAvailable, false);
+
+// Among two competitive options, information gain still breaks the tie.
+const moreInformativeCompetitive = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'w', predictedWinProbA: 0.45, gain: 50 };
+const pickedTiebreak = selectBestCandidate([closeButUninformative, moreInformativeCompetitive]);
+assert.equal(pickedTiebreak.deckB, 'w');
 
 // Player C and its decks have zero data -> suggestMatchups must return
 // exactly one suggestion per unique player pair (so whichever two people
 // want to play, there's always an answer for which decks to use), and the
-// pairs involving totally-untested C should score far higher (much more to
-// learn) than the already-well-tested A-vs-B pair.
+// pairs involving totally-untested C should have far higher information
+// gain than the already-well-tested A-vs-B pair.
 const players = ['A', 'B', 'C'];
 const decks = ['x', 'y'];
 const sparseMatches = makeMatches(10);
@@ -102,11 +142,12 @@ assert.equal(suggestions.length, 3); // C(3,2) pairs: A-B, A-C, B-C
 const pairKey = (s) => [s.playerA, s.playerB].sort().join('-');
 const pairsSeen = new Set(suggestions.map(pairKey));
 assert.deepEqual(pairsSeen, new Set(['A-B', 'A-C', 'B-C']));
+suggestions.forEach((s) => assert.notEqual(s.deckA, s.deckB, 'mirror matchups must be excluded'));
 
-const abScore = suggestions.find((s) => pairKey(s) === 'A-B').score;
-const acScore = suggestions.find((s) => pairKey(s) === 'A-C').score;
-const bcScore = suggestions.find((s) => pairKey(s) === 'B-C').score;
-assert.ok(acScore > abScore, `expected under-sampled A-C pair to score higher than well-tested A-B, got ${acScore} vs ${abScore}`);
-assert.ok(bcScore > abScore, `expected under-sampled B-C pair to score higher than well-tested A-B, got ${bcScore} vs ${abScore}`);
+const abGain = suggestions.find((s) => pairKey(s) === 'A-B').gain;
+const acGain = suggestions.find((s) => pairKey(s) === 'A-C').gain;
+const bcGain = suggestions.find((s) => pairKey(s) === 'B-C').gain;
+assert.ok(acGain > abGain, `expected under-sampled A-C pair to have higher gain than well-tested A-B, got ${acGain} vs ${abGain}`);
+assert.ok(bcGain > abGain, `expected under-sampled B-C pair to have higher gain than well-tested A-B, got ${bcGain} vs ${abGain}`);
 
 console.log('OK: recommendations.test.js');

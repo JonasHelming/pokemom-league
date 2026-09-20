@@ -121,21 +121,26 @@ never mentioning another pair at all), the site guarantees exactly one
 recommendation per unique player pair — for 4 players, that's 6 suggestions,
 always covering every possible pairing.
 
-- For each player pair, and for every active-deck combination that pair
-  could play, compute a **blended score**: statistical information-gain
-  (the Fisher information contribution of that hypothetical match, an exact
-  Sherman-Morrison variance-reduction calculation) combined with how close
-  the predicted outcome is to 50/50. Pure information-gain alone tends to
+- For each player pair, compute statistical information-gain (the Fisher
+  information contribution of that hypothetical match, an exact
+  Sherman-Morrison variance-reduction calculation) and predicted win
+  probability for every active-deck combination that pair could play
+  (mirror matchups, the same deck on both sides, are excluded — not
+  practically meaningful advice). Pure information-gain alone tends to
   surface lopsided-looking matchups involving whichever player/deck has the
-  least data (a nearly-untested entity's point estimate is unreliable and
-  often looks like a blowout even though it isn't really predictable) — the
-  blend keeps those informative-but-confident-looking suggestions from
-  crowding out matchups that are both instructive and fun to actually play,
-  while a floor on the closeness weighting keeps a truly enormous
-  information-gain opportunity from being fully suppressed just because its
-  point estimate looks lopsided.
-- The single highest-blended-score deck combination for each pair is kept;
-  the six (or n·(n−1)/2, for n active players) results are sorted by score
+  least data — a nearly-untested entity's point estimate is unreliable and
+  often looks like a near-certain blowout even though it isn't really
+  predictable, so a **genuinely competitive candidate (within 30 points of
+  a 50/50 predicted outcome) is preferred over a merely informative one**;
+  information gain still breaks ties among competitive candidates, and only
+  when *no* competitive option exists for that pair does it fall back to
+  the most informative (possibly lopsided) one. Verified on live match
+  data: this fixed a real case where a genuinely close 66.7%-predicted
+  rematch lost to a 0.9%-predicted blowout under a pure info-gain or
+  naively-blended score, purely because the blowout involved a far
+  less-tested deck.
+- The chosen deck combination for each pair is kept; the six (or
+  n·(n−1)/2, for n active players) results are sorted by information gain
   and all shown — not truncated to a top-3.
 - Candidate matchups are enumerated over active decks only (retired
   versions excluded) — at family scale this is a small, trivial-to-rank

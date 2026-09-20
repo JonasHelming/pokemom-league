@@ -1372,26 +1372,49 @@ conservative but too slow to ever suggest a rebuild for a fun family
 signal — the family chose `minMatches = 5` and ~80% confidence
 (`confidenceZ = 1.28`, now a named parameter instead of a hardcoded `1.96`)
 as a "not bullshit, but responsive enough to be useful" balance. Verified
-numerically against the existing test fixture: doesn't yet separate at
-n=5, does by n=10.
+numerically: at n=10 this fixture's required gap sits between the two
+thresholds (flags at 1.28, would not flag at 1.96) — a real, load-bearing
+distinction, not a coincidence of the fixture's small-n fragility (the
+match-count floor and the confidence-level change are tested separately;
+see `tests/recommendations.test.js`). The weak-deck banner text now says
+"significantly behind at 80% confidence" so it doesn't visually contradict
+the leaderboard's separate, unrelated 95% display range.
 
 **2. `suggestMatchups` redesigned from "top-3 by pure information gain" to
-"one blended-score suggestion per unique player pair."** Two problems
-prompted this: (a) a flat top-N list could show multiple suggestions for
-the same pair while never mentioning another pair at all, useless for "two
-specific people want to play, what should they use"; (b) pure
-information-gain suggestions from live data turned out to strongly favor
-matchups involving whichever player/deck has the least data, and those
-often *look* like confident blowouts (e.g. 99% predicted) even though the
-prediction itself is unreliable precisely because there's so little data —
-not fun matches to actually sit down and play. The fix combines the
-Sherman-Morrison information-gain with a closeness-to-50% factor
-(`blendedScore = log1p(gain) * (0.15 + 0.85 * closeness(p))`, floored at
-0.15 so a genuinely enormous information-gain opportunity isn't fully
-suppressed just because its point estimate looks lopsided), and returns the
-single best deck combination per player pair rather than a flat top-N — for
-n active players, that's n·(n−1)/2 suggestions (6 for the family's 4
-players), guaranteeing every pairing always has an answer.
+"one suggestion per unique player pair, preferring a competitive option."**
+Two problems prompted this: (a) a flat top-N list could show multiple
+suggestions for the same pair while never mentioning another pair at all,
+useless for "two specific people want to play, what should they use"; (b)
+pure information-gain suggestions from live data turned out to strongly
+favor matchups involving whichever player/deck has the least data, and
+those often *look* like confident blowouts even though the prediction
+itself is unreliable precisely because there's so little data — not fun
+matches to actually sit down and play.
+
+A first attempt tried blending information-gain with a closeness-to-50%
+factor multiplicatively (`log1p(gain) * (0.15 + 0.85 * closeness(p))`).
+Code review caught that this doesn't actually work: gain spans many orders
+of magnitude (0.36 to 166,000+ on live data), which any multiplicative
+closeness factor in a bounded [0.15, 1] range is too weak to overcome — on
+live data, a genuinely close 66.7%-predicted rematch (T vs J, already
+played several times) still lost to a 0.9%-predicted near-blowout (same
+pair, a far less-tested deck), the exact symptom the redesign was meant to
+fix. The actual fix, `selectBestCandidate` in `src/recommendations.js`: per
+pair, filter candidates to those within 30 points of 50/50
+(`COMPETITIVE_CLOSENESS_THRESHOLD = 0.3`); if any exist, pick the
+highest-gain one among *those*; only if none exist does it fall back to the
+single highest-gain candidate overall. Verified this threshold isn't a
+fragile knife-edge (0.2 through 0.5 all produce identical picks on live
+data), and verified the fix directly resolves the T-vs-J case (now
+correctly recommends the 66.7% option). `selectBestCandidate` is exported
+and unit-tested directly with fabricated `{predictedWinProbA, gain}`
+objects — deliberately not through another hand-tuned Bradley-Terry
+fixture, given this file's history of fixture-fragility bugs. Mirror
+matchups (`deckA === deckB`) are now excluded from candidates entirely, and
+each pair's chosen suggestion carries a `competitiveMatchAvailable`
+boolean. The final list still returns one entry per pair — for n active
+players, n·(n−1)/2 suggestions (6 for the family's 4 players) — sorted by
+information gain, not truncated to a top-3.
 
 `renderSuggestionsPanelHTML`'s heading was updated from "Try This Next" to
 "Best Deck Matchup For Each Pair" to match.
