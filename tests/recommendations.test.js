@@ -61,13 +61,6 @@ const fitEnough = fitBradleyTerry(enoughData, ['A', 'B'], ['x', 'y']);
 const flaggedEnough = flagWeakDecks(fitEnough, ['x', 'y'], enoughData, 8);
 assert.deepEqual(flaggedEnough, ['y']);
 
-// Same pattern but too few matches (under an explicit threshold) -> should
-// not be flagged yet, regardless of how bad deck y's point estimate looks.
-const notEnoughData = makeMatches(5);
-const fitNotEnough = fitBradleyTerry(notEnoughData, ['A', 'B'], ['x', 'y']);
-const flaggedNotEnough = flagWeakDecks(fitNotEnough, ['x', 'y'], notEnoughData, 8);
-assert.deepEqual(flaggedNotEnough, []);
-
 // A lone active deck has nothing to be "behind", so it must never be
 // flagged — `[].every(...)` is vacuously true, which would otherwise flag
 // any single deck with enough matches even though there's no comparison.
@@ -79,27 +72,28 @@ assert.equal(countMatchesByDeck(enoughData).get('y'), enoughData.length);
 
 // The family's chosen defaults (minMatches=5, ~80% confidence, both now
 // named parameters instead of hardcoded 8/1.96) are looser than the
-// explicit-8-match examples above by design (a fun signal for ordering new
-// cards, not a rigorous claim). Two independent things are verified here,
-// deliberately not conflated:
-//
-// (a) the minMatches=5 floor is actually enforced — using a 4-matches-per
-// -deck PREFIX of the well-behaved n=20 fixture (not a fresh small-n
-// fixture), so this isolates the count gate itself rather than accidentally
-// depending on the fixture's own small-n statistical fragility (this exact
-// fixture has documented period-alignment quirks below n=10 — see the
-// comment on `makeMatches` above). The count gate fires and returns []
-// before any CI math even runs, regardless of what that math would say.
-const belowFloor = enoughData.slice(0, 4);
-assert.equal(countMatchesByDeck(belowFloor).get('y'), 4);
-const fitBelowFloor = fitBradleyTerry(belowFloor, ['A', 'B'], ['x', 'y']);
-assert.deepEqual(flagWeakDecks(fitBelowFloor, ['x', 'y'], belowFloor), []);
+// explicit-8-match example above by design (a fun signal for ordering new
+// cards, not a rigorous claim). This fixture is only well-identified from
+// n=10 onward (see the comment on `makeMatches` above) — any n below that
+// hits a small-n pathology where the CI math independently returns []
+// regardless of the count gate, which would make a naive "not enough
+// matches at small n" test pass even with the gate deleted entirely. So
+// both things below are tested against the SAME well-identified n=10 fit,
+// varying only the one parameter under test, isolating each mechanism:
+const tenMatches = makeMatches(10);
+const fitAtTen = fitBradleyTerry(tenMatches, ['A', 'B'], ['x', 'y']);
+
+// (a) the minMatches floor is enforced — same fit and data both times, only
+// minMatches changes. If the gate were broken (e.g. deleted), the second
+// assertion would incorrectly return ['y'] too, since the underlying CI
+// math is otherwise conclusive at n=10.
+assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 5), ['y']);
+assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 11), []);
 
 // (b) the ~80% confidence default actually flags earlier than the old 95%
 // level would: at n=10 this fixture's required gap sits between the two
-// thresholds, so it flags at the new default but would not have at 1.96.
-const tenMatches = makeMatches(10);
-const fitAtTen = fitBradleyTerry(tenMatches, ['A', 'B'], ['x', 'y']);
+// thresholds (critical z ~= 1.75), so it flags at the new default but would
+// not have at 1.96.
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches), ['y']);
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 5, 1.96), []);
 
@@ -126,6 +120,32 @@ assert.equal(pickedFallback.competitiveMatchAvailable, false);
 const moreInformativeCompetitive = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'w', predictedWinProbA: 0.45, gain: 50 };
 const pickedTiebreak = selectBestCandidate([closeButUninformative, moreInformativeCompetitive]);
 assert.equal(pickedTiebreak.deckB, 'w');
+
+// Among two candidates neither of which is competitive, the fallback pool
+// still picks by gain (not e.g. array order) — the sort-by-gain path is
+// exercised with more than one element, not just the single-candidate
+// fallback case above.
+const worseFallback = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'y', predictedWinProbA: 0.02, gain: 10 };
+const betterFallback = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'z', predictedWinProbA: 0.98, gain: 20 };
+const pickedBestFallback = selectBestCandidate([worseFallback, betterFallback]);
+assert.equal(pickedBestFallback.deckB, 'z');
+assert.equal(pickedBestFallback.competitiveMatchAvailable, false);
+
+// selectBestCandidate requires at least one candidate — an empty array is a
+// caller bug (suggestMatchups already guards against it), not a valid input
+// to silently paper over.
+assert.throws(() => selectBestCandidate([]));
+
+// Pins the exact competitive/not-competitive boundary the threshold
+// implements — closeness(p) >= 0.3 means p in [15%, 85%], NOT the tighter
+// [35%, 65%] band an earlier version of this comment mistakenly described.
+// p=20% is inside that true band (closeness 0.4), p=10% is just outside it
+// (closeness 0.2); pinning both here catches the threshold's exact value
+// changing, not just its qualitative direction.
+const justInsideBand = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'y', predictedWinProbA: 0.20, gain: 1 };
+const justOutsideBand = { playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'z', predictedWinProbA: 0.10, gain: 1_000_000 };
+const pickedAtBoundary = selectBestCandidate([justInsideBand, justOutsideBand]);
+assert.equal(pickedAtBoundary.deckB, 'y', 'p=20% should count as competitive and be preferred over p=10% despite far less gain');
 
 // Player C and its decks have zero data -> suggestMatchups must return
 // exactly one suggestion per unique player pair (so whichever two people

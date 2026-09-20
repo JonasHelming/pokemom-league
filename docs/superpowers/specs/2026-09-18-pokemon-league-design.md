@@ -118,8 +118,11 @@ Two people deciding to play already know *who* is playing; what they don't
 know is which decks make for the most worthwhile game. So rather than a
 flat top-N list (which could repeat one pair's suggestion three times while
 never mentioning another pair at all), the site guarantees exactly one
-recommendation per unique player pair — for 4 players, that's 6 suggestions,
-always covering every possible pairing.
+recommendation per unique player pair with at least 2 active decks to
+choose from — for 4 players and 4 decks, that's 6 suggestions, covering
+every possible pairing. (With fewer than 2 active decks there are no
+non-mirror deck combinations to recommend, so the panel would have nothing
+to say — not a realistic case at family scale.)
 
 - For each player pair, compute statistical information-gain (the Fisher
   information contribution of that hypothetical match, an exact

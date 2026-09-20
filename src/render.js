@@ -71,7 +71,7 @@ export function renderMatchHistoryHTML(matches, playersById, decksById) {
 export function renderWeakDeckBannersHTML(flaggedDeckIds, decksById) {
   if (flaggedDeckIds.length === 0) return '';
   const items = flaggedDeckIds
-    .map((id) => `<li class="p-2 tv:p-4 tv:text-2xl">⚠️ ${decksById[id]} — significantly behind at 80% confidence, consider a rebuild</li>`)
+    .map((id) => `<li class="p-2 tv:p-4 tv:text-2xl">⚠️ ${decksById[id]} — significantly behind by the family's own confidence threshold, consider a rebuild</li>`)
     .join('');
   return `<ul class="weak-deck-banners bg-amber-100 rounded mb-4 tv:mb-8">${items}</ul>`;
 }

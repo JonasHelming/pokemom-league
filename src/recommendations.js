@@ -39,10 +39,11 @@ function closeness(predictedWinProbA) {
   return 1 - Math.abs(predictedWinProbA - 0.5) * 2;
 }
 
-// A candidate counts as "genuinely competitive" once its predicted outcome
-// is within 30 points of 50/50 (i.e. 35%-65%). Verified against live data
+// A candidate counts as "genuinely competitive" once closeness(p) >= 0.3,
+// i.e. |p - 0.5| <= 0.35, i.e. p in [15%, 85%]. Verified against live data
 // that this isn't a fragile knife-edge: thresholds from 0.2 to 0.5 all
-// produce identical picks on the current dataset.
+// produce identical picks on the current dataset (the current data has no
+// candidates in the ambiguous middle of that range).
 const COMPETITIVE_CLOSENESS_THRESHOLD = 0.3;
 
 // Picks the best candidate for one pair: a genuinely competitive option is
@@ -59,6 +60,10 @@ const COMPETITIVE_CLOSENESS_THRESHOLD = 0.3;
 // this selection rule can be tested directly, independent of any
 // statistical fixture.
 export function selectBestCandidate(candidates) {
+  if (candidates.length === 0) {
+    throw new Error('selectBestCandidate requires at least one candidate');
+  }
+
   const competitive = candidates.filter((c) => closeness(c.predictedWinProbA) >= COMPETITIVE_CLOSENESS_THRESHOLD);
   const pool = competitive.length > 0 ? competitive : candidates;
   const [best] = [...pool].sort((a, b) => b.gain - a.gain);
@@ -95,6 +100,14 @@ export function suggestMatchups(fit, activePlayerIds, activeDeckIds) {
     }
   }
 
-  suggestions.sort((a, b) => b.gain - a.gain);
+  // Genuinely competitive pairs surface before fallback (no-close-option)
+  // ones, so the panel leads with fun games to actually play; gain still
+  // orders within each group.
+  suggestions.sort((a, b) => {
+    if (a.competitiveMatchAvailable !== b.competitiveMatchAvailable) {
+      return a.competitiveMatchAvailable ? -1 : 1;
+    }
+    return b.gain - a.gain;
+  });
   return suggestions;
 }
