@@ -1,0 +1,12 @@
+{
+  "name": "pokemon-league",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./tailwind.css --minify",
+    "test": "node tests/linalg.test.js && node tests/bradley-terry.test.js && node tests/history.test.js && node tests/recommendations.test.js && node tests/render.test.js && node tests/charts.test.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
