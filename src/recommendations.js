@@ -11,6 +11,8 @@ export function countMatchesByDeck(matches) {
 }
 
 export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 8) {
+  if (activeDeckIds.length < 2) return [];
+
   const ratings = meanCenteredRatings(fit, 'deck', activeDeckIds);
   const counts = countMatchesByDeck(matches);
   const flagged = [];

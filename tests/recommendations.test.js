@@ -23,17 +23,22 @@ import { flagWeakDecks, suggestMatchups, countMatchesByDeck } from '../src/recom
 // the original plan were starting points, not verified exact values.
 // Numerically verified (see task-6-report.md): even `upsetEvery` values (4,
 // 6, 8, ...) are pathological here, because `isUpset` (i % upsetEvery ===
-// upsetEvery - 1) then always coincides with the same parity of `i`, which
-// means the upset always lands on the *same* pilot/deck pairing (e.g.
-// always "A on y beats B on x"). That reintroduces a confound between
-// "player" and "deck" effects and produces near-complete separation (huge,
-// non-shrinking `se`, sometimes >90) no matter how large `n` gets. Using an
-// odd `upsetEvery` (5, tried and confirmed; 3 also works) decorrelates the
-// upset from the pilot-crossing parity, so both pilots experience the upset
-// over time and `se` shrinks cleanly like 1/sqrt(n). `upsetEvery = 5` (an
-// 80% win rate for the stronger deck) combined with `n = 20` gives a
-// comfortable margin (~0.29 on the required CI gap) that holds stably for
-// n in [15, 30], not just at n = 20 exactly.
+// upsetEvery - 1) then always coincides with the same parity of `i`, so
+// every match of one covariate pattern (e.g. "A pilots x") is won 100% of
+// the time while the other pattern still has upsets. That one always-100%
+// pattern is quasi-complete separation — the same failure mode as the
+// all-deterministic case described above, just confined to half the data —
+// producing a huge, non-shrinking `se` no matter how large `n` gets. It is
+// NOT a rank-deficiency/confound problem (the design matrix stays full
+// rank) — an odd `upsetEvery` fixes it by making the upset land on both
+// parities, so every covariate pattern sees some losses and `se` shrinks
+// cleanly like 1/sqrt(n). `upsetEvery = 5` (an 80% win rate for the
+// stronger deck) combined with `n = 20` gives a comfortable margin (~0.29
+// on the required CI gap) that holds stably for n in [15, 30], not just at
+// n = 20 exactly. Odd parity alone isn't sufficient, though: `upsetEvery =
+// 3` (67% win rate) has the right parity but too small an effect size to
+// separate at n = 20 (it needs n ≳ 26), so don't assume any odd value
+// works at any n.
 function makeMatches(n, upsetEvery = 5) {
   return Array.from({ length: n }, (_, i) => {
     const aUsesX = i % 2 === 0;
@@ -62,6 +67,12 @@ const notEnoughData = makeMatches(5);
 const fitNotEnough = fitBradleyTerry(notEnoughData, ['A', 'B'], ['x', 'y']);
 const flaggedNotEnough = flagWeakDecks(fitNotEnough, ['x', 'y'], notEnoughData, 8);
 assert.deepEqual(flaggedNotEnough, []);
+
+// A lone active deck has nothing to be "behind", so it must never be
+// flagged — `[].every(...)` is vacuously true, which would otherwise flag
+// any single deck with enough matches even though there's no comparison.
+const flaggedLoneDeck = flagWeakDecks(fitEnough, ['x'], enoughData, 8);
+assert.deepEqual(flaggedLoneDeck, []);
 
 assert.equal(countMatchesByDeck(enoughData).get('x'), enoughData.length);
 assert.equal(countMatchesByDeck(enoughData).get('y'), enoughData.length);
