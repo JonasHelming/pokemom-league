@@ -79,15 +79,22 @@ rebuild" recommendation possible instead of a gut call:
 
 - **Confidence estimate**: standard errors come from the observed Fisher
   information (inverse Hessian of the joint log-likelihood at the fitted
-  values), giving a 95% confidence interval per deck (`strength ± 1.96·SE`).
+  values), giving a confidence interval per deck (`strength ± z·SE`). Both
+  the confidence level and the minimum match count are deliberately tuned
+  looser than a "textbook" 95%/large-n threshold, since this is a fun family
+  signal for deciding when to order new cards, not a scientific claim — the
+  family chose **80% confidence** (`z ≈ 1.28`) and a **minimum of 5 matches**
+  as a good "not bullshit, but responsive enough to actually be useful"
+  balance. Both are named constants in `src/recommendations.js`, easy to
+  retune later if they turn out too trigger-happy or too quiet.
 - **Flagging rule**: an active (non-retired) deck is flagged as
   "significantly behind" only when both hold:
-  1. it has at least a minimum number of recorded matches (default: 8), and
-  2. its 95% CI upper bound is below the 95% CI lower bound of *every other*
+  1. it has at least the minimum number of recorded matches, and
+  2. its CI upper bound is below the CI lower bound of *every other*
      active deck.
   Requiring separation from the entire field, not just the nearest
-  competitor, keeps this conservative and avoids flagging decks on thin,
-  noisy data.
+  competitor, keeps this reasonably conservative even at a lower confidence
+  level, avoiding flagging decks on truly thin, noisy data.
 - **Versioning on rebuild**: when a flagged deck is boosted/rebuilt, it gets
   a new id (e.g. `fire` → `fire-1`) with `predecessor: "fire"` and the old
   entry is marked `retired: true`. The new version starts with no match
@@ -100,33 +107,42 @@ rebuild" recommendation possible instead of a gut call:
   a rebuild"). No workflow, approval step, or state beyond what's already in
   `decks.json`.
 
-## "Try this next" matchup suggestions
+## "Best matchup per pair" suggestions
 
-Beyond flagging weak decks, the site suggests which *untried or under-tried*
-player+deck vs player+deck matchups would most improve confidence in the
-ratings — reusing the same Fisher information matrix computed for the
-confidence-interval feature above, so this is additive machinery, not a
-separate system:
+Beyond flagging weak decks, the site suggests which deck each player should
+use, for every possible pairing of two players — reusing the same Fisher
+information matrix computed for the confidence-interval feature above, so
+this is additive machinery, not a separate system.
 
-- For every plausible candidate matchup (a pair of players, each assigned
-  any active deck — not necessarily their own default), estimate the
-  information-gain it would contribute: the Fisher information contribution
-  of a hypothetical match is proportional to `p·(1−p)` (using the model's
-  current predicted win probability for that matchup) times the outer
-  product of the two sides' parameter vectors. Matchups closest to a 50/50
-  predicted outcome, and/or involving entities with the widest current
-  confidence intervals, contribute the most information.
-- This naturally favors exactly the matchups you'd intuitively want more
-  data on: pairings that have never happened, and deck swaps in particular
-  (since those are what separate player skill from deck strength — see
-  Rating model above).
+Two people deciding to play already know *who* is playing; what they don't
+know is which decks make for the most worthwhile game. So rather than a
+flat top-N list (which could repeat one pair's suggestion three times while
+never mentioning another pair at all), the site guarantees exactly one
+recommendation per unique player pair — for 4 players, that's 6 suggestions,
+always covering every possible pairing.
+
+- For each player pair, and for every active-deck combination that pair
+  could play, compute a **blended score**: statistical information-gain
+  (the Fisher information contribution of that hypothetical match, an exact
+  Sherman-Morrison variance-reduction calculation) combined with how close
+  the predicted outcome is to 50/50. Pure information-gain alone tends to
+  surface lopsided-looking matchups involving whichever player/deck has the
+  least data (a nearly-untested entity's point estimate is unreliable and
+  often looks like a blowout even though it isn't really predictable) — the
+  blend keeps those informative-but-confident-looking suggestions from
+  crowding out matchups that are both instructive and fun to actually play,
+  while a floor on the closeness weighting keeps a truly enormous
+  information-gain opportunity from being fully suppressed just because its
+  point estimate looks lopsided.
+- The single highest-blended-score deck combination for each pair is kept;
+  the six (or n·(n−1)/2, for n active players) results are sorted by score
+  and all shown — not truncated to a top-3.
 - Candidate matchups are enumerated over active decks only (retired
-  versions excluded) — at family scale (4 players × a handful of decks)
-  this is a few dozen combinations at most, trivial to rank client-side.
-- **Surfacing**: a small "try this next" panel (top 3 suggested matchups,
-  e.g. "J with C's deck vs T with T's deck") shown on the homepage,
-  recomputed every time ratings are refit. Purely a suggestion — no
-  tracking of whether it was acted on.
+  versions excluded) — at family scale this is a small, trivial-to-rank
+  client-side computation.
+- **Surfacing**: a panel ("Best Deck Matchup For Each Pair") shown on the
+  homepage, recomputed every time ratings are refit. Purely a suggestion —
+  no tracking of whether it was acted on.
 
 ## Views
 
@@ -145,7 +161,8 @@ Full parity between players and decks:
 - **Deck head-to-head grid** — win/loss record for each deck pair
 - **Match history table** — shared, chronological, shows both
   player+deck pairs and the winner
-- **"Try this next" panel** — top 3 suggested matchups per the section above
+- **"Best Deck Matchup For Each Pair" panel** — one suggestion per unique
+  player pair, per the section above
 
 ## Visual style
 

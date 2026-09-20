@@ -83,5 +83,5 @@ export function renderSuggestionsPanelHTML(suggestions, playersById, decksById) 
       return `<li class="${CELL_CLASS}">${playersById[s.playerA]} (${decksById[s.deckA]}) vs ${playersById[s.playerB]} (${decksById[s.deckB]}) — predicted ${pct}% / ${100 - pct}%</li>`;
     })
     .join('');
-  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">Try This Next</h2><ol class="${TABLE_CLASS}">${items}</ol></section>`;
+  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">Best Deck Matchup For Each Pair</h2><ol class="${TABLE_CLASS}">${items}</ol></section>`;
 }

@@ -1355,3 +1355,43 @@ gh api repos/JonasHelming/pokemom-league/pages --jq .html_url
 ```
 
 Open the returned URL and confirm the page loads with an empty match history (fresh start) and all four players/decks listed on the leaderboards with a neutral 1000 rating.
+
+---
+
+## Post-launch revision: recommendation tuning (2026-09-20)
+
+After deploying with real match data, two changes were made to
+`src/recommendations.js`, based on actual observed behavior and family
+feedback. The code in this file, not the Task 6 section above, is the
+source of truth for its current behavior — Task 6's TDD narrative above
+reflects what was originally built, not the current tuning.
+
+**1. `flagWeakDecks` defaults loosened.** Originally `minMatches = 8` and a
+95% confidence level (`1.96·SE`). Live data showed this is appropriately
+conservative but too slow to ever suggest a rebuild for a fun family
+signal — the family chose `minMatches = 5` and ~80% confidence
+(`confidenceZ = 1.28`, now a named parameter instead of a hardcoded `1.96`)
+as a "not bullshit, but responsive enough to be useful" balance. Verified
+numerically against the existing test fixture: doesn't yet separate at
+n=5, does by n=10.
+
+**2. `suggestMatchups` redesigned from "top-3 by pure information gain" to
+"one blended-score suggestion per unique player pair."** Two problems
+prompted this: (a) a flat top-N list could show multiple suggestions for
+the same pair while never mentioning another pair at all, useless for "two
+specific people want to play, what should they use"; (b) pure
+information-gain suggestions from live data turned out to strongly favor
+matchups involving whichever player/deck has the least data, and those
+often *look* like confident blowouts (e.g. 99% predicted) even though the
+prediction itself is unreliable precisely because there's so little data —
+not fun matches to actually sit down and play. The fix combines the
+Sherman-Morrison information-gain with a closeness-to-50% factor
+(`blendedScore = log1p(gain) * (0.15 + 0.85 * closeness(p))`, floored at
+0.15 so a genuinely enormous information-gain opportunity isn't fully
+suppressed just because its point estimate looks lopsided), and returns the
+single best deck combination per player pair rather than a flat top-N — for
+n active players, that's n·(n−1)/2 suggestions (6 for the family's 4
+players), guaranteeing every pairing always has an answer.
+
+`renderSuggestionsPanelHTML`'s heading was updated from "Try This Next" to
+"Best Deck Matchup For Each Pair" to match.

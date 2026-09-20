@@ -10,7 +10,12 @@ export function countMatchesByDeck(matches) {
   return counts;
 }
 
-export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 8) {
+// Confidence level and match-count floor are deliberately looser than a
+// textbook 95%/large-n threshold: this is a fun family signal for deciding
+// when to order new cards, not a scientific claim, so 80% confidence
+// (z ~= 1.28) and a 5-match minimum are the family's chosen "not bullshit,
+// but responsive enough to be useful" balance.
+export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 5, confidenceZ = 1.28) {
   if (activeDeckIds.length < 2) return [];
 
   const ratings = meanCenteredRatings(fit, 'deck', activeDeckIds);
@@ -19,35 +24,61 @@ export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 8) {
 
   for (const deckId of activeDeckIds) {
     if ((counts.get(deckId) || 0) < minMatches) continue;
-    const upper = ratings[deckId].value + 1.96 * ratings[deckId].se;
+    const upper = ratings[deckId].value + confidenceZ * ratings[deckId].se;
     const isBehindAll = activeDeckIds
       .filter((other) => other !== deckId)
-      .every((other) => upper < ratings[other].value - 1.96 * ratings[other].se);
+      .every((other) => upper < ratings[other].value - confidenceZ * ratings[other].se);
     if (isBehindAll) flagged.push(deckId);
   }
 
   return flagged;
 }
 
-export function suggestMatchups(fit, activePlayerIds, activeDeckIds, topN = 3) {
-  const candidates = [];
+// 1 at a perfect 50/50 prediction, 0 at a certain outcome.
+function closeness(predictedWinProbA) {
+  return 1 - Math.abs(predictedWinProbA - 0.5) * 2;
+}
+
+// Blends statistical information-gain with how fun/competitive a match
+// looks. A floor keeps a hugely informative but lopsided-looking matchup
+// (typically because one side has almost no data yet) from being fully
+// zeroed out, while still favoring close games among comparably
+// informative candidates.
+const CLOSENESS_FLOOR = 0.15;
+
+function blendedScore(gain, predictedWinProbA) {
+  return Math.log1p(gain) * (CLOSENESS_FLOOR + (1 - CLOSENESS_FLOOR) * closeness(predictedWinProbA));
+}
+
+// Returns one recommended deck matchup per unique player pair (so every
+// pairing always has an answer for "which decks should we play"), ranked by
+// blended score. For n active players this is n*(n-1)/2 suggestions.
+export function suggestMatchups(fit, activePlayerIds, activeDeckIds) {
+  const suggestions = [];
 
   for (let i = 0; i < activePlayerIds.length; i++) {
     for (let j = i + 1; j < activePlayerIds.length; j++) {
       const playerA = activePlayerIds[i];
       const playerB = activePlayerIds[j];
+      let best = null;
+
       for (const deckA of activeDeckIds) {
         for (const deckB of activeDeckIds) {
           const x = buildDesignRow(playerA, deckA, playerB, deckB, fit.playerIndex, fit.deckIndex, fit.numFree);
           const p = predictWinProbability(fit, playerA, deckA, playerB, deckB);
           const w = p * (1 - p);
           const gain = shermanMorrisonGain(fit.cov, x, w);
-          candidates.push({ playerA, deckA, playerB, deckB, predictedWinProbA: p, gain });
+          const score = blendedScore(gain, p);
+          if (!best || score > best.score) {
+            best = { playerA, deckA, playerB, deckB, predictedWinProbA: p, gain, score };
+          }
         }
       }
+
+      suggestions.push(best);
     }
   }
 
-  candidates.sort((a, b) => b.gain - a.gain);
-  return candidates.slice(0, topN);
+  suggestions.sort((a, b) => b.score - a.score);
+  return suggestions;
 }

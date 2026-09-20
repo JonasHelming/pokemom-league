@@ -55,14 +55,14 @@ function makeMatches(n, upsetEvery = 5) {
 }
 
 // Deck y loses most matches (regardless of pilot) and has enough matches
-// (well over the minMatches=8 threshold) -> should be flagged.
+// (well over an explicit minMatches=8 threshold) -> should be flagged.
 const enoughData = makeMatches(20);
 const fitEnough = fitBradleyTerry(enoughData, ['A', 'B'], ['x', 'y']);
 const flaggedEnough = flagWeakDecks(fitEnough, ['x', 'y'], enoughData, 8);
 assert.deepEqual(flaggedEnough, ['y']);
 
-// Same pattern but too few matches (under the threshold) -> should not be
-// flagged yet, regardless of how bad deck y's point estimate looks.
+// Same pattern but too few matches (under an explicit threshold) -> should
+// not be flagged yet, regardless of how bad deck y's point estimate looks.
 const notEnoughData = makeMatches(5);
 const fitNotEnough = fitBradleyTerry(notEnoughData, ['A', 'B'], ['x', 'y']);
 const flaggedNotEnough = flagWeakDecks(fitNotEnough, ['x', 'y'], notEnoughData, 8);
@@ -77,16 +77,36 @@ assert.deepEqual(flaggedLoneDeck, []);
 assert.equal(countMatchesByDeck(enoughData).get('x'), enoughData.length);
 assert.equal(countMatchesByDeck(enoughData).get('y'), enoughData.length);
 
-// Player C and its decks have zero data -> suggestions should prioritize C.
+// The family's chosen defaults (minMatches=5, ~80% confidence) are looser
+// than the 8-match/95% examples above by design (a fun signal for ordering
+// new cards, not a rigorous claim) — numerically verified: this fixture
+// doesn't yet separate at n=5 (not enough data), but does by n=10.
+const fitAtFive = fitBradleyTerry(makeMatches(5), ['A', 'B'], ['x', 'y']);
+assert.deepEqual(flagWeakDecks(fitAtFive, ['x', 'y'], makeMatches(5)), []);
+const tenMatches = makeMatches(10);
+const fitAtTen = fitBradleyTerry(tenMatches, ['A', 'B'], ['x', 'y']);
+assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches), ['y']);
+
+// Player C and its decks have zero data -> suggestMatchups must return
+// exactly one suggestion per unique player pair (so whichever two people
+// want to play, there's always an answer for which decks to use), and the
+// pairs involving totally-untested C should score far higher (much more to
+// learn) than the already-well-tested A-vs-B pair.
 const players = ['A', 'B', 'C'];
 const decks = ['x', 'y'];
 const sparseMatches = makeMatches(10);
 const sparseFit = fitBradleyTerry(sparseMatches, players, decks);
-const suggestions = suggestMatchups(sparseFit, players, decks, 3);
-assert.ok(suggestions.length > 0);
-assert.ok(
-  suggestions[0].playerA === 'C' || suggestions[0].playerB === 'C',
-  `expected top suggestion to involve under-sampled player C, got ${JSON.stringify(suggestions[0])}`
-);
+const suggestions = suggestMatchups(sparseFit, players, decks);
+assert.equal(suggestions.length, 3); // C(3,2) pairs: A-B, A-C, B-C
+
+const pairKey = (s) => [s.playerA, s.playerB].sort().join('-');
+const pairsSeen = new Set(suggestions.map(pairKey));
+assert.deepEqual(pairsSeen, new Set(['A-B', 'A-C', 'B-C']));
+
+const abScore = suggestions.find((s) => pairKey(s) === 'A-B').score;
+const acScore = suggestions.find((s) => pairKey(s) === 'A-C').score;
+const bcScore = suggestions.find((s) => pairKey(s) === 'B-C').score;
+assert.ok(acScore > abScore, `expected under-sampled A-C pair to score higher than well-tested A-B, got ${acScore} vs ${abScore}`);
+assert.ok(bcScore > abScore, `expected under-sampled B-C pair to score higher than well-tested A-B, got ${bcScore} vs ${abScore}`);
 
 console.log('OK: recommendations.test.js');
