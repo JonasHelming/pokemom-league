@@ -1508,3 +1508,122 @@ the deck leaderboard correctly shows each deck's combined "as played by
 owner" rating prominently with the isolated rating as secondary text, and
 the fairness banner correctly renders empty (no player yet has 5+
 default-combo matches in the current 10-match dataset).
+
+**Superseded by the next section** — code review of this commit (before it
+was pushed) found the inline "combined rating on the deck leaderboard"
+design was visibly broken on live data (sorted by isolated deck strength
+but displaying the combined value, so row order didn't match the
+displayed numbers), plus a real eligibility-vs-comparison-field bug in
+`flagFairnessOutliers`, a styling regression on the (unrelated) player
+leaderboard, and a crash risk on a retired default deck. All fixed as part
+of the redesign below rather than patched in place, since the redesign
+independently made the inline-combined-display design obsolete anyway.
+
+## Post-launch feature: layout redesign, standalone Player+Deck ranking, boost-progress widget (2026-09-20)
+
+The user asked for three things together: (1) fix real bugs found in code
+review of the previous section's fairness feature, (2) split the "deck +
+default owner" combined rating out of the deck leaderboard into its own
+ranking table (rather than the inline display that review just flagged as
+broken), reordering the page as Player ranking → Deck ranking → Player+Deck
+ranking → pairing recommendations → an always-visible "boost progress"
+spotlight → match history, and (3) use horizontal space on wide/TV screens
+via a 2-column grid instead of one long vertical stack. A clarifying
+exchange established that "the fairness banner" (not the isolated
+`flagWeakDecks` signal) is the one that should get the always-visible
+progress-bar treatment, since the user's actual question is "which person
+is allowed to boost their own deck, and how close are we" — a
+player-plus-their-default-deck question, not a deck-in-isolation one.
+
+**Bug fixes** (`src/recommendations.js`, `src/render.js`):
+- `findRatingOutliers`'s signature changed from `(ratings, confidenceZ)` to
+  `(candidates, comparisonField, confidenceZ)` — candidates (who's eligible
+  to be flagged) are now always compared against the FULL population
+  (`comparisonField`), not just other candidates. Before this fix, an
+  under-sampled rival being excluded from candidacy also silently excluded
+  them from the comparison field, which could let another player pick up
+  an unearned "dominating" flag purely because a genuine rival hadn't
+  played enough matches yet to qualify as a candidate itself. Verified with
+  a fabricated repro matching exactly what review found: `{A: 10±1, B:
+  0±1}` alone flags `A` as "strong"; adding a third entity `C: 9.5±1` to
+  the comparison field (but not to candidacy) correctly un-flags `A` since
+  `C` is nearly tied with it.
+- `playersWithActiveDefaultDeck`/`combinedRatingsByPlayer` (new private
+  helpers in `src/recommendations.js`) filter out any player whose
+  `defaultDeck` isn't in the active `deckIds` list before calling
+  `combinedPlayerDeckRating` (which throws on an unknown deck id via its
+  underlying `paramVectorFor` lookup) — a player with a stale
+  `defaultDeck` pointer (e.g. after a rebuild where `players.json` wasn't
+  updated in lockstep) is now silently excluded rather than crashing
+  `main()` and blanking the entire page. Covered by a test that
+  constructs exactly this scenario and asserts `flagFairnessOutliers`/
+  `computeBoostProgress` don't throw.
+- `renderLeaderboardHTML`'s `ownerCombined` special case (from the previous
+  section) is removed entirely, restoring the function to its pre-fairness
+  form — this incidentally fixes the styling regression review found (the
+  no-`ownerCombined` path had lost its `<span class="text-slate-500 ...">`
+  wrapper around the confidence range, so the player leaderboard was
+  rendering full-size, non-greyed-out range text) simply by deleting the
+  code that introduced it, rather than patching the branch that had it.
+- Added a test in `tests/bradley-terry.test.js` pinning that
+  `combinedPlayerDeckRating`'s `se` differs from
+  `sqrt(varPlayer + varDeck)` (the naive, covariance-dropping formula) on
+  the existing `richMatches` fixture — review found no existing test could
+  catch that specific mutation.
+
+**`computeBoostProgress(fit, players, playerIds, deckIds, matches, minMatches, confidenceZ)`**
+(`src/recommendations.js`) — new. Finds whichever player currently has the
+weakest combined "default team" rating (regardless of whether they meet
+the match-count floor) and returns `{ playerId, progress, flagged }`.
+`progress` is `dataProgress * marginProgress`:
+- `dataProgress = min(count / minMatches, 1)` — how close to the match
+  floor.
+- `marginProgress` — for each rival, `clamp(1 + margin / requiredGap, 0, 1)`
+  where `margin = rival.lower - this.upper` (≥0 once separated) and
+  `requiredGap = confidenceZ * (thisSE + rivalSE)` (the gap at which the
+  point estimates alone, ignoring uncertainty, would just barely satisfy
+  separation); the minimum across all rivals is used, since the hardest
+  rival to beat is the binding constraint. This is a display heuristic
+  only — pinned by tests showing progress climbing 1% → 97% → 100% (and
+  `flagged: true`) as the same fixture used in the `flagFairnessOutliers`
+  tests accumulates from 3 to 20 matches, and returns `null` when fewer
+  than 2 players have an active default deck to compare against.
+
+**Rendering** (`src/render.js`, `src/main.js`, `index.html`):
+- `renderLeaderboardHTML` reverted to its simple pre-fairness form (see bug
+  fixes above).
+- New `renderBoostProgressHTML(boostProgress, playersById, decksById, players)`
+  — renders a filling progress bar with the percentage and a plain-language
+  description while `flagged` is false, or a visually distinct
+  (`bg-emerald-100`) "🎉 Upgrade available!" panel once `flagged` is true.
+  Returns `''` for a `null` boostProgress or when the spotlighted player's
+  name/deck can't be resolved, rather than shipping "undefined" text.
+- `renderFairnessBannersHTML` hardened the same way — a flagged id whose
+  name or default-deck name can't be resolved is filtered out rather than
+  rendering literal `undefined` text (a gap review flagged as Minor).
+- `main.js` builds a new `playerDeckEntries` list (one row per player,
+  named `"${player.name} (${deckName})"`, using
+  `combinedPlayerDeckRating` directly, sorted by combined value — its own
+  ranking, no relationship to the deck leaderboard's sort order) rendered
+  into a new `#player-deck-leaderboard` container, and wires
+  `computeBoostProgress` into a new `#boost-progress` container.
+- `index.html` restructured into the requested order, with three
+  `tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start` wrappers (Player
+  leaderboard+chart / Player head-to-head; Deck leaderboard+chart / Deck
+  head-to-head; Player+Deck ranking / pairing recommendations) that only
+  activate at the `tv` breakpoint — below that, everything stacks in the
+  original single column via normal document flow (a `tv:grid` container
+  with no `grid` class at smaller breakpoints has no layout effect on its
+  children). The body's `tv:max-w-7xl` cap was changed to `tv:max-w-none`
+  (plus explicit `tv:px-16 tv:py-12`) — the old 7xl (1280px) cap would have
+  left most of a real ≥1920px TV screen unused, defeating the point of the
+  grid.
+- `tailwind.css` was rebuilt and every `tv:` class referenced in `index.html`
+  and `src/render.js` was diffed against the compiled output one more time
+  (a full set-difference, not just spot-checking a few) — clean, no gaps.
+
+Verified end-to-end via Chrome DevTools Protocol at two viewport widths
+against the live `data/`: a 400px-wide emulated phone renders the original
+single-column stack unchanged, and a 2200px-wide emulated TV renders the
+three side-by-side pairs plus the full-width boost-progress widget exactly
+as specified, with no console errors or exceptions at either width.

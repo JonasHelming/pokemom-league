@@ -8,6 +8,7 @@ import {
   countDefaultComboMatches,
   findRatingOutliers,
   flagFairnessOutliers,
+  computeBoostProgress,
 } from '../src/recommendations.js';
 
 // Deck x beats deck y most of the time (not always — see below), and
@@ -124,28 +125,47 @@ assert.equal(comboCounts.get('B'), 1, 'B used their own default (y) only in matc
 // fabricated ratings — no fit required, same rationale as
 // selectBestCandidate above (this repo's history of fixture-fragility bugs
 // makes decoupling comparison logic from statistical fixtures worthwhile).
-const clearOutliers = findRatingOutliers(
-  [
-    { id: 'A', value: 100, se: 5 },
-    { id: 'B', value: 0, se: 5 },
-    { id: 'C', value: -100, se: 5 },
-  ],
-  1.28
-);
-assert.deepEqual(clearOutliers, { weak: ['C'], strong: ['A'] });
+// `candidates` and `comparisonField` are the same array in these first
+// cases (every entity is both eligible to be flagged and part of the
+// field to compare against).
+const clearField = [
+  { id: 'A', value: 100, se: 5 },
+  { id: 'B', value: 0, se: 5 },
+  { id: 'C', value: -100, se: 5 },
+];
+assert.deepEqual(findRatingOutliers(clearField, clearField, 1.28), { weak: ['C'], strong: ['A'] });
 
-const noSeparation = findRatingOutliers(
-  [
-    { id: 'A', value: 100, se: 500 },
-    { id: 'B', value: 0, se: 500 },
-  ],
-  1.28
-);
-assert.deepEqual(noSeparation, { weak: [], strong: [] });
+const noSeparationField = [
+  { id: 'A', value: 100, se: 500 },
+  { id: 'B', value: 0, se: 500 },
+];
+assert.deepEqual(findRatingOutliers(noSeparationField, noSeparationField, 1.28), { weak: [], strong: [] });
 
 // A lone entity has nothing to compare against, so it must never be flagged
 // (the same vacuous-truth hazard flagWeakDecks guards against for a lone deck).
-assert.deepEqual(findRatingOutliers([{ id: 'A', value: 100, se: 5 }], 1.28), { weak: [], strong: [] });
+const loneField = [{ id: 'A', value: 100, se: 5 }];
+assert.deepEqual(findRatingOutliers(loneField, loneField, 1.28), { weak: [], strong: [] });
+
+// Candidates must be compared against the FULL comparison field, not just
+// other candidates — an entity excluded from candidacy (e.g. by a
+// match-count floor) must still count as a rival the candidates have to
+// beat. Without this, a candidate could pick up an unearned flag purely
+// because a genuine rival happened to be under-sampled.
+const twoCandidates = [
+  { id: 'A', value: 10, se: 1 },
+  { id: 'B', value: 0, se: 1 },
+];
+assert.deepEqual(
+  findRatingOutliers(twoCandidates, twoCandidates, 1.28),
+  { weak: ['B'], strong: ['A'] },
+  'with only A and B in the field, B is clearly the weakest and A the strongest'
+);
+const fullFieldWithNearRival = [...twoCandidates, { id: 'C', value: 9.5, se: 1 }];
+assert.deepEqual(
+  findRatingOutliers(twoCandidates, fullFieldWithNearRival, 1.28),
+  { weak: ['B'], strong: [] },
+  'C (not a candidate, e.g. under-sampled) is nearly tied with A, so A must NOT be flagged as clearly ahead of "everyone" once C is included in the comparison field — B is still clearly behind both A and C, so it stays flagged'
+);
 
 // flagFairnessOutliers: integration test wiring countDefaultComboMatches,
 // combinedPlayerDeckRating, and findRatingOutliers together. Reuses the
@@ -174,6 +194,47 @@ assert.deepEqual(
   flagFairnessOutliers(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData, 11),
   { weak: [], strong: [] }
 );
+
+// A player whose defaultDeck has since been retired (not in the active
+// deckIds list, e.g. players.json wasn't updated after a rebuild) must be
+// silently excluded rather than crashing the whole page — combinedPlayerDeckRating
+// throws on an unknown deck id, so this is a real hazard without the guard.
+const playersWithRetiredDefault = [
+  { id: 'A', name: 'A', defaultDeck: 'x' },
+  { id: 'B', name: 'B', defaultDeck: 'retired-deck' },
+];
+assert.doesNotThrow(() => flagFairnessOutliers(fitEnough, playersWithRetiredDefault, ['A', 'B'], ['x', 'y'], enoughData));
+assert.deepEqual(
+  flagFairnessOutliers(fitEnough, playersWithRetiredDefault, ['A', 'B'], ['x', 'y'], enoughData),
+  { weak: [], strong: [] },
+  'with B excluded, only A remains, and a lone entity has nothing to compare against'
+);
+assert.doesNotThrow(() => computeBoostProgress(fitEnough, playersWithRetiredDefault, ['A', 'B'], ['x', 'y'], enoughData));
+assert.equal(
+  computeBoostProgress(fitEnough, playersWithRetiredDefault, ['A', 'B'], ['x', 'y'], enoughData),
+  null,
+  'fewer than 2 players with an active default deck -> nothing to spotlight'
+);
+
+// computeBoostProgress: progress should climb from near-zero toward 1
+// (flagged) as data accumulates, using the same underlying fit/fixture as
+// the flagFairnessOutliers tests above — B (default deck y, the weaker
+// deck) is always the spotlighted weakest candidate here.
+const earlyMatches = makeMatches(3);
+const earlyProgress = computeBoostProgress(fitBradleyTerry(earlyMatches, ['A', 'B'], ['x', 'y']), fairnessPlayers, ['A', 'B'], ['x', 'y'], earlyMatches);
+assert.equal(earlyProgress.playerId, 'B');
+assert.equal(earlyProgress.flagged, false);
+assert.ok(earlyProgress.progress > 0 && earlyProgress.progress < 0.5, `expected low but nonzero early progress, got ${earlyProgress.progress}`);
+
+const midMatches = makeMatches(10);
+const midProgress = computeBoostProgress(fitBradleyTerry(midMatches, ['A', 'B'], ['x', 'y']), fairnessPlayers, ['A', 'B'], ['x', 'y'], midMatches);
+assert.equal(midProgress.flagged, false);
+assert.ok(midProgress.progress > earlyProgress.progress, 'progress should climb as more data accumulates');
+
+const lateProgress = computeBoostProgress(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData);
+assert.equal(lateProgress.playerId, 'B');
+assert.equal(lateProgress.flagged, true);
+assert.equal(lateProgress.progress, 1, 'a genuinely flagged candidate must read as 100% progress');
 
 // selectBestCandidate: the core "prefer competitive over merely informative"
 // rule, tested directly with fabricated candidates — no fit required — so

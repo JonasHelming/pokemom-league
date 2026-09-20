@@ -1,13 +1,14 @@
 import { loadLeagueData } from './data.js';
 import { fitBradleyTerry, meanCenteredRatings, combinedPlayerDeckRating, toEloScale, ELO_SCALE } from './bradley-terry.js';
 import { computeRatingHistory } from './history.js';
-import { flagWeakDecks, flagFairnessOutliers, suggestMatchups } from './recommendations.js';
+import { flagWeakDecks, flagFairnessOutliers, computeBoostProgress, suggestMatchups } from './recommendations.js';
 import {
   renderLeaderboardHTML,
   renderHeadToHeadHTML,
   renderMatchHistoryHTML,
   renderWeakDeckBannersHTML,
   renderFairnessBannersHTML,
+  renderBoostProgressHTML,
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from './render.js';
@@ -35,32 +36,49 @@ async function main() {
       se: playerRatings[id].se * ELO_SCALE,
     }))
     .sort((a, b) => b.value - a.value);
-  const ownerByDeck = new Map(activeDecks.map((d) => [d.id, d.owner]));
   const deckEntries = deckIds
-    .map((id) => {
-      const ownerId = ownerByDeck.get(id);
-      const owner = combinedPlayerDeckRating(fit, ownerId, id, playerIds, deckIds);
+    .map((id) => ({
+      id,
+      name: namesById[id],
+      value: toEloScale(deckRatings[id].value),
+      se: deckRatings[id].se * ELO_SCALE,
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  // Player + Deck: each player's combined rating with their own default
+  // deck — a genuinely different ranking from either above (see the design
+  // spec's "Practical fairness" section), so it gets its own table rather
+  // than being folded into the deck leaderboard. Players whose default
+  // deck has since been retired are skipped (nothing meaningful to show).
+  const playerDeckEntries = players
+    .filter((p) => deckIds.includes(p.defaultDeck))
+    .map((p) => {
+      const combined = combinedPlayerDeckRating(fit, p.id, p.defaultDeck, playerIds, deckIds);
       return {
-        id,
-        name: namesById[id],
-        value: toEloScale(deckRatings[id].value),
-        se: deckRatings[id].se * ELO_SCALE,
-        ownerCombined: {
-          value: toEloScale(owner.value),
-          se: owner.se * ELO_SCALE,
-          ownerName: namesById[ownerId],
-        },
+        id: p.id,
+        name: `${p.name} (${namesById[p.defaultDeck]})`,
+        value: toEloScale(combined.value),
+        se: combined.se * ELO_SCALE,
       };
     })
     .sort((a, b) => b.value - a.value);
 
   document.getElementById('player-leaderboard').innerHTML = renderLeaderboardHTML('Players', playerEntries);
-  document.getElementById('deck-leaderboard').innerHTML = renderLeaderboardHTML('Decks', deckEntries, getTypeColor);
   document.getElementById('player-head-to-head').innerHTML =
     renderHeadToHeadHTML('Player Head-to-Head', playerIds, namesById, matches, 'player');
+
+  document.getElementById('deck-leaderboard').innerHTML = renderLeaderboardHTML('Decks', deckEntries, getTypeColor);
   document.getElementById('deck-head-to-head').innerHTML =
     renderHeadToHeadHTML('Deck Head-to-Head', deckIds, namesById, matches, 'deck');
-  document.getElementById('match-history').innerHTML = renderMatchHistoryHTML(matches, namesById, namesById);
+
+  document.getElementById('player-deck-leaderboard').innerHTML = renderLeaderboardHTML('Player + Deck', playerDeckEntries);
+
+  const suggestions = suggestMatchups(fit, playerIds, deckIds);
+  document.getElementById('suggestions-panel').innerHTML =
+    renderSuggestionsPanelHTML(suggestions, namesById, namesById);
+
+  const boostProgress = computeBoostProgress(fit, players, playerIds, deckIds, matches);
+  document.getElementById('boost-progress').innerHTML = renderBoostProgressHTML(boostProgress, namesById, namesById, players);
 
   const flagged = flagWeakDecks(fit, deckIds, matches);
   document.getElementById('weak-deck-banners').innerHTML = renderWeakDeckBannersHTML(flagged, namesById);
@@ -68,9 +86,7 @@ async function main() {
   const fairness = flagFairnessOutliers(fit, players, playerIds, deckIds, matches);
   document.getElementById('fairness-banners').innerHTML = renderFairnessBannersHTML(fairness, namesById, namesById, players);
 
-  const suggestions = suggestMatchups(fit, playerIds, deckIds);
-  document.getElementById('suggestions-panel').innerHTML =
-    renderSuggestionsPanelHTML(suggestions, namesById, namesById);
+  document.getElementById('match-history').innerHTML = renderMatchHistoryHTML(matches, namesById, namesById);
 
   const history = computeRatingHistory(matches, playerIds, deckIds);
   renderRatingChart(document.getElementById('player-rating-chart'), buildChartDatasets(history, playerIds, namesById, 'player'));

@@ -53,20 +53,26 @@ export function countDefaultComboMatches(matches, players) {
   return counts;
 }
 
-// Given {id, value, se} ratings for a set of already-eligible entities,
-// finds which ones are significantly behind or ahead of EVERY other entity
-// (not just the nearest one — same conservative "separated from the whole
-// field" rule as flagWeakDecks). Pure and fit-independent, so it's testable
-// directly with fabricated ratings rather than another hand-tuned
-// Bradley-Terry fixture — this repo has a history of subtle statistical
-// fixture bugs (see the comment on `makeMatches` in the test file), so
-// isolating the comparison logic from the fit avoids that risk entirely.
-export function findRatingOutliers(ratings, confidenceZ) {
+// Given `candidates` (entities eligible to BE flagged) and `comparisonField`
+// (the full population to compare against — a superset of `candidates`),
+// finds which candidates are significantly behind or ahead of EVERY member
+// of the comparison field (not just the nearest one — same conservative
+// "separated from the whole field" rule as flagWeakDecks). A candidate is
+// compared against the full field, not just other candidates, so an
+// under-sampled entity being excluded from candidacy doesn't silently
+// shrink who it has to beat (matching flagWeakDecks: match-count gates
+// candidacy, but comparison is always against all `activeDeckIds`). Pure
+// and fit-independent, so it's testable directly with fabricated ratings
+// rather than another hand-tuned Bradley-Terry fixture — this repo has a
+// history of subtle statistical fixture bugs (see the comment on
+// `makeMatches` in the test file), so isolating the comparison logic from
+// the fit avoids that risk entirely.
+export function findRatingOutliers(candidates, comparisonField, confidenceZ) {
   const weak = [];
   const strong = [];
 
-  for (const r of ratings) {
-    const others = ratings.filter((o) => o.id !== r.id);
+  for (const r of candidates) {
+    const others = comparisonField.filter((o) => o.id !== r.id);
     if (others.length === 0) continue;
 
     const upper = r.value + confidenceZ * r.se;
@@ -80,6 +86,26 @@ export function findRatingOutliers(ratings, confidenceZ) {
   }
 
   return { weak, strong };
+}
+
+// A player is only meaningful for the "default team" comparison if their
+// default deck is still active — if a deck gets rebuilt/retired without
+// updating the owner's `defaultDeck` pointer in players.json, this keeps
+// combinedPlayerDeckRating from being called with a retired deck id (which
+// throws, per its underlying paramVectorFor lookup) and quietly excludes
+// that player instead of crashing the whole page.
+function playersWithActiveDefaultDeck(players, deckIds) {
+  return players.filter((p) => deckIds.includes(p.defaultDeck));
+}
+
+// Computes every eligible-for-comparison player's combined "default team"
+// rating in one place, so flagFairnessOutliers and the boost-progress
+// widget (below) stay consistent about who's even in the running.
+function combinedRatingsByPlayer(fit, players, playerIds, deckIds) {
+  return playersWithActiveDefaultDeck(players, deckIds).map((p) => ({
+    id: p.id,
+    ...combinedPlayerDeckRating(fit, p.id, p.defaultDeck, playerIds, deckIds),
+  }));
 }
 
 // Flags when a specific player's "default team" (them playing their own
@@ -97,13 +123,58 @@ export function flagFairnessOutliers(fit, players, playerIds, deckIds, matches, 
   if (players.length < 2) return { weak: [], strong: [] };
 
   const counts = countDefaultComboMatches(matches, players);
-  const eligible = players.filter((p) => (counts.get(p.id) || 0) >= minMatches);
-  const ratings = eligible.map((p) => ({
-    id: p.id,
-    ...combinedPlayerDeckRating(fit, p.id, p.defaultDeck, playerIds, deckIds),
-  }));
+  const ratings = combinedRatingsByPlayer(fit, players, playerIds, deckIds);
+  const candidates = ratings.filter((r) => (counts.get(r.id) || 0) >= minMatches);
 
-  return findRatingOutliers(ratings, confidenceZ);
+  return findRatingOutliers(candidates, ratings, confidenceZ);
+}
+
+// Independent of whether anyone has actually crossed the flagging
+// threshold yet, this spotlights whichever player's default team currently
+// has the weakest combined rating and reports how close they are to a real
+// "boost available" flag — so the site always has something to show,
+// rather than staying silent for however long it takes to get a clean
+// flag. Only the WEAK direction is considered (a player being far AHEAD
+// isn't a "boost your deck" candidate).
+//
+// Progress is the product of two independent 0-1 factors, mirroring the
+// two-part AND-gate flagWeakDecks/flagFairnessOutliers actually use:
+//   - dataProgress: how close this player is to the minMatches floor.
+//   - marginProgress: how close their rating is to being clearly behind
+//     the single nearest competitor (the binding constraint — beating the
+//     closest rival is what "behind everyone" ultimately comes down to).
+//     0 when the two point estimates are exactly tied (nothing separates
+//     them yet), 1 once the confidence intervals fully separate (the same
+//     condition flagFairnessOutliers checks), linear in between. This is a
+//     display heuristic for a progress bar, not a probability — it isn't
+//     used anywhere flagging decisions are actually made.
+// Returns null if fewer than 2 players have an active default deck (no one
+// to compare against at all).
+export function computeBoostProgress(fit, players, playerIds, deckIds, matches, minMatches = 5, confidenceZ = 1.28) {
+  const ratings = combinedRatingsByPlayer(fit, players, playerIds, deckIds);
+  if (ratings.length < 2) return null;
+
+  const counts = countDefaultComboMatches(matches, players);
+  const [weakest] = [...ratings].sort((a, b) => a.value - b.value);
+  const others = ratings.filter((o) => o.id !== weakest.id);
+
+  const upper = weakest.value + confidenceZ * weakest.se;
+  let marginProgress = 1;
+  for (const o of others) {
+    const otherLower = o.value - confidenceZ * o.se;
+    const margin = otherLower - upper; // >= 0 once separated from this rival
+    const requiredGap = confidenceZ * (weakest.se + o.se);
+    const thisRivalProgress = requiredGap > 0 ? Math.min(Math.max(1 + margin / requiredGap, 0), 1) : 1;
+    marginProgress = Math.min(marginProgress, thisRivalProgress);
+  }
+
+  const dataProgress = Math.min((counts.get(weakest.id) || 0) / minMatches, 1);
+  const progress = dataProgress * marginProgress;
+  const flagged = flagFairnessOutliers(fit, players, playerIds, deckIds, matches, minMatches, confidenceZ).weak.includes(
+    weakest.id
+  );
+
+  return { playerId: weakest.id, progress, flagged };
 }
 
 // 1 at a perfect 50/50 prediction, 0 at a certain outcome.

@@ -174,46 +174,77 @@ under-performs everyone else once their own skill is folded back in.
   player and deck estimates, which isn't fixed once there's any
   deck-swapping in the data (verified: on live data, some decks' combined
   ranges come out *wider* than their isolated ranges).
-- **Display**: on the deck leaderboard, each deck's "as played by its
-  default owner" combined rating is shown as the prominent number, with the
-  deck's own isolated strength demoted to a smaller secondary annotation —
-  since the combined number is what's actually relevant when everyone
-  plays their default deck, which is the common case.
+- **Display**: a standalone "Player + Deck" ranking table, separate from
+  the plain deck leaderboard — one entry per player, using their own
+  default deck. Kept as its own table (not blended into the deck
+  leaderboard) after an earlier attempt to embed it inline turned out to
+  produce a leaderboard whose sort order and prominently-displayed number
+  didn't agree with each other, since the two ratings can rank decks
+  differently.
 - **Fairness flag**: a player's own "default team" (them playing their own
-  usual deck) is flagged — separately from the deck-rebuild banner — when
-  it's significantly ahead of or behind *every other* player's default
-  team, using the same confidence level and match-count floor as the
-  deck-rebuild flag (family-chosen, not a rigorous claim — see Deck
-  strength recommendations above). Match-count eligibility is counted per
-  player, based only on matches where they actually played their own
-  default deck (not a borrowed one) — a different count than the deck
-  rebuild flag's per-deck match count. Both directions (a team dominating,
-  a team struggling) are reported, since both are informative fairness
-  signals.
+  usual deck) is flagged when it's significantly ahead of or behind *every
+  other* player's default team, using the same confidence level and
+  match-count floor as the deck-rebuild flag (family-chosen, not a rigorous
+  claim — see Deck strength recommendations above). Candidacy for the flag
+  requires meeting the match-count floor, but a candidate is always
+  compared against the FULL field of players (not just other candidates) —
+  an under-sampled rival must still count as someone the candidate has to
+  beat, otherwise a candidate could pick up an unearned flag purely because
+  a genuine rival's own data happened to be too thin to qualify as a
+  candidate itself. Match-count eligibility is counted per player, based
+  only on matches where they actually played their own default deck (not a
+  borrowed one) — a different count than the deck rebuild flag's per-deck
+  match count. Both directions (a team dominating, a team struggling) are
+  reported, since both are informative fairness signals. A player whose
+  default deck has since been retired (without their record being updated)
+  is silently excluded from the comparison rather than crashing the page.
+- **Always-visible boost-progress widget**: rather than staying silent
+  until a fairness flag actually fires (which — per the "at most one entity
+  can ever satisfy 'behind the entire field' at once" property discussed
+  under Deck strength recommendations — could be a long wait), the site
+  always spotlights whichever player's default team currently has the
+  weakest combined rating, and shows how close they are to a real flag as
+  a filling progress bar. Progress is the product of two independent 0-1
+  factors, mirroring the two-part AND-gate the actual flag uses: how close
+  the player is to the match-count floor, and how close their rating is to
+  being clearly separated from their single nearest rival (0 when the two
+  point estimates are exactly tied, 1 once the confidence intervals fully
+  separate). This is a display heuristic for a progress bar, not a
+  probability, and isn't used anywhere an actual flagging decision is
+  made. Several players can show a high percentage simultaneously — only
+  the display spotlights a single "most likely" candidate at a time, it
+  doesn't mean others aren't also close. Once the underlying flag actually
+  fires, the widget switches to a visually distinct "Upgrade available"
+  state.
 
 ## Views
 
-Full parity between players and decks:
+Full parity between players and decks. Shown top to bottom in this order —
+each ranking grouped with its own chart/head-to-head grid, using
+side-by-side horizontal space on wide screens (see Visual style below):
 
-- **Player leaderboard** — ranked by fitted player skill, each rating shown
-  alongside its 95% confidence range (`±1.96·SE`) so a rating backed by
-  little data or by fully-confounded player/deck signal (see Rating model
-  above) doesn't read as equally trustworthy as a well-established one
-- **Player rating history chart** — skill over time, one line per player
-- **Player head-to-head grid** — win/loss record for each pair
-- **Deck leaderboard** — ranked by fitted deck strength, but the
-  prominently-shown number per deck is its "as played by default owner"
-  combined rating (see Practical fairness above), with the isolated deck
-  strength shown as a smaller secondary annotation; a "consider a rebuild"
-  banner appears on any deck flagged per the recommendation rule above, and
-  a separate fairness banner appears for any player whose default team is
-  a significant outlier in practice
-- **Deck rating history chart** — strength over time, one line per deck
-- **Deck head-to-head grid** — win/loss record for each deck pair
-- **Match history table** — shared, chronological, shows both
-  player+deck pairs and the winner
+- **Weak-deck and fairness alert banners** — only shown when actually
+  triggered, at the very top
+- **Player ranking**: player leaderboard (ranked by fitted player skill,
+  each rating shown alongside its 95% confidence range `±1.96·SE` so a
+  rating backed by little data or by fully-confounded player/deck signal —
+  see Rating model above — doesn't read as equally trustworthy as a
+  well-established one) + player rating history chart + player
+  head-to-head grid
+- **Deck ranking**: deck leaderboard (ranked by fitted deck strength, plain
+  isolated rating — no owner-combined blending, see Practical fairness
+  above for why) + deck rating history chart + deck head-to-head grid; a
+  "consider a rebuild" banner appears on any deck flagged per the
+  recommendation rule above
+- **Player + Deck ranking**: the standalone combined-rating table from
+  Practical fairness above, shown side-by-side with the pairing
+  recommendations panel on wide screens
 - **"Best Deck Matchup For Each Pair" panel** — one suggestion per unique
-  player pair, per the section above
+  player pair, per that section above
+- **Boost-progress widget** — the always-visible spotlight from Practical
+  fairness above
+- **Match history table** — shared, chronological, shows both
+  player+deck pairs and the winner, shown last
 
 ## Visual style
 
@@ -226,6 +257,15 @@ default breakpoints (works on phone/tablet/PC without any special handling),
 plus a custom large-screen breakpoint (`tv`, `min-width: 1920px`) that scales
 up font sizes, spacing, and chart sizing for 10-foot/across-the-room viewing,
 layered on top of the same layout rather than a separate template.
+
+On phone/tablet/PC, every section stacks in a single column (unchanged). At
+the `tv` breakpoint specifically, sections that have a natural side-by-side
+pairing (a leaderboard with its head-to-head grid; the Player + Deck ranking
+with the pairing-recommendations panel) switch to a 2-column grid instead,
+so the extra horizontal space on a real TV gets used rather than leaving one
+long, narrow, heavily-scrolled column. The page's outer container also drops
+its width cap at the `tv` breakpoint (`max-w-none`) rather than centering a
+fixed-width column on a much wider screen.
 
 ## Data entry workflow
 

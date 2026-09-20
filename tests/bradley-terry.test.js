@@ -145,4 +145,15 @@ assert.ok(
 // se must be a finite positive number.
 assert.ok(combinedP1d1.se > 0 && Number.isFinite(combinedP1d1.se), 'combined se should be a finite positive number');
 
+// The combined se must include the covariance term between the player and
+// deck estimates, not just the two variances added independently — pins
+// exactly the failure mode the function's own comment warns about (a wrong
+// implementation that drops the cross-term would still return a finite
+// positive number, which is all the check above verifies).
+const naiveSeWithoutCovariance = Math.sqrt(playerRatingsA.P1.se ** 2 + deckRatingsA.d1.se ** 2);
+assert.ok(
+  Math.abs(combinedP1d1.se - naiveSeWithoutCovariance) > 1e-6,
+  `combined se (${combinedP1d1.se}) should differ from the naive no-covariance se (${naiveSeWithoutCovariance}) on this fixture, where P1 and d1 are correlated`
+);
+
 console.log('OK: bradley-terry.test.js');

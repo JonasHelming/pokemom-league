@@ -5,6 +5,7 @@ import {
   renderMatchHistoryHTML,
   renderWeakDeckBannersHTML,
   renderFairnessBannersHTML,
+  renderBoostProgressHTML,
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from '../src/render.js';
@@ -55,24 +56,6 @@ assert.ok(bannerHTML.includes('Water'));
 assert.ok(bannerHTML.includes('rebuild'));
 assert.ok(bannerHTML.includes('confidence threshold'), 'banner should not claim a specific, not-quite-accurate percentage');
 
-// Deck leaderboard rows can carry an `ownerCombined` field: the combined
-// deck+owner rating is shown as the prominent number, with the deck's own
-// isolated strength demoted to a smaller secondary annotation.
-const deckWithOwnerHTML = renderLeaderboardHTML('Decks', [
-  { id: 'fire', name: 'Fire', value: 1010, se: 50, ownerCombined: { value: 1200, se: 30, ownerName: 'Alice' } },
-]);
-assert.ok(deckWithOwnerHTML.includes('1200'), 'combined value should be shown');
-assert.ok(deckWithOwnerHTML.includes('±59'), 'combined se=30 -> ±round(1.96*30)=±59');
-assert.ok(deckWithOwnerHTML.includes('1010'), 'deck-alone value should still be shown, as a secondary annotation');
-assert.ok(deckWithOwnerHTML.includes('Alice'), 'owner name should be shown');
-assert.ok(
-  deckWithOwnerHTML.indexOf('1200') < deckWithOwnerHTML.indexOf('1010'),
-  'combined value should appear before (be more prominent than) the deck-alone value'
-);
-
-// Without an ownerCombined field, rendering is unaffected (backward compatible).
-assert.ok(!deckLeaderboardHTML.includes('as played by'));
-
 const fairnessPlayers = [
   { id: 'A', name: 'A', defaultDeck: 'x' },
   { id: 'B', name: 'B', defaultDeck: 'y' },
@@ -83,6 +66,26 @@ assert.ok(fairnessHTML.includes('Bob'), 'weak player should be named');
 assert.ok(fairnessHTML.includes('Alice'), 'strong player should be named');
 assert.ok(fairnessHTML.includes('Water'), "weak player's default deck should be named");
 assert.ok(fairnessHTML.includes('Fire'), "strong player's default deck should be named");
+
+assert.equal(renderBoostProgressHTML(null, namesById, namesById, fairnessPlayers), '', 'null (fewer than 2 comparable players) renders nothing');
+
+const inProgressHTML = renderBoostProgressHTML({ playerId: 'B', progress: 0.42, flagged: false }, namesById, namesById, fairnessPlayers);
+assert.ok(inProgressHTML.includes('Bob'), 'spotlighted player should be named');
+assert.ok(inProgressHTML.includes('Water'), "spotlighted player's default deck should be named");
+assert.ok(inProgressHTML.includes('42%'), 'progress percentage should be shown');
+assert.ok(inProgressHTML.includes('width: 42%'), 'fill bar width should reflect progress');
+assert.ok(!inProgressHTML.includes('Upgrade available'), 'not yet flagged -> no "upgrade available" state');
+
+const flaggedProgressHTML = renderBoostProgressHTML({ playerId: 'B', progress: 1, flagged: true }, namesById, namesById, fairnessPlayers);
+assert.ok(flaggedProgressHTML.includes('Upgrade available'), 'flagged -> visually distinct "upgrade available" state');
+assert.ok(flaggedProgressHTML.includes('Bob'), 'flagged player should still be named');
+
+// A player id not present in `players`/namesById degrades to an empty
+// render rather than shipping "undefined" text.
+assert.equal(
+  renderBoostProgressHTML({ playerId: 'unknown', progress: 0.5, flagged: false }, namesById, namesById, fairnessPlayers),
+  ''
+);
 
 const suggestionsHTML = renderSuggestionsPanelHTML(
   [{ playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'y', predictedWinProbA: 0.6, gain: 1 }],
