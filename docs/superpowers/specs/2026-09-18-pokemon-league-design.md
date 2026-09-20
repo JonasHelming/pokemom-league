@@ -49,9 +49,14 @@ explained by a joint model:
 P(side A wins) = sigmoid((playerSkill_A + deckStrength_A) − (playerSkill_B + deckStrength_B))
 ```
 
-This is a two-factor Bradley-Terry model, fit by gradient descent over the
-full match history entirely client-side (cheap at this data scale — a few
-hundred matches at most). It separates "is this player good" from "is this
+This is a two-factor Bradley-Terry model, fit via Newton-Raphson (iteratively
+reweighted least squares) over the full match history entirely client-side
+(cheap at this data scale — a few hundred matches at most, converging in a
+handful of iterations). Newton-Raphson is used instead of plain gradient
+descent because it converges quickly for this kind of concave likelihood and
+produces the Hessian as a byproduct — which is exactly the Fisher information
+matrix the confidence-interval and matchup-suggestion features below need
+anyway. It separates "is this player good" from "is this
 deck good" — the more players borrow each other's decks, the sharper that
 separation becomes. With zero deck-swapping the two signals are
 statistically unidentifiable (collinear) and the model behaves close to
