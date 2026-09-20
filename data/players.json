@@ -1,0 +1,6 @@
+[
+  { "id": "M", "name": "M", "defaultDeck": "fire" },
+  { "id": "T", "name": "T", "defaultDeck": "water" },
+  { "id": "C", "name": "C", "defaultDeck": "grass" },
+  { "id": "J", "name": "J", "defaultDeck": "electric" }
+]

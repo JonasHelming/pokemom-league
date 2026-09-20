@@ -1,0 +1,6 @@
+[
+  { "id": "fire", "name": "Fire", "owner": "M" },
+  { "id": "water", "name": "Water", "owner": "T" },
+  { "id": "grass", "name": "Grass", "owner": "C" },
+  { "id": "electric", "name": "Electric", "owner": "J" }
+]
