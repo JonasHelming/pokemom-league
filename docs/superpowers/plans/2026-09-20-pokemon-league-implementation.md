@@ -660,42 +660,59 @@ import assert from 'node:assert/strict';
 import { fitBradleyTerry } from '../src/bradley-terry.js';
 import { flagWeakDecks, suggestMatchups, countMatchesByDeck } from '../src/recommendations.js';
 
-// Deck x beats deck y regardless of who pilots which, and piloting alternates
-// between A and B every match. This crossed design is what makes deck
-// strength statistically separable from player skill at all — a fixed
-// pairing (A always on x, B always on y) would make "player B is weak" and
-// "deck y is weak" perfectly confounded, no matter how much data you add
-// (see the design spec's identifiability discussion). Winner is always
-// whoever piloted the stronger deck that match, so both players end up with
-// ~equal fitted skill while deck y ends up clearly weaker.
-function makeMatches(n) {
+// Deck x beats deck y most of the time (not always — see below), and
+// piloting alternates between A and B every match. The crossed pairing is
+// what makes deck strength statistically separable from player skill at all
+// — a fixed pairing (A always on x, B always on y) makes "player B is weak"
+// and "deck y is weak" perfectly confounded, no matter how much data you add
+// (see the design spec's identifiability discussion).
+//
+// Outcomes must NOT be 100% deterministic: if the stronger deck wins every
+// single match, that's complete separation in the logistic fit — under ridge
+// regularization the standard error then shrinks only as 1/sqrt(ln n)
+// instead of 1/sqrt(n), so the confidence-interval gap required to flag a
+// deck is essentially never reached, no matter how large n gets. A periodic,
+// deterministic "upset" (the weaker deck occasionally wins) keeps the
+// fixture reproducible while giving the MLE a finite true win probability to
+// converge to, so `se` actually shrinks like 1/sqrt(n) as more matches are
+// added — which is what makes `flagWeakDecks` able to fire at all.
+//
+// `upsetEvery = 8` (~87.5% win rate for the stronger deck) and `n = 20` below
+// are starting points, not verified exact values — verify numerically per
+// Step 2 of this task, and adjust `upsetEvery`/`n` if the assertions don't
+// hold with a comfortable margin, while keeping this same technique (crossed
+// pairing + periodic deterministic upset).
+function makeMatches(n, upsetEvery = 8) {
   return Array.from({ length: n }, (_, i) => {
     const aUsesX = i % 2 === 0;
+    const isUpset = i % upsetEvery === upsetEvery - 1;
+    const xPilotWins = !isUpset;
+    const winner = xPilotWins === aUsesX ? 'A' : 'B';
     return {
       player1: 'A', deck1: aUsesX ? 'x' : 'y',
       player2: 'B', deck2: aUsesX ? 'y' : 'x',
-      winner: aUsesX ? 'A' : 'B',
+      winner,
       date: `2026-03-${String(i + 1).padStart(2, '0')}`,
     };
   });
 }
 
-// Deck y loses consistently (regardless of pilot) and has enough matches
-// (20, well over the minMatches=8 threshold) -> should be flagged.
+// Deck y loses most matches (regardless of pilot) and has enough matches
+// (well over the minMatches=8 threshold) -> should be flagged.
 const enoughData = makeMatches(20);
 const fitEnough = fitBradleyTerry(enoughData, ['A', 'B'], ['x', 'y']);
 const flaggedEnough = flagWeakDecks(fitEnough, ['x', 'y'], enoughData, 8);
 assert.deepEqual(flaggedEnough, ['y']);
 
-// Same pattern but too few matches (5, under the threshold) -> should not be
+// Same pattern but too few matches (under the threshold) -> should not be
 // flagged yet, regardless of how bad deck y's point estimate looks.
 const notEnoughData = makeMatches(5);
 const fitNotEnough = fitBradleyTerry(notEnoughData, ['A', 'B'], ['x', 'y']);
 const flaggedNotEnough = flagWeakDecks(fitNotEnough, ['x', 'y'], notEnoughData, 8);
 assert.deepEqual(flaggedNotEnough, []);
 
-assert.equal(countMatchesByDeck(enoughData).get('x'), 20);
-assert.equal(countMatchesByDeck(enoughData).get('y'), 20);
+assert.equal(countMatchesByDeck(enoughData).get('x'), enoughData.length);
+assert.equal(countMatchesByDeck(enoughData).get('y'), enoughData.length);
 
 // Player C and its decks have zero data -> suggestions should prioritize C.
 const players = ['A', 'B', 'C'];
