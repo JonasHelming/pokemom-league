@@ -15,31 +15,28 @@
   <div id="weak-deck-banners"></div>
   <div id="fairness-banners"></div>
 
-  <!-- Player ranking -->
+  <!-- All three rankings, side by side on wide screens -->
+  <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-3 tv:gap-12 tv:items-start">
+    <div id="player-leaderboard"></div>
+    <div id="deck-leaderboard"></div>
+    <div id="player-deck-leaderboard"></div>
+  </div>
+
+  <!-- What to do next: pairing recommendation and upgrade-progress spotlight -->
   <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start">
-    <div>
-      <div id="player-leaderboard"></div>
-      <canvas id="player-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas>
-    </div>
+    <div id="suggestions-panel"></div>
+    <div id="boost-progress"></div>
+  </div>
+
+  <!-- Supporting stats: charts and head-to-head grids -->
+  <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start">
+    <div><canvas id="player-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas></div>
     <div id="player-head-to-head"></div>
   </div>
-
-  <!-- Deck ranking -->
   <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start">
-    <div>
-      <div id="deck-leaderboard"></div>
-      <canvas id="deck-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas>
-    </div>
+    <div><canvas id="deck-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas></div>
     <div id="deck-head-to-head"></div>
   </div>
-
-  <!-- Player + Deck ranking, and pairing recommendations, side by side on wide screens -->
-  <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start">
-    <div id="player-deck-leaderboard"></div>
-    <div id="suggestions-panel"></div>
-  </div>
-
-  <div id="boost-progress"></div>
 
   <div id="match-history"></div>
 

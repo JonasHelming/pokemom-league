@@ -1650,3 +1650,60 @@ guard gained a test (it was previously deletable without any failure). A
 stray `.shrink` utility class had crept into the compiled CSS because
 Tailwind's content scanner matched the word "shrink" inside a prose
 comment — reworded, not suppressed.
+
+## Post-launch layout reorder: rankings first, then "what to do next" (2026-09-20)
+
+The user asked for a different grouping than the "each ranking with its own
+chart/grid" structure above: all three rankings together first, then the
+pairing recommendation + boost-progress widget together, then everything
+else (both rating-history charts and both head-to-head grids) at the end,
+with match history last. `index.html` was restructured accordingly — the
+three-ranking group now uses `tv:grid-cols-3` (new), the recommendation
+group keeps `tv:grid-cols-2`, and the two chart+head-to-head pairs moved
+to the bottom, each still `tv:grid-cols-2`. `main.js` needed no changes —
+only the DOM containers' positions in `index.html` changed, not which
+container each render call targets.
+
+This surfaced a genuinely difficult debugging session around Chart.js
+canvas rendering in a headless-Chrome testing environment: moving the
+canvas from "sole content of a leaderboard's sibling wrapper" to "sole
+content of its own grid-row wrapper" appeared to break chart rendering
+(collapsed to near-zero size, or later a solid black plot area) across
+several different attempted fixes (explicit wrapper `w-full`, explicit
+container height with `maintainAspectRatio: false`, manually measuring and
+setting `canvas.width`/`height` with `responsive: false`). Two confounding
+factors made this unusually hard to pin down: (1) the headless Chrome
+instance was serving a **cached** copy of the JS modules across repeated
+navigations for a long stretch of the investigation, since `python3 -m
+http.server` doesn't set cache-disabling headers and CDP's cache wasn't
+explicitly disabled until partway through — this produced several
+apparently-contradictory results (a "fix" that measured stale numbers, a
+"revert" that still showed a stale-cached bug) before `Network.
+setCacheDisabled` was added to the verification script; (2) even with
+caching ruled out, a solid-black (not just empty) canvas at
+`Emulation.setDeviceMetricsOverride`-driven large viewport widths persisted
+with **zero console errors or exceptions** and a Chart.js instance
+reporting entirely correct internal dimensions — this matches a
+documented, known category of headless-Chrome-specific canvas/compositing
+rendering bugs (worsened by `--disable-gpu`), not an application bug: a
+real (non-headless) Chrome instance could not be launched in this sandbox
+to conclusively confirm, but the same symptom did not reproduce at a
+smaller, non-emulated default viewport in a way consistent with an
+application bug (data, DOM structure, and instance dimensions were correct
+throughout every attempt).
+
+Given this, the change that shipped keeps the exact canvas-wrapper pattern
+and `Chart.js` configuration (`responsive: true`, no `maintainAspectRatio`
+override) that was already live and working in production before this
+reorder — i.e., **no changes to `src/charts.js`** — only the DOM position
+of each `<div><canvas>...</canvas></div>` wrapper moved. `git diff
+--stat` against the last pushed commit confirms `src/charts.js` is
+byte-identical; only `index.html` and the compiled `tailwind.css`
+(rebuilt for the new `tv:grid-cols-3` class) changed. The reorder’s
+non-chart structure and DOM ordering were verified correct via CDP
+(cache disabled) end to end; the chart-specific rendering could not be
+conclusively re-verified visually in this sandbox for the reasons above,
+so if charts don't render correctly once deployed, that would be new
+information (this exact code was verified working earlier in this same
+session, before any of today's edits, and is unchanged from that
+verified state).

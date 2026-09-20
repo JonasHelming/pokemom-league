@@ -219,30 +219,29 @@ under-performs everyone else once their own skill is folded back in.
 
 ## Views
 
-Full parity between players and decks. Shown top to bottom in this order —
-each ranking grouped with its own chart/head-to-head grid, using
-side-by-side horizontal space on wide screens (see Visual style below):
+Full parity between players and decks. Shown top to bottom in this order,
+grouped by purpose rather than by entity type — all three rankings first,
+then "what to do next," then supporting detail — using side-by-side
+horizontal space on wide screens within each group (see Visual style
+below):
 
 - **Weak-deck and fairness alert banners** — only shown when actually
   triggered, at the very top
-- **Player ranking**: player leaderboard (ranked by fitted player skill,
-  each rating shown alongside its 95% confidence range `±1.96·SE` so a
-  rating backed by little data or by fully-confounded player/deck signal —
-  see Rating model above — doesn't read as equally trustworthy as a
-  well-established one) + player rating history chart + player
-  head-to-head grid
-- **Deck ranking**: deck leaderboard (ranked by fitted deck strength, plain
-  isolated rating — no owner-combined blending, see Practical fairness
-  above for why) + deck rating history chart + deck head-to-head grid; a
-  "consider a rebuild" banner appears on any deck flagged per the
-  recommendation rule above
-- **Player + Deck ranking**: the standalone combined-rating table from
-  Practical fairness above, shown side-by-side with the pairing
-  recommendations panel on wide screens
-- **"Best Deck Matchup For Each Pair" panel** — one suggestion per unique
-  player pair, per that section above
-- **Boost-progress widget** — the always-visible spotlight from Practical
-  fairness above
+- **All three rankings together**: player leaderboard (ranked by fitted
+  player skill, each rating shown alongside its 95% confidence range
+  `±1.96·SE` so a rating backed by little data or by fully-confounded
+  player/deck signal — see Rating model above — doesn't read as equally
+  trustworthy as a well-established one), deck leaderboard (ranked by
+  fitted deck strength, plain isolated rating — no owner-combined blending,
+  see Practical fairness above for why; a "consider a rebuild" banner
+  appears on any deck flagged per the recommendation rule above), and the
+  standalone Player + Deck ranking from Practical fairness above — side by
+  side on wide screens
+- **What to do next**: the "Best Deck Matchup For Each Pair" panel (one
+  suggestion per unique player pair, per that section above) alongside the
+  always-visible boost-progress widget from Practical fairness above
+- **Supporting detail**: player rating history chart + player head-to-head
+  grid, then deck rating history chart + deck head-to-head grid
 - **Match history table** — shared, chronological, shows both
   player+deck pairs and the winner, shown last
 
