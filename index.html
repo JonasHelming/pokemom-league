@@ -1,16 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon TCG Family League</title>
+  <title>Pokémon TCG Familien-Liga</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="tailwind.css" />
 </head>
-<body class="bg-slate-50 text-slate-900 font-display p-6 max-w-4xl mx-auto space-y-8 tv:max-w-none tv:px-16 tv:py-12 tv:space-y-12 tv:text-2xl">
-  <h1 class="text-3xl font-bold tv:text-6xl">Pokémon TCG Family League</h1>
+<body class="bg-slate-950 text-slate-100 font-display p-6 max-w-4xl mx-auto space-y-8 tv:max-w-none tv:px-16 tv:py-12 tv:space-y-12 tv:text-2xl">
+  <h1 class="flex items-center gap-3 text-2xl font-pixel text-amber-300 [text-shadow:2px_2px_0_#000] tv:text-4xl tv:gap-6">
+    <span class="pokeball" aria-hidden="true"></span>
+    Pokémon TCG Familien-Liga
+  </h1>
 
   <div id="weak-deck-banners"></div>
   <div id="fairness-banners"></div>
@@ -30,11 +33,11 @@
 
   <!-- Supporting stats: charts and head-to-head grids -->
   <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start">
-    <div><canvas id="player-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas></div>
+    <div><canvas id="player-rating-chart" class="bg-slate-900/60 border border-slate-800 rounded-xl shadow-lg shadow-black/30 p-2 tv:p-4"></canvas></div>
     <div id="player-head-to-head"></div>
   </div>
   <div class="space-y-8 tv:space-y-0 tv:grid tv:grid-cols-2 tv:gap-12 tv:items-start">
-    <div><canvas id="deck-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas></div>
+    <div><canvas id="deck-rating-chart" class="bg-slate-900/60 border border-slate-800 rounded-xl shadow-lg shadow-black/30 p-2 tv:p-4"></canvas></div>
     <div id="deck-head-to-head"></div>
   </div>
 

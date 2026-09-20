@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Plain stylized ball shape (not the Pokémon logo/brand) used as a small
+   decorative accent next to the page title. */
+.pokeball {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ef4444 0%, #ef4444 48%, #0f172a 48%, #0f172a 52%, #f8fafc 52%, #f8fafc 100%);
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 0 2px #f8fafc inset;
+  position: relative;
+  flex: none;
+}
+
+.pokeball::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.5em;
+  height: 0.5em;
+  background: #f8fafc;
+  border: 2px solid #0f172a;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}

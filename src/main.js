@@ -68,15 +68,15 @@ async function main() {
     })
     .sort((a, b) => b.value - a.value);
 
-  document.getElementById('player-leaderboard').innerHTML = renderLeaderboardHTML('Players', playerEntries);
+  document.getElementById('player-leaderboard').innerHTML = renderLeaderboardHTML('Spieler', playerEntries);
   document.getElementById('player-head-to-head').innerHTML =
-    renderHeadToHeadHTML('Player Head-to-Head', playerIds, namesById, matches, 'player');
+    renderHeadToHeadHTML('Spieler im direkten Vergleich', playerIds, namesById, matches, 'player');
 
   document.getElementById('deck-leaderboard').innerHTML = renderLeaderboardHTML('Decks', deckEntries, getTypeColor);
   document.getElementById('deck-head-to-head').innerHTML =
-    renderHeadToHeadHTML('Deck Head-to-Head', deckIds, namesById, matches, 'deck');
+    renderHeadToHeadHTML('Deck im direkten Vergleich', deckIds, namesById, matches, 'deck');
 
-  document.getElementById('player-deck-leaderboard').innerHTML = renderLeaderboardHTML('Player + Deck', playerDeckEntries);
+  document.getElementById('player-deck-leaderboard').innerHTML = renderLeaderboardHTML('Spieler + Deck', playerDeckEntries);
 
   const suggestions = suggestMatchups(fit, playerIds, deckIds);
   document.getElementById('suggestions-panel').innerHTML =
@@ -95,7 +95,7 @@ async function main() {
 
   const history = computeRatingHistory(matches, playerIds, deckIds);
   renderRatingChart(document.getElementById('player-rating-chart'), buildChartDatasets(history, playerIds, namesById, 'player'));
-  renderRatingChart(document.getElementById('deck-rating-chart'), buildChartDatasets(history, deckIds, namesById, 'deck'));
+  renderRatingChart(document.getElementById('deck-rating-chart'), buildChartDatasets(history, deckIds, namesById, 'deck', getTypeColor));
 }
 
 document.addEventListener('DOMContentLoaded', main);

@@ -1,6 +1,6 @@
 [
-  { "id": "fire", "name": "Fire", "owner": "J" },
-  { "id": "electric", "name": "Electric", "owner": "M" },
-  { "id": "fighting", "name": "Fighting", "owner": "T" },
-  { "id": "darkness", "name": "Darkness", "owner": "C" }
+  { "id": "fire", "name": "Feuer", "owner": "J" },
+  { "id": "electric", "name": "Elektro", "owner": "M" },
+  { "id": "fighting", "name": "Kampf", "owner": "T" },
+  { "id": "darkness", "name": "Finsternis", "owner": "C" }
 ]

@@ -6,10 +6,12 @@ import {
   countMatchesByDeck,
   selectBestCandidate,
   countDefaultComboMatches,
-  findRatingOutliers,
   flagFairnessOutliers,
   computeBoostProgress,
   computeMarginProgress,
+  marginBelowValue,
+  marginAboveValue,
+  FAIRNESS_CONFIDENCE_Z,
 } from '../src/recommendations.js';
 
 // Deck x beats deck y most of the time (not always — see below), and
@@ -124,54 +126,31 @@ const comboCounts = countDefaultComboMatches(countMatches, countPlayers);
 assert.equal(comboCounts.get('A'), 2, 'A used their own default (x) in matches 1 and 3');
 assert.equal(comboCounts.get('B'), 1, 'B used their own default (y) only in match 1');
 
-// findRatingOutliers: the pure comparison rule, tested directly with
-// fabricated ratings — no fit required, same rationale as
+// marginBelowValue / marginAboveValue: the pure "distance from a fixed
+// reference value" rules (the group average, in production use), tested
+// directly with fabricated ratings — no fit required, same rationale as
 // selectBestCandidate above (this repo's history of fixture-fragility bugs
 // makes decoupling comparison logic from statistical fixtures worthwhile).
-// `candidates` and `comparisonField` are the same array in these first
-// cases (every entity is both eligible to be flagged and part of the
-// field to compare against).
-const clearField = [
-  { id: 'A', value: 100, se: 5 },
-  { id: 'B', value: 0, se: 5 },
-  { id: 'C', value: -100, se: 5 },
-];
-assert.deepEqual(findRatingOutliers(clearField, clearField, 1.28), { weak: ['C'], strong: ['A'] });
-
-const noSeparationField = [
-  { id: 'A', value: 100, se: 500 },
-  { id: 'B', value: 0, se: 500 },
-];
-assert.deepEqual(findRatingOutliers(noSeparationField, noSeparationField, 1.28), { weak: [], strong: [] });
-
-// A lone entity has nothing to compare against, so it must never be flagged
-// (the same vacuous-truth hazard flagWeakDecks guards against for a lone deck).
-const loneField = [{ id: 'A', value: 100, se: 5 }];
-assert.deepEqual(findRatingOutliers(loneField, loneField, 1.28), { weak: [], strong: [] });
-
-// Candidates must be compared against the FULL comparison field, not just
-// other candidates — an entity excluded from candidacy (e.g. by a
-// match-count floor) must still count as a rival the candidates have to
-// beat. Without this, a candidate could pick up an unearned flag purely
-// because a genuine rival happened to be under-sampled.
-const twoCandidates = [
-  { id: 'A', value: 10, se: 1 },
-  { id: 'B', value: 0, se: 1 },
-];
-assert.deepEqual(
-  findRatingOutliers(twoCandidates, twoCandidates, 1.28),
-  { weak: ['B'], strong: ['A'] },
-  'with only A and B in the field, B is clearly the weakest and A the strongest'
+// Both are thin wrappers around computeMarginProgress against a single
+// zero-se rival at the reference value — verified directly below rather
+// than duplicating computeMarginProgress's own boundary tests.
+assert.equal(marginBelowValue({ value: -100, se: 5 }, 0, 1.28), 1, 'clearly below the reference -> fully separated');
+assert.equal(marginBelowValue({ value: 100, se: 5 }, 0, 1.28), 0, 'clearly above the reference -> zero progress toward "below"');
+assert.equal(
+  marginBelowValue({ value: -10, se: 5 }, 0, 1.28),
+  computeMarginProgress({ value: -10, se: 5 }, [{ value: 0, se: 0 }], 1.28),
+  'marginBelowValue is exactly computeMarginProgress against a zero-se rival at the reference value'
 );
-const fullFieldWithNearRival = [...twoCandidates, { id: 'C', value: 9.5, se: 1 }];
-assert.deepEqual(
-  findRatingOutliers(twoCandidates, fullFieldWithNearRival, 1.28),
-  { weak: ['B'], strong: [] },
-  'C (not a candidate, e.g. under-sampled) is nearly tied with A, so A must NOT be flagged as clearly ahead of "everyone" once C is included in the comparison field — B is still clearly behind both A and C, so it stays flagged'
+assert.equal(marginAboveValue({ value: 100, se: 5 }, 0, 1.28), 1, 'clearly above the reference -> fully separated in the "ahead" direction');
+assert.equal(marginAboveValue({ value: -100, se: 5 }, 0, 1.28), 0, 'clearly below the reference -> zero progress toward "ahead"');
+assert.equal(
+  marginAboveValue({ value: 10, se: 5 }, 0, 1.28),
+  marginBelowValue({ value: -10, se: 5 }, 0, 1.28),
+  'marginAboveValue is the mirror image of marginBelowValue under negation of both target and reference'
 );
 
 // flagFairnessOutliers: integration test wiring countDefaultComboMatches,
-// combinedPlayerDeckRating, and findRatingOutliers together. Reuses the
+// combinedPlayerDeckRating, and the average-based margin helpers together. Reuses the
 // existing enoughData/fitEnough fixture (n=20, well-identified — see the
 // makeMatches comment above) rather than building a new one: A always
 // plays default deck x, B always plays default deck y in half the matches
@@ -213,9 +192,9 @@ assert.deepEqual(
   'with B excluded, only A remains, and a lone entity has nothing to compare against'
 );
 assert.doesNotThrow(() => computeBoostProgress(fitEnough, playersWithRetiredDefault, ['A', 'B'], ['x', 'y'], enoughData));
-assert.equal(
+assert.deepEqual(
   computeBoostProgress(fitEnough, playersWithRetiredDefault, ['A', 'B'], ['x', 'y'], enoughData),
-  null,
+  [],
   'fewer than 2 players with an active default deck -> nothing to spotlight'
 );
 
@@ -244,22 +223,24 @@ assert.equal(
   'an easily-beaten extra rival must not raise progress past what the closest rival allows'
 );
 
-// computeBoostProgress: progress should climb from near-zero toward 1
-// (flagged) as data accumulates, using the same underlying fit/fixture as
-// the flagFairnessOutliers tests above — B (default deck y, the weaker
-// deck) is always the spotlighted weakest candidate here. Each case also
-// pins progress against an independently-computed
-// dataProgress * marginProgress, so a mutation dropping either factor
-// (verified during review to otherwise survive the whole suite) fails here.
+// computeBoostProgress: returns one entry per player currently below the
+// GROUP AVERAGE of everyone else (not just a single spotlighted weakest),
+// with progress climbing from near-zero toward 1 (flagged) as data
+// accumulates. With exactly two players, "average of everyone else" is
+// just the other player's value, so B (default deck y, the weaker deck) is
+// the only entry throughout this fixture. Each case also pins progress
+// against an independently-computed dataProgress * marginProgress, so a
+// mutation dropping either factor (verified during review to otherwise
+// survive the whole suite) fails here.
 function expectedProgress(fit, matches) {
   const ratings = [
     { id: 'A', ...combinedPlayerDeckRatingFor(fit, 'A') },
     { id: 'B', ...combinedPlayerDeckRatingFor(fit, 'B') },
   ];
-  const [weakest, ...rest] = [...ratings].sort((a, b) => a.value - b.value);
+  const [weakest, other] = [...ratings].sort((a, b) => a.value - b.value);
   const counts = countDefaultComboMatches(matches, fairnessPlayers);
   const dataProgress = Math.min((counts.get(weakest.id) || 0) / 5, 1);
-  const marginProgress = computeMarginProgress(weakest, rest, 1.28);
+  const marginProgress = marginBelowValue(weakest, other.value, FAIRNESS_CONFIDENCE_Z);
   return dataProgress * marginProgress;
 }
 function combinedPlayerDeckRatingFor(fit, playerId) {
@@ -267,9 +248,14 @@ function combinedPlayerDeckRatingFor(fit, playerId) {
   return combinedPlayerDeckRating(fit, playerId, deckId, ['A', 'B'], ['x', 'y']);
 }
 
+// n=3 is too little data for either factor to be near its ceiling yet;
+// n=7 is more data (higher dataProgress, tighter se -> higher
+// marginProgress) but still short of the n=20 fixture's clean separation —
+// isolating "more data climbs the bar" from "eventually reaches 1" as two
+// separate claims, not just early-vs-late.
 const earlyMatches = makeMatches(3);
 const earlyFit = fitBradleyTerry(earlyMatches, ['A', 'B'], ['x', 'y']);
-const earlyProgress = computeBoostProgress(earlyFit, fairnessPlayers, ['A', 'B'], ['x', 'y'], earlyMatches);
+const [earlyProgress] = computeBoostProgress(earlyFit, fairnessPlayers, ['A', 'B'], ['x', 'y'], earlyMatches);
 assert.equal(earlyProgress.playerId, 'B');
 assert.equal(earlyProgress.flagged, false);
 assert.ok(earlyProgress.progress > 0 && earlyProgress.progress < 0.5, `expected low but nonzero early progress, got ${earlyProgress.progress}`);
@@ -278,9 +264,9 @@ assert.ok(
   'progress must equal dataProgress * marginProgress, not either factor alone'
 );
 
-const midMatches = makeMatches(10);
+const midMatches = makeMatches(7);
 const midFit = fitBradleyTerry(midMatches, ['A', 'B'], ['x', 'y']);
-const midProgress = computeBoostProgress(midFit, fairnessPlayers, ['A', 'B'], ['x', 'y'], midMatches);
+const [midProgress] = computeBoostProgress(midFit, fairnessPlayers, ['A', 'B'], ['x', 'y'], midMatches);
 assert.equal(midProgress.flagged, false);
 assert.ok(midProgress.progress > earlyProgress.progress, 'progress should climb as more data accumulates');
 assert.ok(
@@ -288,10 +274,38 @@ assert.ok(
   'progress must equal dataProgress * marginProgress, not either factor alone'
 );
 
-const lateProgress = computeBoostProgress(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData);
+const [lateProgress] = computeBoostProgress(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData);
 assert.equal(lateProgress.playerId, 'B');
 assert.equal(lateProgress.flagged, true);
 assert.equal(lateProgress.progress, 1, 'a genuinely flagged candidate must read as 100% progress');
+
+// A third player proves multiple below-average players each get their own
+// entry, not just a single spotlighted "weakest" — the actual behavior
+// change requested. A beats both B and C most of the time; B and C never
+// play each other, so this is purely about each being compared against the
+// GROUP AVERAGE (of the other two), not against every individual rival.
+function threeWayMatches(n) {
+  const matches = [];
+  for (let i = 0; i < n; i++) {
+    const upset = i % 5 === 4;
+    matches.push({ player1: 'A', deck1: 'x', player2: 'B', deck2: 'y', winner: upset ? 'B' : 'A', date: `2026-05-${String(2 * i + 1).padStart(2, '0')}` });
+    matches.push({ player1: 'A', deck1: 'x', player2: 'C', deck2: 'y', winner: upset ? 'C' : 'A', date: `2026-05-${String(2 * i + 2).padStart(2, '0')}` });
+  }
+  return matches;
+}
+const threeWayPlayers = [
+  { id: 'A', name: 'A', defaultDeck: 'x' },
+  { id: 'B', name: 'B', defaultDeck: 'y' },
+  { id: 'C', name: 'C', defaultDeck: 'y' },
+];
+const threeWayData = threeWayMatches(6);
+const threeWayFit = fitBradleyTerry(threeWayData, ['A', 'B', 'C'], ['x', 'y']);
+const threeWayProgress = computeBoostProgress(threeWayFit, threeWayPlayers, ['A', 'B', 'C'], ['x', 'y'], threeWayData);
+assert.deepEqual(
+  threeWayProgress.map((p) => p.playerId).sort(),
+  ['B', 'C'],
+  'both B and C (each below the group average) should get their own bar; A (clearly ahead of both) should not'
+);
 
 // selectBestCandidate: the core "prefer competitive over merely informative"
 // rule, tested directly with fabricated candidates — no fit required — so

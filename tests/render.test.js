@@ -53,8 +53,8 @@ assert.ok(historyHTML.indexOf('2026-01-02') < historyHTML.indexOf('2026-01-01'),
 assert.equal(renderWeakDeckBannersHTML([], namesById), '');
 const bannerHTML = renderWeakDeckBannersHTML(['y'], namesById);
 assert.ok(bannerHTML.includes('Water'));
-assert.ok(bannerHTML.includes('rebuild'));
-assert.ok(bannerHTML.includes('confidence threshold'), 'banner should not claim a specific, not-quite-accurate percentage');
+assert.ok(bannerHTML.includes('Umbau'));
+assert.ok(bannerHTML.includes('Konfidenz-Schwellenwert'), 'banner should not claim a specific, not-quite-accurate percentage');
 
 const fairnessPlayers = [
   { id: 'A', name: 'A', defaultDeck: 'x' },
@@ -73,23 +73,23 @@ const fairnessWithUnknown = renderFairnessBannersHTML({ weak: ['unknown'], stron
 assert.ok(!fairnessWithUnknown.includes('undefined'), 'unresolvable id must not render literal "undefined" text');
 assert.ok(fairnessWithUnknown.includes('Alice'), 'the resolvable strong entry should still render');
 
-assert.equal(renderBoostProgressHTML(null, namesById, namesById, fairnessPlayers), '', 'null (fewer than 2 comparable players) renders nothing');
+assert.equal(renderBoostProgressHTML([], namesById, namesById, fairnessPlayers), '', 'empty list (fewer than 2 comparable players, or nobody behind) renders nothing');
 
-const inProgressHTML = renderBoostProgressHTML({ playerId: 'B', progress: 0.42, flagged: false }, namesById, namesById, fairnessPlayers);
+const inProgressHTML = renderBoostProgressHTML([{ playerId: 'B', progress: 0.42, flagged: false }], namesById, namesById, fairnessPlayers);
 assert.ok(inProgressHTML.includes('Bob'), 'spotlighted player should be named');
 assert.ok(inProgressHTML.includes('Water'), "spotlighted player's default deck should be named");
 assert.ok(inProgressHTML.includes('42%'), 'progress percentage should be shown');
 assert.ok(inProgressHTML.includes('width: 42%'), 'fill bar width should reflect progress');
-assert.ok(!inProgressHTML.includes('Upgrade available'), 'not yet flagged -> no "upgrade available" state');
+assert.ok(!inProgressHTML.includes('Upgrade verfügbar'), 'not yet flagged -> no "upgrade available" state');
 
-const flaggedProgressHTML = renderBoostProgressHTML({ playerId: 'B', progress: 1, flagged: true }, namesById, namesById, fairnessPlayers);
-assert.ok(flaggedProgressHTML.includes('Upgrade available'), 'flagged -> visually distinct "upgrade available" state');
+const flaggedProgressHTML = renderBoostProgressHTML([{ playerId: 'B', progress: 1, flagged: true }], namesById, namesById, fairnessPlayers);
+assert.ok(flaggedProgressHTML.includes('Upgrade verfügbar'), 'flagged -> visually distinct "upgrade available" state');
 assert.ok(flaggedProgressHTML.includes('Bob'), 'flagged player should still be named');
 
 // A player id not present in `players`/namesById degrades to an empty
 // render rather than shipping "undefined" text.
 assert.equal(
-  renderBoostProgressHTML({ playerId: 'unknown', progress: 0.5, flagged: false }, namesById, namesById, fairnessPlayers),
+  renderBoostProgressHTML([{ playerId: 'unknown', progress: 0.5, flagged: false }], namesById, namesById, fairnessPlayers),
   ''
 );
 
@@ -100,6 +100,6 @@ const suggestionsHTML = renderSuggestionsPanelHTML(
 );
 assert.ok(suggestionsHTML.includes('Alice'));
 assert.ok(suggestionsHTML.includes('60%'));
-assert.ok(suggestionsHTML.includes('Best Deck Matchup For Each Pair'));
+assert.ok(suggestionsHTML.includes('Beste Deck-Paarung pro Spielerpaar'));
 
 console.log('OK: render.test.js');
