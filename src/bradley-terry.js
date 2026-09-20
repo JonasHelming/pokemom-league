@@ -116,6 +116,42 @@ export function meanCenteredRatings(fit, family, ids) {
   return result;
 }
 
+// The rating of a specific player+deck combination (e.g. "this deck as
+// played by its usual owner"), mean-centered the same way as
+// meanCenteredRatings but for the SUM of a player's and a deck's effects
+// rather than either alone. Useful because a deck's own isolated strength
+// can have a huge confidence interval early on (see the design spec's
+// identifiability discussion), while "how does this specific player+deck
+// combo actually perform" is much closer to the raw observed data and
+// becomes meaningful much sooner.
+//
+// Variance of the sum uses a single quadForm call on the summed diff
+// vector rather than adding each part's variance separately, because
+// quadForm(cov, v1+v2) = v1'cov·v1 + 2·v1'cov·v2 + v2'cov·v2 automatically
+// includes the covariance term between the player and deck estimates —
+// computing it any other way risks silently dropping that term.
+export function combinedPlayerDeckRating(fit, playerId, deckId, playerIds, deckIds) {
+  const playerVectors = playerIds.map((id) => paramVectorFor(fit, 'player', id));
+  const playerMeanVector = new Array(fit.numFree).fill(0);
+  for (const v of playerVectors) {
+    for (let i = 0; i < fit.numFree; i++) playerMeanVector[i] += v[i] / playerIds.length;
+  }
+  const playerDiff = paramVectorFor(fit, 'player', playerId).map((v, i) => v - playerMeanVector[i]);
+
+  const deckVectors = deckIds.map((id) => paramVectorFor(fit, 'deck', id));
+  const deckMeanVector = new Array(fit.numFree).fill(0);
+  for (const v of deckVectors) {
+    for (let i = 0; i < fit.numFree; i++) deckMeanVector[i] += v[i] / deckIds.length;
+  }
+  const deckDiff = paramVectorFor(fit, 'deck', deckId).map((v, i) => v - deckMeanVector[i]);
+
+  const combinedDiff = playerDiff.map((v, i) => v + deckDiff[i]);
+  return {
+    value: dot(combinedDiff, fit.theta),
+    se: Math.sqrt(Math.max(quadForm(fit.cov, combinedDiff), 0)),
+  };
+}
+
 export const ELO_SCALE = 400 / Math.LN10;
 
 export function toEloScale(value) {

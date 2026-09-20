@@ -14,13 +14,28 @@ export function getTypeColor(deckId) {
   return TYPE_COLORS[deckId] || null;
 }
 
+// `entries` may optionally carry an `ownerCombined: { value, se, ownerName }`
+// field (used for the deck leaderboard) — when present, the deck-as-played-
+// by-its-default-owner number is shown as the prominent rating (this is
+// what matters in practice, since most games are played with default
+// decks), with the deck's own skill-controlled strength (`value`/`se`)
+// shown as a smaller secondary annotation. Sort order is unaffected by
+// this — callers still sort `entries` by whichever value they consider the
+// ranking key before calling this function.
 export function renderLeaderboardHTML(title, entries, colorFor = () => null) {
   const rows = entries
     .map((e, i) => {
       const color = colorFor(e.id);
       const style = color ? ` style="border-left: 4px solid ${color}"` : '';
-      const range = e.se !== undefined ? ` <span class="text-slate-500 text-sm tv:text-xl">(±${Math.round(1.96 * e.se)})</span>` : '';
-      return `<tr${style}><td class="${CELL_CLASS}">${i + 1}</td><td class="${CELL_CLASS}">${e.name}</td><td class="${CELL_CLASS}">${Math.round(e.value)}${range}</td></tr>`;
+      const range = e.se !== undefined ? ` (±${Math.round(1.96 * e.se)})` : '';
+      let ratingCell;
+      if (e.ownerCombined) {
+        const ownerRange = e.ownerCombined.se !== undefined ? ` (±${Math.round(1.96 * e.ownerCombined.se)})` : '';
+        ratingCell = `${Math.round(e.ownerCombined.value)}${ownerRange} <span class="text-slate-500 text-sm tv:text-xl">as played by ${e.ownerCombined.ownerName} — deck alone: ${Math.round(e.value)}${range}</span>`;
+      } else {
+        ratingCell = `${Math.round(e.value)}${range}`;
+      }
+      return `<tr${style}><td class="${CELL_CLASS}">${i + 1}</td><td class="${CELL_CLASS}">${e.name}</td><td class="${CELL_CLASS}">${ratingCell}</td></tr>`;
     })
     .join('');
   return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">${title}</h2><table class="${TABLE_CLASS}"><thead><tr><th class="${CELL_CLASS}">#</th><th class="${CELL_CLASS}">Name</th><th class="${CELL_CLASS}">Rating</th></tr></thead><tbody>${rows}</tbody></table></section>`;
@@ -74,6 +89,27 @@ export function renderWeakDeckBannersHTML(flaggedDeckIds, decksById) {
     .map((id) => `<li class="p-2 tv:p-4 tv:text-2xl">⚠️ ${decksById[id]} — significantly behind by the family's own confidence threshold, consider a rebuild</li>`)
     .join('');
   return `<ul class="weak-deck-banners bg-amber-100 rounded mb-4 tv:mb-8">${items}</ul>`;
+}
+
+// `fairness` is `{ weak: string[], strong: string[] }` of player ids whose
+// "default team" (them playing their own usual deck) is significantly
+// behind or ahead of everyone else's — a different question from the deck
+// banner above, since it folds the player's own skill back in and answers
+// "is the league fair in practice," not "is this deck inherently weak."
+export function renderFairnessBannersHTML(fairness, playersById, decksById, players) {
+  const defaultDeckByPlayer = new Map(players.map((p) => [p.id, p.defaultDeck]));
+  const describe = (playerId) => `${playersById[playerId]}'s ${decksById[defaultDeckByPlayer.get(playerId)]} team`;
+
+  const weakItems = fairness.weak.map(
+    (id) => `<li class="p-2 tv:p-4 tv:text-2xl">📉 ${describe(id)} is significantly behind everyone else's default team in practice</li>`
+  );
+  const strongItems = fairness.strong.map(
+    (id) => `<li class="p-2 tv:p-4 tv:text-2xl">📈 ${describe(id)} is significantly ahead of everyone else's default team in practice</li>`
+  );
+  const items = [...weakItems, ...strongItems];
+  if (items.length === 0) return '';
+
+  return `<ul class="fairness-banners bg-sky-100 rounded mb-4 tv:mb-8">${items.join('')}</ul>`;
 }
 
 export function renderSuggestionsPanelHTML(suggestions, playersById, decksById) {

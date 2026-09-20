@@ -1,4 +1,4 @@
-import { meanCenteredRatings, buildDesignRow, predictWinProbability } from './bradley-terry.js';
+import { meanCenteredRatings, buildDesignRow, predictWinProbability, combinedPlayerDeckRating } from './bradley-terry.js';
 import { shermanMorrisonGain } from './linalg.js';
 
 export function countMatchesByDeck(matches) {
@@ -32,6 +32,78 @@ export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 5, confi
   }
 
   return flagged;
+}
+
+// Counts, per player, how many recorded matches they played using their OWN
+// default deck (not a borrowed one) — the sample size behind "how does this
+// player's usual team actually perform," as distinct from countMatchesByDeck
+// (which counts a deck's matches regardless of who's piloting it).
+export function countDefaultComboMatches(matches, players) {
+  const counts = new Map(players.map((p) => [p.id, 0]));
+  const defaultDeckByPlayer = new Map(players.map((p) => [p.id, p.defaultDeck]));
+
+  for (const m of matches) {
+    for (const [playerId, deckId] of [[m.player1, m.deck1], [m.player2, m.deck2]]) {
+      if (counts.has(playerId) && defaultDeckByPlayer.get(playerId) === deckId) {
+        counts.set(playerId, counts.get(playerId) + 1);
+      }
+    }
+  }
+
+  return counts;
+}
+
+// Given {id, value, se} ratings for a set of already-eligible entities,
+// finds which ones are significantly behind or ahead of EVERY other entity
+// (not just the nearest one — same conservative "separated from the whole
+// field" rule as flagWeakDecks). Pure and fit-independent, so it's testable
+// directly with fabricated ratings rather than another hand-tuned
+// Bradley-Terry fixture — this repo has a history of subtle statistical
+// fixture bugs (see the comment on `makeMatches` in the test file), so
+// isolating the comparison logic from the fit avoids that risk entirely.
+export function findRatingOutliers(ratings, confidenceZ) {
+  const weak = [];
+  const strong = [];
+
+  for (const r of ratings) {
+    const others = ratings.filter((o) => o.id !== r.id);
+    if (others.length === 0) continue;
+
+    const upper = r.value + confidenceZ * r.se;
+    const lower = r.value - confidenceZ * r.se;
+
+    const isBehindAll = others.every((o) => upper < o.value - confidenceZ * o.se);
+    const isAheadAll = others.every((o) => lower > o.value + confidenceZ * o.se);
+
+    if (isBehindAll) weak.push(r.id);
+    if (isAheadAll) strong.push(r.id);
+  }
+
+  return { weak, strong };
+}
+
+// Flags when a specific player's "default team" (them playing their own
+// usual deck) is significantly ahead of or behind every other player's
+// default team, using the family's chosen confidence level and match-count
+// floor (same defaults as flagWeakDecks — see that function's comment).
+// This is a genuinely different question from flagWeakDecks: a deck's own
+// (skill-controlled) strength can look perfectly fine while the deck's
+// *usual owner* still wins or loses far more than everyone else once their
+// own skill is folded back in — which matters in practice, since most
+// games ARE played with default decks. `weak` and `strong` are reported
+// separately since both directions are informative (one team dominating is
+// as much a fairness signal as one struggling).
+export function flagFairnessOutliers(fit, players, playerIds, deckIds, matches, minMatches = 5, confidenceZ = 1.28) {
+  if (players.length < 2) return { weak: [], strong: [] };
+
+  const counts = countDefaultComboMatches(matches, players);
+  const eligible = players.filter((p) => (counts.get(p.id) || 0) >= minMatches);
+  const ratings = eligible.map((p) => ({
+    id: p.id,
+    ...combinedPlayerDeckRating(fit, p.id, p.defaultDeck, playerIds, deckIds),
+  }));
+
+  return findRatingOutliers(ratings, confidenceZ);
 }
 
 // 1 at a perfect 50/50 prediction, 0 at a certain outcome.

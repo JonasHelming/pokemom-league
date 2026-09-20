@@ -1,12 +1,13 @@
 import { loadLeagueData } from './data.js';
-import { fitBradleyTerry, meanCenteredRatings, toEloScale, ELO_SCALE } from './bradley-terry.js';
+import { fitBradleyTerry, meanCenteredRatings, combinedPlayerDeckRating, toEloScale, ELO_SCALE } from './bradley-terry.js';
 import { computeRatingHistory } from './history.js';
-import { flagWeakDecks, suggestMatchups } from './recommendations.js';
+import { flagWeakDecks, flagFairnessOutliers, suggestMatchups } from './recommendations.js';
 import {
   renderLeaderboardHTML,
   renderHeadToHeadHTML,
   renderMatchHistoryHTML,
   renderWeakDeckBannersHTML,
+  renderFairnessBannersHTML,
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from './render.js';
@@ -34,13 +35,23 @@ async function main() {
       se: playerRatings[id].se * ELO_SCALE,
     }))
     .sort((a, b) => b.value - a.value);
+  const ownerByDeck = new Map(activeDecks.map((d) => [d.id, d.owner]));
   const deckEntries = deckIds
-    .map((id) => ({
-      id,
-      name: namesById[id],
-      value: toEloScale(deckRatings[id].value),
-      se: deckRatings[id].se * ELO_SCALE,
-    }))
+    .map((id) => {
+      const ownerId = ownerByDeck.get(id);
+      const owner = combinedPlayerDeckRating(fit, ownerId, id, playerIds, deckIds);
+      return {
+        id,
+        name: namesById[id],
+        value: toEloScale(deckRatings[id].value),
+        se: deckRatings[id].se * ELO_SCALE,
+        ownerCombined: {
+          value: toEloScale(owner.value),
+          se: owner.se * ELO_SCALE,
+          ownerName: namesById[ownerId],
+        },
+      };
+    })
     .sort((a, b) => b.value - a.value);
 
   document.getElementById('player-leaderboard').innerHTML = renderLeaderboardHTML('Players', playerEntries);
@@ -53,6 +64,9 @@ async function main() {
 
   const flagged = flagWeakDecks(fit, deckIds, matches);
   document.getElementById('weak-deck-banners').innerHTML = renderWeakDeckBannersHTML(flagged, namesById);
+
+  const fairness = flagFairnessOutliers(fit, players, playerIds, deckIds, matches);
+  document.getElementById('fairness-banners').innerHTML = renderFairnessBannersHTML(fairness, namesById, namesById, players);
 
   const suggestions = suggestMatchups(fit, playerIds, deckIds);
   document.getElementById('suggestions-panel').innerHTML =

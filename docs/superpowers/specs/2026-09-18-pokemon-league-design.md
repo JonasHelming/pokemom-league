@@ -154,6 +154,43 @@ to say — not a realistic case at family scale.)
   homepage, recomputed every time ratings are refit. Purely a suggestion —
   no tracking of whether it was acted on.
 
+## Practical fairness: deck + default owner
+
+A deck's own isolated strength (the rating model above) is deliberately
+skill-controlled — the whole point of the joint model is to answer "is this
+deck inherently weak" independent of who's holding it. But most games are
+actually played with default decks, so there's a second, genuinely
+different question worth answering: "is the league fair *in practice*,
+given who normally plays what?" A deck's isolated rating can look
+perfectly fine while its usual owner still consistently over- or
+under-performs everyone else once their own skill is folded back in.
+
+- **Combined rating**: for a given player and deck, the two mean-centered
+  effects (player skill + deck strength, each centered against its own
+  family's average) are summed to give "this specific player+deck combo,
+  relative to an average player playing an average deck." This is not
+  claimed to always have a tighter confidence interval than the deck's
+  isolated rating — whether it does depends on the covariance between the
+  player and deck estimates, which isn't fixed once there's any
+  deck-swapping in the data (verified: on live data, some decks' combined
+  ranges come out *wider* than their isolated ranges).
+- **Display**: on the deck leaderboard, each deck's "as played by its
+  default owner" combined rating is shown as the prominent number, with the
+  deck's own isolated strength demoted to a smaller secondary annotation —
+  since the combined number is what's actually relevant when everyone
+  plays their default deck, which is the common case.
+- **Fairness flag**: a player's own "default team" (them playing their own
+  usual deck) is flagged — separately from the deck-rebuild banner — when
+  it's significantly ahead of or behind *every other* player's default
+  team, using the same confidence level and match-count floor as the
+  deck-rebuild flag (family-chosen, not a rigorous claim — see Deck
+  strength recommendations above). Match-count eligibility is counted per
+  player, based only on matches where they actually played their own
+  default deck (not a borrowed one) — a different count than the deck
+  rebuild flag's per-deck match count. Both directions (a team dominating,
+  a team struggling) are reported, since both are informative fairness
+  signals.
+
 ## Views
 
 Full parity between players and decks:
@@ -164,9 +201,13 @@ Full parity between players and decks:
   above) doesn't read as equally trustworthy as a well-established one
 - **Player rating history chart** — skill over time, one line per player
 - **Player head-to-head grid** — win/loss record for each pair
-- **Deck leaderboard** — ranked by fitted deck strength (with the same
-  confidence range as the player leaderboard), with a "consider a
-  rebuild" banner on any deck flagged per the recommendation rule below
+- **Deck leaderboard** — ranked by fitted deck strength, but the
+  prominently-shown number per deck is its "as played by default owner"
+  combined rating (see Practical fairness above), with the isolated deck
+  strength shown as a smaller secondary annotation; a "consider a rebuild"
+  banner appears on any deck flagged per the recommendation rule above, and
+  a separate fairness banner appears for any player whose default team is
+  a significant outlier in practice
 - **Deck rating history chart** — strength over time, one line per deck
 - **Deck head-to-head grid** — win/loss record for each deck pair
 - **Match history table** — shared, chronological, shows both

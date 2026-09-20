@@ -4,6 +4,7 @@ import {
   renderHeadToHeadHTML,
   renderMatchHistoryHTML,
   renderWeakDeckBannersHTML,
+  renderFairnessBannersHTML,
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from '../src/render.js';
@@ -52,6 +53,36 @@ assert.equal(renderWeakDeckBannersHTML([], namesById), '');
 const bannerHTML = renderWeakDeckBannersHTML(['y'], namesById);
 assert.ok(bannerHTML.includes('Water'));
 assert.ok(bannerHTML.includes('rebuild'));
+assert.ok(bannerHTML.includes('confidence threshold'), 'banner should not claim a specific, not-quite-accurate percentage');
+
+// Deck leaderboard rows can carry an `ownerCombined` field: the combined
+// deck+owner rating is shown as the prominent number, with the deck's own
+// isolated strength demoted to a smaller secondary annotation.
+const deckWithOwnerHTML = renderLeaderboardHTML('Decks', [
+  { id: 'fire', name: 'Fire', value: 1010, se: 50, ownerCombined: { value: 1200, se: 30, ownerName: 'Alice' } },
+]);
+assert.ok(deckWithOwnerHTML.includes('1200'), 'combined value should be shown');
+assert.ok(deckWithOwnerHTML.includes('±59'), 'combined se=30 -> ±round(1.96*30)=±59');
+assert.ok(deckWithOwnerHTML.includes('1010'), 'deck-alone value should still be shown, as a secondary annotation');
+assert.ok(deckWithOwnerHTML.includes('Alice'), 'owner name should be shown');
+assert.ok(
+  deckWithOwnerHTML.indexOf('1200') < deckWithOwnerHTML.indexOf('1010'),
+  'combined value should appear before (be more prominent than) the deck-alone value'
+);
+
+// Without an ownerCombined field, rendering is unaffected (backward compatible).
+assert.ok(!deckLeaderboardHTML.includes('as played by'));
+
+const fairnessPlayers = [
+  { id: 'A', name: 'A', defaultDeck: 'x' },
+  { id: 'B', name: 'B', defaultDeck: 'y' },
+];
+assert.equal(renderFairnessBannersHTML({ weak: [], strong: [] }, namesById, namesById, fairnessPlayers), '');
+const fairnessHTML = renderFairnessBannersHTML({ weak: ['B'], strong: ['A'] }, namesById, namesById, fairnessPlayers);
+assert.ok(fairnessHTML.includes('Bob'), 'weak player should be named');
+assert.ok(fairnessHTML.includes('Alice'), 'strong player should be named');
+assert.ok(fairnessHTML.includes('Water'), "weak player's default deck should be named");
+assert.ok(fairnessHTML.includes('Fire'), "strong player's default deck should be named");
 
 const suggestionsHTML = renderSuggestionsPanelHTML(
   [{ playerA: 'A', deckA: 'x', playerB: 'B', deckB: 'y', predictedWinProbA: 0.6, gain: 1 }],
@@ -60,5 +91,6 @@ const suggestionsHTML = renderSuggestionsPanelHTML(
 );
 assert.ok(suggestionsHTML.includes('Alice'));
 assert.ok(suggestionsHTML.includes('60%'));
+assert.ok(suggestionsHTML.includes('Best Deck Matchup For Each Pair'));
 
 console.log('OK: render.test.js');

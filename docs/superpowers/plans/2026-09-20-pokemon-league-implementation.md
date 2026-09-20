@@ -1431,3 +1431,80 @@ the panel leads with fun games to actually play.
 
 `renderSuggestionsPanelHTML`'s heading was updated from "Try This Next" to
 "Best Deck Matchup For Each Pair" to match.
+
+## Post-launch feature: deck + default owner ("practical fairness") (2026-09-20)
+
+The user pointed out that a deck's isolated (skill-controlled) strength
+doesn't answer whether the league is fair *in practice*, since most games
+are played with default decks — a deck's owner could be a much weaker or
+stronger player than the deck's own rating suggests. Added:
+
+**`combinedPlayerDeckRating(fit, playerId, deckId, playerIds, deckIds)`**
+in `src/bradley-terry.js` — sums a player's and a deck's independently
+mean-centered effects, giving "this specific player+deck combo relative to
+an average player playing an average deck." Implemented as fully additive
+(does not touch `meanCenteredRatings`, to avoid any risk to that
+already-heavily-reviewed function) — duplicates its small mean-vector
+computation rather than refactoring to share it. Correctness verified two
+ways: (1) an exact algebraic identity — the *difference* of two combined
+ratings must equal the raw logit `predictWinProbability` computes directly
+from `theta`, since the mean-centering constants cancel in any difference,
+verified to `1e-9` — and (2) anchor-invariance, reusing the existing
+`richMatches` 3-player/3-deck fixture and its two different anchor
+orderings from the Task 4 tests. Note: contrary to an initial assumption,
+the combined rating's standard error is NOT reliably tighter than the
+deck's isolated one — it depends on the covariance between the player and
+deck estimates, which live data showed can go either way once there's any
+deck-swapping (verified: some decks' combined ranges came out *wider* than
+their isolated ranges on the actual `data/`).
+
+**`findRatingOutliers(ratings, confidenceZ)`** and
+**`countDefaultComboMatches(matches, players)`** and
+**`flagFairnessOutliers(fit, players, playerIds, deckIds, matches, minMatches, confidenceZ)`**
+in `src/recommendations.js` — `findRatingOutliers` is a pure, fit-independent
+comparison function (same "separated from the entire field, not just the
+nearest" rule as `flagWeakDecks`), tested directly with fabricated
+`{id, value, se}` triples rather than a hand-tuned statistical fixture — an
+earlier attempt at directly testing `flagFairnessOutliers` via a synthetic
+"one player dominates" match fixture hit the same near-separation
+pathology documented elsewhere in this plan (a near-deterministic outcome
+gives a huge, ridge-dominated SE rather than a confidently large gap), so
+the comparison logic was extracted to be testable independent of any fit.
+`countDefaultComboMatches` counts, per player, matches where they played
+their OWN default deck — a different count than `countMatchesByDeck`'s
+per-deck count, since fairness eligibility is about how much data exists on
+a specific player's usual team, not on a deck overall.
+`flagFairnessOutliers` wires these together: eligible players (met the
+match-count floor) get their combined rating compared via
+`findRatingOutliers`, using the same family-chosen defaults
+(`minMatches = 5`, `confidenceZ = 1.28`) as `flagWeakDecks`. Both directions
+(`weak`, `strong`) are reported, since a team dominating is as much a
+fairness signal as one struggling. The integration test reuses the
+existing `enoughData`/`fitEnough` fixture (n=20) from the `flagWeakDecks`
+tests rather than building a new one.
+
+**Rendering** (`src/render.js`, `src/main.js`, `index.html`):
+`renderLeaderboardHTML` gained an optional `ownerCombined: {value, se, ownerName}`
+field per entry — when present (used only for the deck leaderboard), the
+combined rating is shown as the prominent number with the deck's own
+isolated rating demoted to a smaller secondary annotation; sort order is
+unaffected, since callers still sort `entries` by whichever value they
+choose before calling this function (the deck leaderboard still sorts by
+isolated deck strength — the leaderboard's actual ranking purpose — only
+display prominence changed). `renderFairnessBannersHTML` is new, rendering
+one line per flagged player in each direction. `main.js` builds each deck
+entry's `ownerCombined` from `combinedPlayerDeckRating(fit, ownerId, deckId, ...)`
+using the deck's `owner` field from `data/decks.json`, and calls
+`flagFairnessOutliers` alongside the existing `flagWeakDecks` call.
+`index.html` gained a `#fairness-banners` container next to
+`#weak-deck-banners`. `tailwind.css` was rebuilt to pick up the new
+`bg-sky-100` class used by the fairness banner (learned from an earlier
+Task 8 review finding: rebuild the compiled CSS AFTER writing the markup
+that references new classes, not before).
+
+Manually verified end-to-end in a real (non-headless-flaky) browser session
+via Chrome DevTools Protocol against the live `data/`: no console errors,
+the deck leaderboard correctly shows each deck's combined "as played by
+owner" rating prominently with the isolated rating as secondary text, and
+the fairness banner correctly renders empty (no player yet has 5+
+default-combo matches in the current 10-match dataset).

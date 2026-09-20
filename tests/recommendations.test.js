@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { fitBradleyTerry } from '../src/bradley-terry.js';
-import { flagWeakDecks, suggestMatchups, countMatchesByDeck, selectBestCandidate } from '../src/recommendations.js';
+import {
+  flagWeakDecks,
+  suggestMatchups,
+  countMatchesByDeck,
+  selectBestCandidate,
+  countDefaultComboMatches,
+  findRatingOutliers,
+  flagFairnessOutliers,
+} from '../src/recommendations.js';
 
 // Deck x beats deck y most of the time (not always — see below), and
 // piloting alternates between A and B every match. The crossed pairing is
@@ -96,6 +104,76 @@ assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 11), []);
 // not have at 1.96.
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches), ['y']);
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 5, 1.96), []);
+
+// countDefaultComboMatches: counts only matches where a player used their
+// OWN default deck, not a borrowed one — distinct from countMatchesByDeck.
+const countPlayers = [
+  { id: 'A', name: 'A', defaultDeck: 'x' },
+  { id: 'B', name: 'B', defaultDeck: 'y' },
+];
+const countMatches = [
+  { player1: 'A', deck1: 'x', player2: 'B', deck2: 'y', winner: 'A', date: '2026-01-01' }, // both default
+  { player1: 'A', deck1: 'y', player2: 'B', deck2: 'x', winner: 'B', date: '2026-01-02' }, // both borrowed
+  { player1: 'A', deck1: 'x', player2: 'B', deck2: 'x', winner: 'A', date: '2026-01-03' }, // A default, B borrowed
+];
+const comboCounts = countDefaultComboMatches(countMatches, countPlayers);
+assert.equal(comboCounts.get('A'), 2, 'A used their own default (x) in matches 1 and 3');
+assert.equal(comboCounts.get('B'), 1, 'B used their own default (y) only in match 1');
+
+// findRatingOutliers: the pure comparison rule, tested directly with
+// fabricated ratings — no fit required, same rationale as
+// selectBestCandidate above (this repo's history of fixture-fragility bugs
+// makes decoupling comparison logic from statistical fixtures worthwhile).
+const clearOutliers = findRatingOutliers(
+  [
+    { id: 'A', value: 100, se: 5 },
+    { id: 'B', value: 0, se: 5 },
+    { id: 'C', value: -100, se: 5 },
+  ],
+  1.28
+);
+assert.deepEqual(clearOutliers, { weak: ['C'], strong: ['A'] });
+
+const noSeparation = findRatingOutliers(
+  [
+    { id: 'A', value: 100, se: 500 },
+    { id: 'B', value: 0, se: 500 },
+  ],
+  1.28
+);
+assert.deepEqual(noSeparation, { weak: [], strong: [] });
+
+// A lone entity has nothing to compare against, so it must never be flagged
+// (the same vacuous-truth hazard flagWeakDecks guards against for a lone deck).
+assert.deepEqual(findRatingOutliers([{ id: 'A', value: 100, se: 5 }], 1.28), { weak: [], strong: [] });
+
+// flagFairnessOutliers: integration test wiring countDefaultComboMatches,
+// combinedPlayerDeckRating, and findRatingOutliers together. Reuses the
+// existing enoughData/fitEnough fixture (n=20, well-identified — see the
+// makeMatches comment above) rather than building a new one: A always
+// plays default deck x, B always plays default deck y in half the matches
+// (the other half both borrow), giving both players exactly 10
+// default-combo matches, comfortably over the 5-match floor, with the
+// deck-y-is-weaker signal from above translating into "B's default team is
+// significantly behind A's" once B's own skill is folded back in.
+const fairnessPlayers = [
+  { id: 'A', name: 'A', defaultDeck: 'x' },
+  { id: 'B', name: 'B', defaultDeck: 'y' },
+];
+assert.equal(countDefaultComboMatches(enoughData, fairnessPlayers).get('A'), 10);
+assert.equal(countDefaultComboMatches(enoughData, fairnessPlayers).get('B'), 10);
+assert.deepEqual(
+  flagFairnessOutliers(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData),
+  { weak: ['B'], strong: ['A'] }
+);
+
+// Raising minMatches above what either player has (10) forces the gate to
+// block both, isolating the gate the same way the flagWeakDecks test above
+// does — same fit and data, only minMatches differs.
+assert.deepEqual(
+  flagFairnessOutliers(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData, 11),
+  { weak: [], strong: [] }
+);
 
 // selectBestCandidate: the core "prefer competitive over merely informative"
 // rule, tested directly with fabricated candidates — no fit required — so

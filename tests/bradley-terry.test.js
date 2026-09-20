@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { fitBradleyTerry, predictWinProbability, meanCenteredRatings, toEloScale } from '../src/bradley-terry.js';
+import { fitBradleyTerry, predictWinProbability, meanCenteredRatings, combinedPlayerDeckRating, toEloScale } from '../src/bradley-terry.js';
 
 // Balanced dataset: A/x and B/y trade wins evenly -> ratings should stay at 0.5/0.5.
 const balancedMatches = [
@@ -116,5 +116,33 @@ assert.throws(
   /Unknown player id: Unknown/,
   'unknown id should throw',
 );
+
+// combinedPlayerDeckRating: the mean-centering constants for each family are
+// additive constants that must cancel exactly in any DIFFERENCE of two
+// combined ratings, leaving exactly the same raw log-odds that
+// predictWinProbability computes directly from theta — this is an exact
+// algebraic identity, not an approximation, so it pins the function's
+// correctness far more precisely than checking plausible-looking output.
+const combinedP1d1 = combinedPlayerDeckRating(fitA, 'P1', 'd1', playerIdsA, deckIdsA);
+const combinedP2d2 = combinedPlayerDeckRating(fitA, 'P2', 'd2', playerIdsA, deckIdsA);
+const rawP = predictWinProbability(fitA, 'P1', 'd1', 'P2', 'd2');
+const rawLogit = Math.log(rawP / (1 - rawP));
+const combinedDiff = combinedP1d1.value - combinedP2d2.value;
+assert.ok(
+  Math.abs(combinedDiff - rawLogit) < 1e-9,
+  `combined-rating difference should exactly equal the raw logit: ${combinedDiff} vs ${rawLogit}`
+);
+
+// Anchor-invariance applies to the combined rating too, since it's built
+// from the same anchor-invariant player/deck diff vectors already verified
+// above (same fitB re-fit with different anchors as the check above).
+const combinedP1d1B = combinedPlayerDeckRating(fitB, 'P1', 'd1', playerIdsA, deckIdsA);
+assert.ok(
+  Math.abs(combinedP1d1.value - combinedP1d1B.value) < ANCHOR_INVARIANCE_TOLERANCE,
+  `combined rating should be anchor-invariant, diff=${Math.abs(combinedP1d1.value - combinedP1d1B.value)}`
+);
+
+// se must be a finite positive number.
+assert.ok(combinedP1d1.se > 0 && Number.isFinite(combinedP1d1.se), 'combined se should be a finite positive number');
 
 console.log('OK: bradley-terry.test.js');
