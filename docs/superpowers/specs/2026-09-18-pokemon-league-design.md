@@ -95,6 +95,34 @@ rebuild" recommendation possible instead of a gut call:
   a rebuild"). No workflow, approval step, or state beyond what's already in
   `decks.json`.
 
+## "Try this next" matchup suggestions
+
+Beyond flagging weak decks, the site suggests which *untried or under-tried*
+player+deck vs player+deck matchups would most improve confidence in the
+ratings — reusing the same Fisher information matrix computed for the
+confidence-interval feature above, so this is additive machinery, not a
+separate system:
+
+- For every plausible candidate matchup (a pair of players, each assigned
+  any active deck — not necessarily their own default), estimate the
+  information-gain it would contribute: the Fisher information contribution
+  of a hypothetical match is proportional to `p·(1−p)` (using the model's
+  current predicted win probability for that matchup) times the outer
+  product of the two sides' parameter vectors. Matchups closest to a 50/50
+  predicted outcome, and/or involving entities with the widest current
+  confidence intervals, contribute the most information.
+- This naturally favors exactly the matchups you'd intuitively want more
+  data on: pairings that have never happened, and deck swaps in particular
+  (since those are what separate player skill from deck strength — see
+  Rating model above).
+- Candidate matchups are enumerated over active decks only (retired
+  versions excluded) — at family scale (4 players × a handful of decks)
+  this is a few dozen combinations at most, trivial to rank client-side.
+- **Surfacing**: a small "try this next" panel (top 3 suggested matchups,
+  e.g. "J with C's deck vs T with T's deck") shown on the homepage,
+  recomputed every time ratings are refit. Purely a suggestion — no
+  tracking of whether it was acted on.
+
 ## Views
 
 Full parity between players and decks:
@@ -108,6 +136,7 @@ Full parity between players and decks:
 - **Deck head-to-head grid** — win/loss record for each deck pair
 - **Match history table** — shared, chronological, shows both
   player+deck pairs and the winner
+- **"Try this next" panel** — top 3 suggested matchups per the section above
 
 ## Visual style
 
@@ -130,5 +159,7 @@ skills and equal decks must yield a 50/50 expected outcome; a lopsided
 synthetic match history must recover a clear skill ordering) and on the
 confidence-interval flagging rule (e.g. a deck with few matches must never
 be flagged regardless of how bad its point estimate looks; a deck with a
-long, consistent losing record and a wide match count must be flagged), run
+long, consistent losing record and a wide match count must be flagged) and
+on the matchup-suggestion ranking (e.g. a never-played player/deck
+combination must always outrank a heavily-played one, all else equal), run
 in the browser console during development.
