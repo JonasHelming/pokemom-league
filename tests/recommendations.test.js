@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { fitBradleyTerry } from '../src/bradley-terry.js';
+import { fitBradleyTerry, combinedPlayerDeckRating } from '../src/bradley-terry.js';
 import {
   flagWeakDecks,
   suggestMatchups,
@@ -9,6 +9,7 @@ import {
   findRatingOutliers,
   flagFairnessOutliers,
   computeBoostProgress,
+  computeMarginProgress,
 } from '../src/recommendations.js';
 
 // Deck x beats deck y most of the time (not always — see below), and
@@ -216,20 +217,74 @@ assert.equal(
   'fewer than 2 players with an active default deck -> nothing to spotlight'
 );
 
+// computeMarginProgress: the pure comparison-margin factor, tested
+// directly with fabricated {value, se} pairs — no fit required, same
+// rationale as findRatingOutliers/selectBestCandidate above.
+assert.equal(
+  computeMarginProgress({ value: 0, se: 1 }, [{ value: 0, se: 1 }], 1.28),
+  0,
+  'exactly tied point estimates -> 0 progress, nothing separates them yet'
+);
+assert.equal(
+  computeMarginProgress({ value: -100, se: 1 }, [{ value: 100, se: 1 }], 1.28),
+  1,
+  'fully separated confidence intervals -> 1 (already flaggable on this rival)'
+);
+// Halfway to separation: with target={value:0,se:1} and z=1.28, a rival at
+// value=1.28 (se=1) puts rivalLower exactly at 0 and upper(target) at 1.28
+// — margin = -1.28, requiredGap = 2.56, so 1 + margin/requiredGap = 0.5.
+assert.equal(computeMarginProgress({ value: 0, se: 1 }, [{ value: 1.28, se: 1 }], 1.28), 0.5);
+assert.equal(computeMarginProgress({ value: 0, se: 1 }, [], 1.28), 1, 'no rivals to be behind -> already at 1');
+// The binding constraint is the HARDEST rival to beat (minimum across rivals).
+assert.equal(
+  computeMarginProgress({ value: -100, se: 1 }, [{ value: 100, se: 1 }, { value: 0, se: 1 }], 1.28),
+  computeMarginProgress({ value: -100, se: 1 }, [{ value: 0, se: 1 }], 1.28),
+  'an easily-beaten extra rival must not raise progress past what the closest rival allows'
+);
+
 // computeBoostProgress: progress should climb from near-zero toward 1
 // (flagged) as data accumulates, using the same underlying fit/fixture as
 // the flagFairnessOutliers tests above — B (default deck y, the weaker
-// deck) is always the spotlighted weakest candidate here.
+// deck) is always the spotlighted weakest candidate here. Each case also
+// pins progress against an independently-computed
+// dataProgress * marginProgress, so a mutation dropping either factor
+// (verified during review to otherwise survive the whole suite) fails here.
+function expectedProgress(fit, matches) {
+  const ratings = [
+    { id: 'A', ...combinedPlayerDeckRatingFor(fit, 'A') },
+    { id: 'B', ...combinedPlayerDeckRatingFor(fit, 'B') },
+  ];
+  const [weakest, ...rest] = [...ratings].sort((a, b) => a.value - b.value);
+  const counts = countDefaultComboMatches(matches, fairnessPlayers);
+  const dataProgress = Math.min((counts.get(weakest.id) || 0) / 5, 1);
+  const marginProgress = computeMarginProgress(weakest, rest, 1.28);
+  return dataProgress * marginProgress;
+}
+function combinedPlayerDeckRatingFor(fit, playerId) {
+  const deckId = fairnessPlayers.find((p) => p.id === playerId).defaultDeck;
+  return combinedPlayerDeckRating(fit, playerId, deckId, ['A', 'B'], ['x', 'y']);
+}
+
 const earlyMatches = makeMatches(3);
-const earlyProgress = computeBoostProgress(fitBradleyTerry(earlyMatches, ['A', 'B'], ['x', 'y']), fairnessPlayers, ['A', 'B'], ['x', 'y'], earlyMatches);
+const earlyFit = fitBradleyTerry(earlyMatches, ['A', 'B'], ['x', 'y']);
+const earlyProgress = computeBoostProgress(earlyFit, fairnessPlayers, ['A', 'B'], ['x', 'y'], earlyMatches);
 assert.equal(earlyProgress.playerId, 'B');
 assert.equal(earlyProgress.flagged, false);
 assert.ok(earlyProgress.progress > 0 && earlyProgress.progress < 0.5, `expected low but nonzero early progress, got ${earlyProgress.progress}`);
+assert.ok(
+  Math.abs(earlyProgress.progress - expectedProgress(earlyFit, earlyMatches)) < 1e-9,
+  'progress must equal dataProgress * marginProgress, not either factor alone'
+);
 
 const midMatches = makeMatches(10);
-const midProgress = computeBoostProgress(fitBradleyTerry(midMatches, ['A', 'B'], ['x', 'y']), fairnessPlayers, ['A', 'B'], ['x', 'y'], midMatches);
+const midFit = fitBradleyTerry(midMatches, ['A', 'B'], ['x', 'y']);
+const midProgress = computeBoostProgress(midFit, fairnessPlayers, ['A', 'B'], ['x', 'y'], midMatches);
 assert.equal(midProgress.flagged, false);
 assert.ok(midProgress.progress > earlyProgress.progress, 'progress should climb as more data accumulates');
+assert.ok(
+  Math.abs(midProgress.progress - expectedProgress(midFit, midMatches)) < 1e-9,
+  'progress must equal dataProgress * marginProgress, not either factor alone'
+);
 
 const lateProgress = computeBoostProgress(fitEnough, fairnessPlayers, ['A', 'B'], ['x', 'y'], enoughData);
 assert.equal(lateProgress.playerId, 'B');

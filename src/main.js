@@ -1,7 +1,13 @@
 import { loadLeagueData } from './data.js';
 import { fitBradleyTerry, meanCenteredRatings, combinedPlayerDeckRating, toEloScale, ELO_SCALE } from './bradley-terry.js';
 import { computeRatingHistory } from './history.js';
-import { flagWeakDecks, flagFairnessOutliers, computeBoostProgress, suggestMatchups } from './recommendations.js';
+import {
+  flagWeakDecks,
+  flagFairnessOutliers,
+  computeBoostProgress,
+  playersWithActiveDefaultDeck,
+  suggestMatchups,
+} from './recommendations.js';
 import {
   renderLeaderboardHTML,
   renderHeadToHeadHTML,
@@ -50,8 +56,7 @@ async function main() {
   // spec's "Practical fairness" section), so it gets its own table rather
   // than being folded into the deck leaderboard. Players whose default
   // deck has since been retired are skipped (nothing meaningful to show).
-  const playerDeckEntries = players
-    .filter((p) => deckIds.includes(p.defaultDeck))
+  const playerDeckEntries = playersWithActiveDefaultDeck(players, deckIds)
     .map((p) => {
       const combined = combinedPlayerDeckRating(fit, p.id, p.defaultDeck, playerIds, deckIds);
       return {

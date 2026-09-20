@@ -67,6 +67,12 @@ assert.ok(fairnessHTML.includes('Alice'), 'strong player should be named');
 assert.ok(fairnessHTML.includes('Water'), "weak player's default deck should be named");
 assert.ok(fairnessHTML.includes('Fire'), "strong player's default deck should be named");
 
+// A flagged id whose name/default-deck can't be resolved is skipped rather
+// than shipping a literal "undefined" string to the page.
+const fairnessWithUnknown = renderFairnessBannersHTML({ weak: ['unknown'], strong: ['A'] }, namesById, namesById, fairnessPlayers);
+assert.ok(!fairnessWithUnknown.includes('undefined'), 'unresolvable id must not render literal "undefined" text');
+assert.ok(fairnessWithUnknown.includes('Alice'), 'the resolvable strong entry should still render');
+
 assert.equal(renderBoostProgressHTML(null, namesById, namesById, fairnessPlayers), '', 'null (fewer than 2 comparable players) renders nothing');
 
 const inProgressHTML = renderBoostProgressHTML({ playerId: 'B', progress: 0.42, flagged: false }, namesById, namesById, fairnessPlayers);

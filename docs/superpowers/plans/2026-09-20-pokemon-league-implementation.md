@@ -1627,3 +1627,26 @@ against the live `data/`: a 400px-wide emulated phone renders the original
 single-column stack unchanged, and a 2200px-wide emulated TV renders the
 three side-by-side pairs plus the full-width boost-progress widget exactly
 as specified, with no console errors or exceptions at either width.
+
+**Follow-up review round** found one more Important issue and some real
+Minor ones, all fixed before pushing: `computeBoostProgress`'s two factors
+(`dataProgress`, `marginProgress`) could each be deleted without any test
+failing — fixed by extracting the margin calculation into a pure, exported
+`computeMarginProgress(target, rivals, confidenceZ)` (unit-tested directly
+with fabricated `{value, se}` pairs: tied → 0, separated → 1, exactly
+halfway → 0.5, empty rivals → 1, hardest-rival-is-binding), plus a test
+pinning `computeBoostProgress`'s result against an independently computed
+`dataProgress * marginProgress` — both previously-survivable mutations now
+fail. Also fixed: the three `tv:grid` wrapper `<div>`s in `index.html` were
+missing `space-y-8 tv:space-y-0`, so below the `tv` breakpoint the
+canvas-to-head-to-head (and Player+Deck-to-suggestions) gap had silently
+dropped from 2rem to 0 — confirmed both the bug (via computed
+`getBoundingClientRect()` gaps) and the fix (32px restored) in a real
+browser at 400px width. `main.js`'s inline retired-deck-filter predicate
+was replaced with the shared, now-exported `playersWithActiveDefaultDeck`
+helper so the ranking table and the flag/widget can't silently diverge on
+who's "in the running." `renderFairnessBannersHTML`'s unresolvable-name
+guard gained a test (it was previously deletable without any failure). A
+stray `.shrink` utility class had crept into the compiled CSS because
+Tailwind's content scanner matched the word "shrink" inside a prose
+comment — reworded, not suppressed.
