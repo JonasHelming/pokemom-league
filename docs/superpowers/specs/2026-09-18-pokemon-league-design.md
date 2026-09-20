@@ -23,8 +23,13 @@ Players: **M**, **T**, **C**, **J**.
 Plain JSON files under `data/`:
 
 - `data/players.json` — `[{ id, name, defaultDeck }]`
-- `data/decks.json` — `[{ id, name, owner }]` (owner = player id who
-  normally plays it; decks can still be borrowed by others in a match)
+- `data/decks.json` — `[{ id, name, owner, predecessor?, retired? }]`
+  (owner = player id who normally plays it; decks can still be borrowed by
+  others in a match). `predecessor` links a rebuilt deck to the version it
+  replaced (e.g. `fire-1`'s predecessor is `fire`); `retired: true` marks a
+  version as no longer in active play. Ratings are always computed per
+  version — a rebuild does not carry over its predecessor's rating, since
+  the whole point is to collect fresh data on the new build.
 - `data/matches.json` — `[{ player1, deck1, player2, deck2, winner, date }]`
   Every match entry is fully explicit — deck fields are always filled in,
   even when a player used their own default deck. No inference happens in
@@ -61,6 +66,35 @@ For rating-history charts, the model is refit on each successive
 chronological prefix of matches, producing a rating snapshot per player/deck
 at each point in the timeline.
 
+## Deck strength recommendations & versioning
+
+The joint model gives each deck a fitted strength *and* a standard error, not
+just a point estimate — which is what makes a principled "this deck needs a
+rebuild" recommendation possible instead of a gut call:
+
+- **Confidence estimate**: standard errors come from the observed Fisher
+  information (inverse Hessian of the joint log-likelihood at the fitted
+  values), giving a 95% confidence interval per deck (`strength ± 1.96·SE`).
+- **Flagging rule**: an active (non-retired) deck is flagged as
+  "significantly behind" only when both hold:
+  1. it has at least a minimum number of recorded matches (default: 8), and
+  2. its 95% CI upper bound is below the 95% CI lower bound of *every other*
+     active deck.
+  Requiring separation from the entire field, not just the nearest
+  competitor, keeps this conservative and avoids flagging decks on thin,
+  noisy data.
+- **Versioning on rebuild**: when a flagged deck is boosted/rebuilt, it gets
+  a new id (e.g. `fire` → `fire-1`) with `predecessor: "fire"` and the old
+  entry is marked `retired: true`. The new version starts with no match
+  history and is rated independently, so it collects clean data on the
+  rebuilt list rather than inheriting the old build's rating. The site can
+  still show a deck's full lineage (e.g. `fire → fire-1 → fire-2`) by
+  following `predecessor` links, purely as a historical view.
+- **Surfacing**: purely informational — a small banner/callout next to a
+  flagged deck on the deck leaderboard (e.g. "significantly behind — consider
+  a rebuild"). No workflow, approval step, or state beyond what's already in
+  `decks.json`.
+
 ## Views
 
 Full parity between players and decks:
@@ -68,7 +102,8 @@ Full parity between players and decks:
 - **Player leaderboard** — ranked by fitted player skill
 - **Player rating history chart** — skill over time, one line per player
 - **Player head-to-head grid** — win/loss record for each pair
-- **Deck leaderboard** — ranked by fitted deck strength
+- **Deck leaderboard** — ranked by fitted deck strength, with a "consider a
+  rebuild" banner on any deck flagged per the recommendation rule below
 - **Deck rating history chart** — strength over time, one line per deck
 - **Deck head-to-head grid** — win/loss record for each deck pair
 - **Match history table** — shared, chronological, shows both
@@ -92,5 +127,8 @@ GitHub Action, no external service.
 No test framework, consistent with the no-build-step setup. Validation is a
 handful of `console.assert` sanity checks on the rating fit (e.g. equal
 skills and equal decks must yield a 50/50 expected outcome; a lopsided
-synthetic match history must recover a clear skill ordering), run in the
-browser console during development.
+synthetic match history must recover a clear skill ordering) and on the
+confidence-interval flagging rule (e.g. a deck with few matches must never
+be flagged regardless of how bad its point estimate looks; a deck with a
+long, consistent losing record and a wide match count must be flagged), run
+in the browser console during development.
