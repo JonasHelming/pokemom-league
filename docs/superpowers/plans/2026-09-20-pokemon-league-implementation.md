@@ -660,33 +660,47 @@ import assert from 'node:assert/strict';
 import { fitBradleyTerry } from '../src/bradley-terry.js';
 import { flagWeakDecks, suggestMatchups, countMatchesByDeck } from '../src/recommendations.js';
 
-function makeMatches(n, deck1Wins) {
-  return Array.from({ length: n }, (_, i) => ({
-    player1: 'A', deck1: 'x', player2: 'B', deck2: 'y',
-    winner: deck1Wins ? 'A' : 'B',
-    date: `2026-03-${String(i + 1).padStart(2, '0')}`,
-  }));
+// Deck x beats deck y regardless of who pilots which, and piloting alternates
+// between A and B every match. This crossed design is what makes deck
+// strength statistically separable from player skill at all — a fixed
+// pairing (A always on x, B always on y) would make "player B is weak" and
+// "deck y is weak" perfectly confounded, no matter how much data you add
+// (see the design spec's identifiability discussion). Winner is always
+// whoever piloted the stronger deck that match, so both players end up with
+// ~equal fitted skill while deck y ends up clearly weaker.
+function makeMatches(n) {
+  return Array.from({ length: n }, (_, i) => {
+    const aUsesX = i % 2 === 0;
+    return {
+      player1: 'A', deck1: aUsesX ? 'x' : 'y',
+      player2: 'B', deck2: aUsesX ? 'y' : 'x',
+      winner: aUsesX ? 'A' : 'B',
+      date: `2026-03-${String(i + 1).padStart(2, '0')}`,
+    };
+  });
 }
 
-// Deck y loses consistently and has enough matches (10) -> should be flagged.
-const enoughData = makeMatches(10, true);
+// Deck y loses consistently (regardless of pilot) and has enough matches
+// (20, well over the minMatches=8 threshold) -> should be flagged.
+const enoughData = makeMatches(20);
 const fitEnough = fitBradleyTerry(enoughData, ['A', 'B'], ['x', 'y']);
 const flaggedEnough = flagWeakDecks(fitEnough, ['x', 'y'], enoughData, 8);
 assert.deepEqual(flaggedEnough, ['y']);
 
-// Same pattern but too few matches (5) -> should not be flagged yet.
-const notEnoughData = makeMatches(5, true);
+// Same pattern but too few matches (5, under the threshold) -> should not be
+// flagged yet, regardless of how bad deck y's point estimate looks.
+const notEnoughData = makeMatches(5);
 const fitNotEnough = fitBradleyTerry(notEnoughData, ['A', 'B'], ['x', 'y']);
 const flaggedNotEnough = flagWeakDecks(fitNotEnough, ['x', 'y'], notEnoughData, 8);
 assert.deepEqual(flaggedNotEnough, []);
 
-assert.equal(countMatchesByDeck(enoughData).get('x'), 10);
-assert.equal(countMatchesByDeck(enoughData).get('y'), 10);
+assert.equal(countMatchesByDeck(enoughData).get('x'), 20);
+assert.equal(countMatchesByDeck(enoughData).get('y'), 20);
 
 // Player C and its decks have zero data -> suggestions should prioritize C.
 const players = ['A', 'B', 'C'];
 const decks = ['x', 'y'];
-const sparseMatches = makeMatches(10, true);
+const sparseMatches = makeMatches(10);
 const sparseFit = fitBradleyTerry(sparseMatches, players, decks);
 const suggestions = suggestMatchups(sparseFit, players, decks, 3);
 assert.ok(suggestions.length > 0);
