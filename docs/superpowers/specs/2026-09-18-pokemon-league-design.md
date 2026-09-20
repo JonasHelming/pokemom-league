@@ -133,18 +133,20 @@ to say — not a realistic case at family scale.)
   surface lopsided-looking matchups involving whichever player/deck has the
   least data — a nearly-untested entity's point estimate is unreliable and
   often looks like a near-certain blowout even though it isn't really
-  predictable, so a **genuinely competitive candidate (within 30 points of
-  a 50/50 predicted outcome) is preferred over a merely informative one**;
-  information gain still breaks ties among competitive candidates, and only
-  when *no* competitive option exists for that pair does it fall back to
-  the most informative (possibly lopsided) one. Verified on live match
-  data: this fixed a real case where a genuinely close 66.7%-predicted
-  rematch lost to a 0.9%-predicted blowout under a pure info-gain or
-  naively-blended score, purely because the blowout involved a far
-  less-tested deck.
+  predictable, so a **genuinely competitive candidate (within 35 points of
+  a 50/50 predicted outcome, i.e. a predicted win probability between 15%
+  and 85%) is preferred over a merely informative one**; information gain
+  still breaks ties among competitive candidates, and only when *no*
+  competitive option exists for that pair does it fall back to the most
+  informative (possibly lopsided) one. Verified on live match data: this
+  fixed a real case where a genuinely close 66.7%-predicted rematch lost to
+  a 0.9%-predicted blowout under a pure info-gain or naively-blended score,
+  purely because the blowout involved a far less-tested deck.
 - The chosen deck combination for each pair is kept; the six (or
-  n·(n−1)/2, for n active players) results are sorted by information gain
-  and all shown — not truncated to a top-3.
+  n·(n−1)/2, for n active players) results are all shown — not truncated to
+  a top-3 — sorted with pairs that had a genuinely competitive option first,
+  then by information gain within each group, so the panel leads with fun
+  games to actually play rather than a high-information but predictable one.
 - Candidate matchups are enumerated over active decks only (retired
   versions excluded) — at family scale this is a small, trivial-to-rank
   client-side computation.

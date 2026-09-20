@@ -1375,10 +1375,14 @@ as a "not bullshit, but responsive enough to be useful" balance. Verified
 numerically: at n=10 this fixture's required gap sits between the two
 thresholds (flags at 1.28, would not flag at 1.96) — a real, load-bearing
 distinction, not a coincidence of the fixture's small-n fragility (the
-match-count floor and the confidence-level change are tested separately;
-see `tests/recommendations.test.js`). The weak-deck banner text now says
-"significantly behind at 80% confidence" so it doesn't visually contradict
-the leaderboard's separate, unrelated 95% display range.
+match-count floor and the confidence-level change are tested separately,
+each isolated by varying only the one parameter under test against the
+same fit; see `tests/recommendations.test.js`). The weak-deck banner text
+now says "significantly behind by the family's own confidence threshold"
+(deliberately not citing a specific percentage — the true joint confidence
+of "beats every other deck" isn't simply 80% even though each pairwise
+comparison uses an 80% interval) so it doesn't visually contradict the
+leaderboard's separate, unrelated 95% display range.
 
 **2. `suggestMatchups` redesigned from "top-3 by pure information gain" to
 "one suggestion per unique player pair, preferring a competitive option."**
@@ -1400,21 +1404,30 @@ live data, a genuinely close 66.7%-predicted rematch (T vs J, already
 played several times) still lost to a 0.9%-predicted near-blowout (same
 pair, a far less-tested deck), the exact symptom the redesign was meant to
 fix. The actual fix, `selectBestCandidate` in `src/recommendations.js`: per
-pair, filter candidates to those within 30 points of 50/50
-(`COMPETITIVE_CLOSENESS_THRESHOLD = 0.3`); if any exist, pick the
-highest-gain one among *those*; only if none exist does it fall back to the
-single highest-gain candidate overall. Verified this threshold isn't a
-fragile knife-edge (0.2 through 0.5 all produce identical picks on live
-data), and verified the fix directly resolves the T-vs-J case (now
-correctly recommends the 66.7% option). `selectBestCandidate` is exported
-and unit-tested directly with fabricated `{predictedWinProbA, gain}`
-objects — deliberately not through another hand-tuned Bradley-Terry
-fixture, given this file's history of fixture-fragility bugs. Mirror
-matchups (`deckA === deckB`) are now excluded from candidates entirely, and
-each pair's chosen suggestion carries a `competitiveMatchAvailable`
-boolean. The final list still returns one entry per pair — for n active
-players, n·(n−1)/2 suggestions (6 for the family's 4 players) — sorted by
-information gain, not truncated to a top-3.
+pair, filter candidates to those within 35 points of 50/50 (a predicted win
+probability between 15% and 85%, i.e. `closeness(p) >= COMPETITIVE_CLOSENESS_THRESHOLD = 0.3`
+— note the threshold is a *closeness* value, not directly a probability
+distance, and an earlier version of this comment and the spec incorrectly
+described the resulting band as "30 points"/35%-65%, since fixed and pinned
+with a boundary test); if any exist, pick the highest-gain one among
+*those*; only if none exist does it fall back to the single highest-gain
+candidate overall. Verified this threshold isn't a fragile knife-edge (0.2
+through 0.5 all produce identical picks on live data), and verified the fix
+directly resolves the T-vs-J case (now correctly recommends the 66.7%
+option). `selectBestCandidate` is exported and unit-tested directly with
+fabricated `{predictedWinProbA, gain}` objects — deliberately not through
+another hand-tuned Bradley-Terry fixture, given this file's history of
+fixture-fragility bugs — including a test pinning the exact 15%/85%
+boundary, and throws on an empty candidate list rather than silently
+returning a garbage object (`suggestMatchups` guards every call site so
+this is unreachable in production). Mirror matchups (`deckA === deckB`)
+are now excluded from candidates entirely, and each pair's chosen
+suggestion carries a `competitiveMatchAvailable` boolean. The final list
+still returns one entry per pair — for n active players, n·(n−1)/2
+suggestions (6 for the family's 4 players) — sorted with pairs that had a
+genuinely competitive option first, then by information gain within each
+group (not by information gain alone, and not truncated to a top-3), so
+the panel leads with fun games to actually play.
 
 `renderSuggestionsPanelHTML`'s heading was updated from "Try This Next" to
 "Best Deck Matchup For Each Pair" to match.
