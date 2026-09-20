@@ -116,6 +116,8 @@ export function meanCenteredRatings(fit, family, ids) {
   return result;
 }
 
+export const ELO_SCALE = 400 / Math.LN10;
+
 export function toEloScale(value) {
-  return 1000 + value * (400 / Math.LN10);
+  return 1000 + value * ELO_SCALE;
 }
