@@ -55,25 +55,32 @@ export function fitBradleyTerry(matches, playerIds, deckIds) {
   }));
 
   let theta = new Array(numFree).fill(0);
+  let converged = false;
+  let iterations = 0;
 
   for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
+    iterations = iter + 1;
     const grad = new Array(numFree).fill(0);
     for (const { x, y } of rows) {
       const p = sigmoid(dot(theta, x));
       for (let i = 0; i < numFree; i++) grad[i] += (y - p) * x[i];
     }
+    for (let i = 0; i < numFree; i++) grad[i] -= RIDGE * theta[i];
 
     const negHessian = computeNegHessian(rows, theta, numFree);
     const cov = invert(negHessian);
     const delta = matVec(cov, grad);
     theta = theta.map((v, i) => v + delta[i]);
 
-    if (delta.every((d) => Math.abs(d) < CONVERGENCE_THRESHOLD)) break;
+    if (delta.every((d) => Math.abs(d) < CONVERGENCE_THRESHOLD)) {
+      converged = true;
+      break;
+    }
   }
 
   const cov = invert(computeNegHessian(rows, theta, numFree));
 
-  return { playerIndex, deckIndex, playerAnchor, deckAnchor, theta, cov, numFree };
+  return { playerIndex, deckIndex, playerAnchor, deckAnchor, theta, cov, numFree, converged, iterations };
 }
 
 export function predictWinProbability(fit, playerA, deckA, playerB, deckB) {
@@ -83,7 +90,9 @@ export function predictWinProbability(fit, playerA, deckA, playerB, deckB) {
 
 function paramVectorFor(fit, family, id) {
   const v = new Array(fit.numFree).fill(0);
-  const index = family === 'player' ? fit.playerIndex.get(id) : fit.deckIndex.get(id);
+  const map = family === 'player' ? fit.playerIndex : fit.deckIndex;
+  if (!map.has(id)) throw new Error(`Unknown ${family} id: ${id}`);
+  const index = map.get(id);
   if (index !== null && index !== undefined) v[index] = 1;
   return v;
 }
