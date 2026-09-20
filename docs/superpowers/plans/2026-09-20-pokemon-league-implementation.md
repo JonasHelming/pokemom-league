@@ -680,14 +680,19 @@ import { flagWeakDecks, suggestMatchups, countMatchesByDeck } from '../src/recom
 // Numerically verified (see the Task 6 implementation report): even
 // `upsetEvery` values (4, 6, 8, ...) are pathological here, because
 // `isUpset` (`i % upsetEvery === upsetEvery - 1`) then always coincides with
-// the same parity of `i`, so the upset always lands on the *same*
-// pilot/deck pairing — reintroducing a confound between "player" and "deck"
-// effects and producing near-complete separation (huge, non-shrinking `se`)
-// no matter how large `n` gets. An odd `upsetEvery` decorrelates the upset
-// from the pilot-crossing parity, so both pilots experience the upset over
-// time and `se` shrinks cleanly like 1/sqrt(n). `upsetEvery = 5` (an 80% win
-// rate for the stronger deck) combined with `n = 20` gives a comfortable
-// margin that holds stably for n in [15, 30], not just at n = 20 exactly.
+// the same parity of `i`, so every match of one covariate pattern (e.g. "A
+// pilots x") is won 100% of the time while the other pattern still has
+// upsets. That one always-100% pattern is quasi-complete separation — the
+// same failure mode as the all-deterministic fixture above, just confined to
+// half the data — producing a huge, non-shrinking `se` no matter how large
+// `n` gets. It is NOT a rank-deficiency/confound problem (the design matrix
+// stays full rank) — an odd `upsetEvery` fixes it by making the upset land
+// on both parities, so every covariate pattern sees some losses and `se`
+// shrinks cleanly like 1/sqrt(n). `upsetEvery = 5` (an 80% win rate for the
+// stronger deck) combined with `n = 20` gives a comfortable, verified margin
+// that holds stably for n in [12, 40] — `upsetEvery = 3` (67% win rate) has
+// the right parity but too small an effect size to separate at n = 20 (it
+// needs n ≳ 26), so don't assume any odd value works at any n.
 function makeMatches(n, upsetEvery = 5) {
   return Array.from({ length: n }, (_, i) => {
     const aUsesX = i % 2 === 0;
@@ -756,6 +761,8 @@ export function countMatchesByDeck(matches) {
 }
 
 export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 8) {
+  if (activeDeckIds.length < 2) return [];
+
   const ratings = meanCenteredRatings(fit, 'deck', activeDeckIds);
   const counts = countMatchesByDeck(matches);
   const flagged = [];
