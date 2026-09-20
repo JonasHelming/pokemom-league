@@ -808,10 +808,12 @@ git commit -m "Add league data loading"
 **Files:**
 - Create: `src/render.js`
 - Test: `tests/render.test.js`
+- Modify: `tailwind.config.js` (add a `tv` breakpoint for large-screen/10-foot viewing)
+- Modify: `index.html` (apply base Tailwind styling plus `tv:` variants to the structural elements from Task 1, so the page reads well on phone/tablet/PC and scales up on a TV)
 
 **Interfaces:**
 - Produces:
-  - `renderLeaderboardHTML(title: string, entries: Array<{id, name, value}>, colorFor?: (id: string) => string|null): string`
+  - `renderLeaderboardHTML(title: string, entries: Array<{id, name, value, se?}>, colorFor?: (id: string) => string|null): string` — when `se` (an already Elo-scaled standard error — the caller, Task 9's `main.js`, is responsible for scaling it) is present on an entry, the rendered row shows a 95% confidence range (`value ± 1.96·se`, rounded) alongside the rating, so a wildly uncertain rating (e.g. a player or deck with almost no data, or with no deck-swapping ever recorded — see the design spec's identifiability caveat) doesn't look as trustworthy as a well-established one. When `se` is omitted, the row renders exactly as before (no range shown) — this keeps the function backward-compatible with any caller that doesn't have an `se` to give it.
   - `renderHeadToHeadHTML(title: string, ids: string[], namesById: {[id]: string}, matches: Array, field: 'player'|'deck'): string`
   - `renderMatchHistoryHTML(matches: Array, playersById: {[id]: string}, decksById: {[id]: string}): string`
   - `renderWeakDeckBannersHTML(flaggedDeckIds: string[], decksById: {[id]: string}): string`
@@ -820,7 +822,66 @@ git commit -m "Add league data loading"
 
   All pure functions returning HTML strings (no DOM access), so they're testable with plain string assertions in Node. Consumed by Task 9 (`main.js`), which assigns the returned strings to `element.innerHTML` and passes `getTypeColor` as the deck leaderboard's `colorFor`.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Add a `tv` breakpoint and apply responsive classes to `index.html`**
+
+Add a custom large-screen breakpoint to `tailwind.config.js` (`min-width: 1920px`), layered on top of Tailwind's default breakpoints via `extend` so `sm`/`md`/`lg`/`xl`/`2xl` are untouched:
+
+```js
+export default {
+  content: ['./index.html', './src/**/*.js'],
+  theme: {
+    extend: {
+      fontFamily: { display: ['"Baloo 2"', 'cursive'] },
+      colors: {
+        typeFire: '#f87171',
+        typeWater: '#60a5fa',
+        typeGrass: '#4ade80',
+        typeElectric: '#facc15',
+      },
+      screens: {
+        tv: '1920px',
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+Update `index.html`'s `<body>`, `<h1>`, and the two chart `<canvas>` elements to scale up at the `tv` breakpoint (the mobile/tablet/PC layout is unchanged — `tv:` classes only take effect above 1920px):
+
+```html
+<body class="bg-slate-50 text-slate-900 font-display p-6 max-w-4xl mx-auto space-y-8 tv:max-w-7xl tv:p-12 tv:space-y-12 tv:text-2xl">
+  <h1 class="text-3xl font-bold tv:text-6xl">Pokémon TCG Family League</h1>
+
+  <div id="weak-deck-banners"></div>
+  <div id="suggestions-panel"></div>
+
+  <div id="player-leaderboard"></div>
+  <canvas id="player-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas>
+  <div id="player-head-to-head"></div>
+
+  <div id="deck-leaderboard"></div>
+  <canvas id="deck-rating-chart" class="bg-white rounded p-2 tv:p-4"></canvas>
+  <div id="deck-head-to-head"></div>
+
+  <div id="match-history"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+```
+
+Only the `<body>` and `<h1>` opening tags and the two `<canvas>` tags change — leave `<head>` and the rest of the file from Task 1 as-is.
+
+Rebuild the CSS so the new breakpoint and classes are actually compiled in:
+
+```bash
+npm run build:css
+```
+
+Expected: `tailwind.css` is regenerated (check `git diff --stat tailwind.css` shows it changed).
+
+- [ ] **Step 2: Write the failing test**
 
 Create `tests/render.test.js`:
 
@@ -842,6 +903,12 @@ const leaderboardHTML = renderLeaderboardHTML('Players', [
 assert.ok(leaderboardHTML.indexOf('Alice') < leaderboardHTML.indexOf('Bob'));
 assert.ok(leaderboardHTML.includes('1050'));
 assert.ok(!leaderboardHTML.includes('border-left'), 'no colorFor given -> no accent styling');
+assert.ok(!leaderboardHTML.includes('±'), 'no se given -> no confidence range shown');
+
+const leaderboardWithSeHTML = renderLeaderboardHTML('Players', [
+  { id: 'A', name: 'Alice', value: 1050, se: 60 },
+]);
+assert.ok(leaderboardWithSeHTML.includes('±118'), 'se=60 -> 95% range is ±round(1.96*60)=±118');
 
 const deckLeaderboardHTML = renderLeaderboardHTML(
   'Decks',
@@ -885,20 +952,29 @@ assert.ok(suggestionsHTML.includes('60%'));
 console.log('OK: render.test.js');
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 3: Run test to verify it fails**
 
 Run: `node tests/render.test.js`
 Expected: FAIL — `Cannot find module '../src/render.js'`.
 
-- [ ] **Step 3: Write `src/render.js`**
+- [ ] **Step 4: Write `src/render.js`**
+
+Shared Tailwind class fragments keep every section visually consistent and
+responsive (base mobile/tablet/PC classes plus `tv:` variants for large
+screens, per the breakpoint added in Step 1):
 
 ```js
 const TYPE_COLORS = {
   fire: '#f87171',
-  water: '#60a5fa',
-  grass: '#4ade80',
   electric: '#facc15',
+  fighting: '#ea580c',
+  darkness: '#44403c',
 };
+
+const SECTION_CLASS = 'mb-6 tv:mb-10';
+const HEADING_CLASS = 'text-xl font-semibold mb-2 tv:text-4xl tv:mb-4';
+const TABLE_CLASS = 'w-full text-left border-collapse tv:text-2xl';
+const CELL_CLASS = 'p-2 border-b border-slate-200 tv:p-4';
 
 export function getTypeColor(deckId) {
   return TYPE_COLORS[deckId] || null;
@@ -909,10 +985,11 @@ export function renderLeaderboardHTML(title, entries, colorFor = () => null) {
     .map((e, i) => {
       const color = colorFor(e.id);
       const style = color ? ` style="border-left: 4px solid ${color}"` : '';
-      return `<tr${style}><td>${i + 1}</td><td>${e.name}</td><td>${Math.round(e.value)}</td></tr>`;
+      const range = e.se !== undefined ? ` <span class="text-slate-500 text-sm tv:text-xl">(±${Math.round(1.96 * e.se)})</span>` : '';
+      return `<tr${style}><td class="${CELL_CLASS}">${i + 1}</td><td class="${CELL_CLASS}">${e.name}</td><td class="${CELL_CLASS}">${Math.round(e.value)}${range}</td></tr>`;
     })
     .join('');
-  return `<section><h2>${title}</h2><table><thead><tr><th>#</th><th>Name</th><th>Rating</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">${title}</h2><table class="${TABLE_CLASS}"><thead><tr><th class="${CELL_CLASS}">#</th><th class="${CELL_CLASS}">Name</th><th class="${CELL_CLASS}">Rating</th></tr></thead><tbody>${rows}</tbody></table></section>`;
 }
 
 export function renderHeadToHeadHTML(title, ids, namesById, matches, field) {
@@ -931,18 +1008,18 @@ export function renderHeadToHeadHTML(title, ids, namesById, matches, field) {
     }
   }
 
-  const header = `<tr><th></th>${ids.map((id) => `<th>${namesById[id]}</th>`).join('')}</tr>`;
+  const header = `<tr><th class="${CELL_CLASS}"></th>${ids.map((id) => `<th class="${CELL_CLASS}">${namesById[id]}</th>`).join('')}</tr>`;
   const rows = ids
     .map((rowId) => {
       const cells = ids
         .map((colId) => (rowId === colId ? '—' : String(wins.get(key(rowId, colId)) || 0)))
-        .map((v) => `<td>${v}</td>`)
+        .map((v) => `<td class="${CELL_CLASS}">${v}</td>`)
         .join('');
-      return `<tr><th>${namesById[rowId]}</th>${cells}</tr>`;
+      return `<tr><th class="${CELL_CLASS}">${namesById[rowId]}</th>${cells}</tr>`;
     })
     .join('');
 
-  return `<section><h2>${title}</h2><table><thead>${header}</thead><tbody>${rows}</tbody></table></section>`;
+  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">${title}</h2><table class="${TABLE_CLASS}"><thead>${header}</thead><tbody>${rows}</tbody></table></section>`;
 }
 
 export function renderMatchHistoryHTML(matches, playersById, decksById) {
@@ -951,41 +1028,41 @@ export function renderMatchHistoryHTML(matches, playersById, decksById) {
     .map((m) => {
       const p1 = `${playersById[m.player1]} (${decksById[m.deck1]})`;
       const p2 = `${playersById[m.player2]} (${decksById[m.deck2]})`;
-      return `<tr><td>${m.date}</td><td>${p1}</td><td>${p2}</td><td>${playersById[m.winner]}</td></tr>`;
+      return `<tr><td class="${CELL_CLASS}">${m.date}</td><td class="${CELL_CLASS}">${p1}</td><td class="${CELL_CLASS}">${p2}</td><td class="${CELL_CLASS}">${playersById[m.winner]}</td></tr>`;
     })
     .join('');
-  return `<section><h2>Match History</h2><table><thead><tr><th>Date</th><th>Player 1</th><th>Player 2</th><th>Winner</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">Match History</h2><table class="${TABLE_CLASS}"><thead><tr><th class="${CELL_CLASS}">Date</th><th class="${CELL_CLASS}">Player 1</th><th class="${CELL_CLASS}">Player 2</th><th class="${CELL_CLASS}">Winner</th></tr></thead><tbody>${rows}</tbody></table></section>`;
 }
 
 export function renderWeakDeckBannersHTML(flaggedDeckIds, decksById) {
   if (flaggedDeckIds.length === 0) return '';
   const items = flaggedDeckIds
-    .map((id) => `<li>⚠️ ${decksById[id]} — significantly behind, consider a rebuild</li>`)
+    .map((id) => `<li class="p-2 tv:p-4 tv:text-2xl">⚠️ ${decksById[id]} — significantly behind, consider a rebuild</li>`)
     .join('');
-  return `<ul class="weak-deck-banners">${items}</ul>`;
+  return `<ul class="weak-deck-banners bg-amber-100 rounded mb-4 tv:mb-8">${items}</ul>`;
 }
 
 export function renderSuggestionsPanelHTML(suggestions, playersById, decksById) {
   const items = suggestions
     .map((s) => {
       const pct = Math.round(s.predictedWinProbA * 100);
-      return `<li>${playersById[s.playerA]} (${decksById[s.deckA]}) vs ${playersById[s.playerB]} (${decksById[s.deckB]}) — predicted ${pct}% / ${100 - pct}%</li>`;
+      return `<li class="${CELL_CLASS}">${playersById[s.playerA]} (${decksById[s.deckA]}) vs ${playersById[s.playerB]} (${decksById[s.deckB]}) — predicted ${pct}% / ${100 - pct}%</li>`;
     })
     .join('');
-  return `<section><h2>Try This Next</h2><ol>${items}</ol></section>`;
+  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">Try This Next</h2><ol class="${TABLE_CLASS}">${items}</ol></section>`;
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **Step 5: Run test to verify it passes**
 
 Run: `node tests/render.test.js`
 Expected: PASS — prints `OK: render.test.js`.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add src/render.js tests/render.test.js
-git commit -m "Add HTML rendering for leaderboards, head-to-head, and recommendations"
+git add src/render.js tests/render.test.js tailwind.config.js index.html tailwind.css
+git commit -m "Add HTML rendering with responsive/TV styling for leaderboards, head-to-head, and recommendations"
 ```
 
 ---
@@ -996,9 +1073,10 @@ git commit -m "Add HTML rendering for leaderboards, head-to-head, and recommenda
 - Create: `src/charts.js`
 - Test: `tests/charts.test.js`
 - Create: `src/main.js`
+- Modify: `src/bradley-terry.js` (export the Elo scale factor, `ELO_SCALE`, so `main.js` can scale standard errors into the same units as `toEloScale`'s ratings, for the leaderboard confidence range)
 
 **Interfaces:**
-- Consumes: everything from Tasks 4–8 (`loadLeagueData`, `fitBradleyTerry`, `meanCenteredRatings`, `toEloScale`, `computeRatingHistory`, `flagWeakDecks`, `suggestMatchups`, all `render*HTML` functions), and the DOM element ids from Task 1's `index.html`.
+- Consumes: everything from Tasks 4–8 (`loadLeagueData`, `fitBradleyTerry`, `meanCenteredRatings`, `toEloScale`, `ELO_SCALE`, `computeRatingHistory`, `flagWeakDecks`, `suggestMatchups`, all `render*HTML` functions), and the DOM element ids from Task 1's `index.html`.
 - Produces: `buildChartDatasets(history, ids, namesById, family): { labels: string[], datasets: Array<{label, data}> }` (pure, tested); `renderRatingChart(canvas, chartData)` (thin `Chart.js` wrapper, browser-only, not unit tested); the page's `main()` entry point wired to `DOMContentLoaded`.
 
 - [ ] **Step 1: Write the failing test for the pure chart-data transform**
@@ -1058,11 +1136,27 @@ export function renderRatingChart(canvas, chartData) {
 Run: `node tests/charts.test.js`
 Expected: PASS — prints `OK: charts.test.js`. (`renderRatingChart` is not covered — it needs the `Chart` global and a real `<canvas>`, verified manually in Step 7 below.)
 
-- [ ] **Step 5: Write `src/main.js`**
+- [ ] **Step 5: Export `ELO_SCALE` from `src/bradley-terry.js`**
+
+`toEloScale` already embeds the scale factor inline. Pull it out to a named
+constant and reuse it, without changing `toEloScale`'s existing behavior or
+signature:
+
+```js
+export const ELO_SCALE = 400 / Math.LN10;
+
+export function toEloScale(value) {
+  return 1000 + value * ELO_SCALE;
+}
+```
+
+This replaces the existing `toEloScale` function body in `src/bradley-terry.js` (from Task 4) — every other export in that file is untouched. Run `node tests/bradley-terry.test.js` to confirm the existing `toEloScale(0) === 1000` assertion still passes.
+
+- [ ] **Step 6: Write `src/main.js`**
 
 ```js
 import { loadLeagueData } from './data.js';
-import { fitBradleyTerry, meanCenteredRatings, toEloScale } from './bradley-terry.js';
+import { fitBradleyTerry, meanCenteredRatings, toEloScale, ELO_SCALE } from './bradley-terry.js';
 import { computeRatingHistory } from './history.js';
 import { flagWeakDecks, suggestMatchups } from './recommendations.js';
 import {
@@ -1090,10 +1184,20 @@ async function main() {
   const deckRatings = meanCenteredRatings(fit, 'deck', deckIds);
 
   const playerEntries = playerIds
-    .map((id) => ({ id, name: namesById[id], value: toEloScale(playerRatings[id].value) }))
+    .map((id) => ({
+      id,
+      name: namesById[id],
+      value: toEloScale(playerRatings[id].value),
+      se: playerRatings[id].se * ELO_SCALE,
+    }))
     .sort((a, b) => b.value - a.value);
   const deckEntries = deckIds
-    .map((id) => ({ id, name: namesById[id], value: toEloScale(deckRatings[id].value) }))
+    .map((id) => ({
+      id,
+      name: namesById[id],
+      value: toEloScale(deckRatings[id].value),
+      se: deckRatings[id].se * ELO_SCALE,
+    }))
     .sort((a, b) => b.value - a.value);
 
   document.getElementById('player-leaderboard').innerHTML = renderLeaderboardHTML('Players', playerEntries);
@@ -1119,23 +1223,23 @@ async function main() {
 document.addEventListener('DOMContentLoaded', main);
 ```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/charts.js tests/charts.test.js src/main.js
+git add src/bradley-terry.js src/charts.js tests/charts.test.js src/main.js
 git commit -m "Wire up rating charts and page bootstrap"
 ```
 
-- [ ] **Step 7: Manually verify the full page with sample data**
+- [ ] **Step 8: Manually verify the full page with sample data**
 
-Temporarily replace the contents of `data/matches.json` with sample data (do **not** commit this — it's for local verification only):
+Temporarily replace the contents of `data/matches.json` with sample data (do **not** commit this — it's for local verification only). Deck ids must match `data/decks.json` (Task 2): `fire` (J's default), `electric` (M's default), `fighting` (T's default), `darkness` (C's default):
 
 ```json
 [
-  { "player1": "M", "deck1": "fire", "player2": "T", "deck2": "water", "winner": "M", "date": "2026-09-01" },
-  { "player1": "C", "deck1": "grass", "player2": "J", "deck2": "electric", "winner": "J", "date": "2026-09-02" },
-  { "player1": "M", "deck1": "fire", "player2": "C", "deck2": "grass", "winner": "M", "date": "2026-09-03" },
-  { "player1": "T", "deck1": "water", "player2": "J", "deck2": "electric", "winner": "T", "date": "2026-09-04" }
+  { "player1": "M", "deck1": "electric", "player2": "T", "deck2": "fighting", "winner": "M", "date": "2026-09-01" },
+  { "player1": "C", "deck1": "darkness", "player2": "J", "deck2": "fire", "winner": "J", "date": "2026-09-02" },
+  { "player1": "M", "deck1": "electric", "player2": "C", "deck2": "darkness", "winner": "M", "date": "2026-09-03" },
+  { "player1": "T", "deck1": "fighting", "player2": "J", "deck2": "fire", "winner": "T", "date": "2026-09-04" }
 ]
 ```
 
@@ -1147,11 +1251,13 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000` and confirm:
 - No errors in the browser console.
-- Player and deck leaderboards render with 4 rows each.
+- Player and deck leaderboards render with 4 rows each, each rating showing a `(±...)` confidence range next to it.
 - Both rating-history line charts render with visible lines.
 - Both head-to-head grids render.
 - The match history table lists all 4 sample matches, newest first.
 - The suggestions panel shows 3 candidate matchups.
+- Resize the browser window (or use dev tools device emulation) to a phone width (~375px) and confirm the layout stays usable (no horizontal overflow, text readable).
+- Use dev tools to emulate a viewport ≥1920px wide (the `tv` breakpoint) and confirm the heading, body text, and table text visibly scale up.
 
 Then revert `data/matches.json` back to `[]`:
 

@@ -132,10 +132,14 @@ separate system:
 
 Full parity between players and decks:
 
-- **Player leaderboard** — ranked by fitted player skill
+- **Player leaderboard** — ranked by fitted player skill, each rating shown
+  alongside its 95% confidence range (`±1.96·SE`) so a rating backed by
+  little data or by fully-confounded player/deck signal (see Rating model
+  above) doesn't read as equally trustworthy as a well-established one
 - **Player rating history chart** — skill over time, one line per player
 - **Player head-to-head grid** — win/loss record for each pair
-- **Deck leaderboard** — ranked by fitted deck strength, with a "consider a
+- **Deck leaderboard** — ranked by fitted deck strength (with the same
+  confidence range as the player leaderboard), with a "consider a
   rebuild" banner on any deck flagged per the recommendation rule below
 - **Deck rating history chart** — strength over time, one line per deck
 - **Deck head-to-head grid** — win/loss record for each deck pair
@@ -148,6 +152,12 @@ Full parity between players and decks:
 Pokémon-themed: Tailwind CSS utility classes, pokeball/type-color accents,
 playful fonts. Only free, non-Nintendo-owned assets are used, since the repo
 is public.
+
+Responsive across phone, tablet, PC, and TV: the base layout uses Tailwind's
+default breakpoints (works on phone/tablet/PC without any special handling),
+plus a custom large-screen breakpoint (`tv`, `min-width: 1920px`) that scales
+up font sizes, spacing, and chart sizing for 10-foot/across-the-room viewing,
+layered on top of the same layout rather than a separate template.
 
 ## Data entry workflow
 
