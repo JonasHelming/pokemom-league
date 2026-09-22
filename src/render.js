@@ -152,6 +152,39 @@ export function renderBoostProgressHTML(boostProgressList, playersById, decksByI
     .join('');
 }
 
+// Deck analog of renderBoostProgressHTML (see computeDeckBoostProgress) —
+// one card per deck currently below the group average, either a filling
+// progress bar or, once flagged, a distinct "rebuild available" card.
+// "Upgrade" is reserved for the player-team wording above; decks get
+// "Umbau" to match the existing weak-deck banner's language.
+export function renderDeckBoostProgressHTML(deckBoostProgressList, decksById) {
+  if (!deckBoostProgressList || deckBoostProgressList.length === 0) return '';
+
+  return deckBoostProgressList
+    .map((deckBoostProgress) => {
+      const deckName = decksById[deckBoostProgress.deckId];
+      if (!deckName) return '';
+
+      const pct = Math.round(deckBoostProgress.progress * 100);
+
+      if (deckBoostProgress.flagged) {
+        return `<section class="${sectionClass('bg-emerald-950/40', 'border-emerald-800')}">
+          <h2 class="${HEADING_CLASS}">🎉 Umbau verfügbar!</h2>
+          <p class="tv:text-3xl text-emerald-100">${deckName} liegt deutlich unter dem Durchschnitt aller anderen Decks — Zeit für einen Umbau.</p>
+        </section>`;
+      }
+
+      return `<section class="${SECTION_CLASS}">
+        <h2 class="${HEADING_CLASS}">Nächster wahrscheinlicher Umbau</h2>
+        <p class="tv:text-2xl">${deckName} — ${pct}% auf dem Weg zur Umbau-Empfehlung</p>
+        <div class="w-full bg-slate-800 rounded h-4 tv:h-8 mt-2">
+          <div class="bg-amber-500 rounded h-4 tv:h-8" style="width: ${pct}%"></div>
+        </div>
+      </section>`;
+    })
+    .join('');
+}
+
 export function renderSuggestionsPanelHTML(suggestions, playersById, decksById) {
   const items = suggestions
     .map((s) => {

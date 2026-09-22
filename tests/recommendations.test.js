@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { fitBradleyTerry, combinedPlayerDeckRating } from '../src/bradley-terry.js';
+import { fitBradleyTerry, combinedPlayerDeckRating, meanCenteredRatings } from '../src/bradley-terry.js';
 import {
   flagWeakDecks,
   suggestMatchups,
@@ -8,6 +8,7 @@ import {
   countDefaultComboMatches,
   flagFairnessOutliers,
   computeBoostProgress,
+  computeDeckBoostProgress,
   computeMarginProgress,
   marginBelowValue,
   marginAboveValue,
@@ -69,47 +70,78 @@ function makeMatches(n, upsetEvery = 5) {
 }
 
 // Deck y loses most matches (regardless of pilot) and has enough matches
-// (well over an explicit minMatches=8 threshold) -> should be flagged.
+// -> should be flagged.
 const enoughData = makeMatches(20);
 const fitEnough = fitBradleyTerry(enoughData, ['A', 'B'], ['x', 'y']);
 const flaggedEnough = flagWeakDecks(fitEnough, ['x', 'y'], enoughData, 8);
 assert.deepEqual(flaggedEnough, ['y']);
 
-// A lone active deck has nothing to be "behind", so it must never be
-// flagged — `[].every(...)` is vacuously true, which would otherwise flag
-// any single deck with enough matches even though there's no comparison.
+// A lone active deck has nothing to average against, so it must never be
+// flagged.
 const flaggedLoneDeck = flagWeakDecks(fitEnough, ['x'], enoughData, 8);
 assert.deepEqual(flaggedLoneDeck, []);
 
 assert.equal(countMatchesByDeck(enoughData).get('x'), enoughData.length);
 assert.equal(countMatchesByDeck(enoughData).get('y'), enoughData.length);
 
-// The family's chosen defaults (minMatches=5, ~80% confidence, both now
-// named parameters instead of hardcoded 8/1.96) are looser than the
-// explicit-8-match example above by design (a fun signal for ordering new
-// cards, not a rigorous claim). This fixture is only well-identified from
-// n=10 onward (see the comment on `makeMatches` above) — any n below that
-// hits a small-n pathology where the CI math independently returns []
-// regardless of the count gate, which would make a naive "not enough
-// matches at small n" test pass even with the gate deleted entirely. So
-// both things below are tested against the SAME well-identified n=10 fit,
-// varying only the one parameter under test, isolating each mechanism:
+// flagWeakDecks now shares its bar with the player fairness signal: a
+// deck rebuild costs the family exactly one card, same as the fairness
+// bar's bonus card, so both compare against the GROUP AVERAGE of the
+// OTHER entities at FAIRNESS_CONFIDENCE_Z (~68% confidence) instead of
+// requiring separation from EVERY rival at the old, stricter 80%
+// (confidenceZ=1.28) bar. With exactly two decks "average of the others"
+// is just the other deck's value, so the minMatches floor is still the
+// only thing worth pinning here (the confidenceZ parameter's own effect on
+// the margin math is covered directly by the marginBelowValue/
+// computeMarginProgress unit tests below, not re-derived per fixture).
 const tenMatches = makeMatches(10);
 const fitAtTen = fitBradleyTerry(tenMatches, ['A', 'B'], ['x', 'y']);
 
-// (a) the minMatches floor is enforced — same fit and data both times, only
+// The minMatches floor is enforced — same fit and data both times, only
 // minMatches changes. If the gate were broken (e.g. deleted), the second
-// assertion would incorrectly return ['y'] too, since the underlying CI
-// math is otherwise conclusive at n=10.
+// assertion would incorrectly return ['y'] too, since the underlying
+// margin math is otherwise conclusive at n=10.
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 5), ['y']);
 assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 11), []);
 
-// (b) the ~80% confidence default actually flags earlier than the old 95%
-// level would: at n=10 this fixture's required gap sits between the two
-// thresholds (critical z ~= 1.75), so it flags at the new default but would
-// not have at 1.96.
-assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches), ['y']);
-assert.deepEqual(flagWeakDecks(fitAtTen, ['x', 'y'], tenMatches, 5, 1.96), []);
+// Multiple decks below average are flagged at once — the actual behavior
+// change from the old "at most one, the single clearly-worst deck" rule.
+// (That old rule was mathematically incapable of ever flagging two decks
+// simultaneously: "behind every other deck" for both A and B at once is a
+// direct contradiction.) Deck x is the strong deck, piloted alternately by
+// A and B; y and z are two separately-weak decks, each piloted by whichever
+// player ISN'T on x that round — which is what makes y's and z's weakness
+// separable from A's/B's own skill (same crossed-piloting identifiability
+// principle as the `makeMatches` comment above, just with one deck rotated
+// out instead of two crossed).
+function threeDeckMatches(n, upsetEvery = 5) {
+  const matches = [];
+  for (let i = 0; i < n; i++) {
+    const isUpset = i % upsetEvery === upsetEvery - 1;
+    const xPilot = i % 2 === 0 ? 'A' : 'B';
+    const otherPlayer = xPilot === 'A' ? 'B' : 'A';
+    matches.push({
+      player1: xPilot, deck1: 'x',
+      player2: otherPlayer, deck2: 'y',
+      winner: isUpset ? otherPlayer : xPilot,
+      date: `2026-06-${String(2 * i + 1).padStart(2, '0')}`,
+    });
+    matches.push({
+      player1: xPilot, deck1: 'x',
+      player2: otherPlayer, deck2: 'z',
+      winner: isUpset ? otherPlayer : xPilot,
+      date: `2026-06-${String(2 * i + 2).padStart(2, '0')}`,
+    });
+  }
+  return matches;
+}
+const threeDeckData = threeDeckMatches(20);
+const threeDeckFit = fitBradleyTerry(threeDeckData, ['A', 'B'], ['x', 'y', 'z']);
+assert.deepEqual(
+  flagWeakDecks(threeDeckFit, ['x', 'y', 'z'], threeDeckData),
+  ['y', 'z'],
+  'both y and z (each below the group average) should be flagged; x (clearly ahead) should not'
+);
 
 // countDefaultComboMatches: counts only matches where a player used their
 // OWN default deck, not a borrowed one — distinct from countMatchesByDeck.
@@ -306,6 +338,56 @@ assert.deepEqual(
   ['B', 'C'],
   'both B and C (each below the group average) should get their own bar; A (clearly ahead of both) should not'
 );
+
+// computeDeckBoostProgress: the deck analog of computeBoostProgress, sharing
+// the exact same two-factor (dataProgress * marginProgress) shape and the
+// same FAIRNESS_CONFIDENCE_Z bar — see the flagWeakDecks tests above for why
+// the two were aligned. Reuses the existing makeMatches (x/y, crossed
+// piloting) fixture rather than a new one.
+function expectedDeckProgress(fit, matches, deckIds, targetId) {
+  const ratings = meanCenteredRatings(fit, 'deck', deckIds);
+  const others = deckIds.filter((id) => id !== targetId).map((id) => ratings[id].value);
+  const average = others.reduce((sum, v) => sum + v, 0) / others.length;
+  const dataProgress = Math.min((countMatchesByDeck(matches).get(targetId) || 0) / 5, 1);
+  const marginProgress = marginBelowValue(ratings[targetId], average, FAIRNESS_CONFIDENCE_Z);
+  return dataProgress * marginProgress;
+}
+
+// At n=3 the confidence margin is already saturated (deck x/y separate
+// fast), so progress is purely gated by the data floor (3/5 = 0.6) — this
+// isolates the dataProgress factor the same way the minMatches tests above
+// isolate flagWeakDecks's gate.
+const [earlyDeckProgress] = computeDeckBoostProgress(earlyFit, ['x', 'y'], earlyMatches);
+assert.equal(earlyDeckProgress.deckId, 'y');
+assert.equal(earlyDeckProgress.flagged, false);
+assert.equal(earlyDeckProgress.progress, expectedDeckProgress(earlyFit, earlyMatches, ['x', 'y'], 'y'));
+assert.ok(earlyDeckProgress.progress > 0 && earlyDeckProgress.progress < 1);
+
+// One more match (4/5 = 0.8) climbs further but still isn't flagged yet.
+const deckMidMatches = makeMatches(4);
+const deckMidFit = fitBradleyTerry(deckMidMatches, ['A', 'B'], ['x', 'y']);
+const [deckMidProgress] = computeDeckBoostProgress(deckMidFit, ['x', 'y'], deckMidMatches);
+assert.equal(deckMidProgress.flagged, false);
+assert.ok(deckMidProgress.progress > earlyDeckProgress.progress, 'progress should climb as more data accumulates');
+assert.equal(deckMidProgress.progress, expectedDeckProgress(deckMidFit, deckMidMatches, ['x', 'y'], 'y'));
+
+// At the well-identified n=20 fixture, y clears both factors -> flagged,
+// reading as 100% progress, consistent with flagWeakDecks above.
+const [lateDeckProgress] = computeDeckBoostProgress(fitEnough, ['x', 'y'], enoughData);
+assert.equal(lateDeckProgress.deckId, 'y');
+assert.equal(lateDeckProgress.flagged, true);
+assert.equal(lateDeckProgress.progress, 1);
+
+// Multiple below-average decks each get their own entry, not just a single
+// spotlighted "weakest" — mirrors the three-way player test above, reusing
+// the threeDeckMatches fixture from the flagWeakDecks tests.
+const threeDeckProgress = computeDeckBoostProgress(threeDeckFit, ['x', 'y', 'z'], threeDeckData);
+assert.deepEqual(
+  threeDeckProgress.map((p) => p.deckId).sort(),
+  ['y', 'z'],
+  'both y and z should get their own bar; x (clearly ahead) should not'
+);
+assert.ok(threeDeckProgress.every((p) => p.flagged), 'both are already flagged at n=20 in this fixture');
 
 // selectBestCandidate: the core "prefer competitive over merely informative"
 // rule, tested directly with fabricated candidates — no fit required — so

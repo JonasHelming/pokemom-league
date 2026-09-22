@@ -10,12 +10,16 @@ export function countMatchesByDeck(matches) {
   return counts;
 }
 
-// Confidence level and match-count floor are deliberately looser than a
-// textbook 95%/large-n threshold: this is a fun family signal for deciding
-// when to order new cards, not a scientific claim, so 80% confidence
-// (z ~= 1.28) and a 5-match minimum are the family's chosen "not bullshit,
-// but responsive enough to be useful" balance.
-export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 5, confidenceZ = 1.28) {
+// A deck rebuild costs the family exactly one card — the same stakes as the
+// player fairness bar's bonus card — so this shares that bar's threshold:
+// significantly below the GROUP AVERAGE of the other decks (not behind
+// EVERY rival individually) at FAIRNESS_CONFIDENCE_Z (~68% confidence),
+// with the same 5-match floor. This deliberately replaces the old, much
+// stricter "behind every other deck at 80% confidence" rule, which was
+// also mathematically incapable of ever flagging more than one deck at
+// once (two decks can't both be behind each other). See the conversation
+// that led to this change for the "one card either way" reasoning.
+export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 5, confidenceZ = FAIRNESS_CONFIDENCE_Z) {
   if (activeDeckIds.length < 2) return [];
 
   const ratings = meanCenteredRatings(fit, 'deck', activeDeckIds);
@@ -24,11 +28,9 @@ export function flagWeakDecks(fit, activeDeckIds, matches, minMatches = 5, confi
 
   for (const deckId of activeDeckIds) {
     if ((counts.get(deckId) || 0) < minMatches) continue;
-    const upper = ratings[deckId].value + confidenceZ * ratings[deckId].se;
-    const isBehindAll = activeDeckIds
-      .filter((other) => other !== deckId)
-      .every((other) => upper < ratings[other].value - confidenceZ * ratings[other].se);
-    if (isBehindAll) flagged.push(deckId);
+    const others = activeDeckIds.filter((other) => other !== deckId).map((other) => ratings[other]);
+    const average = averageOf(others);
+    if (marginBelowValue(ratings[deckId], average, confidenceZ) >= 1) flagged.push(deckId);
   }
 
   return flagged;
@@ -73,16 +75,15 @@ function combinedRatingsByPlayer(fit, players, playerIds, deckIds) {
   }));
 }
 
-// `flagWeakDecks` (untouched) is a rare, serious "consider a rebuild"
-// signal, so it deliberately requires separation from EVERY other deck at
-// 80% confidence. The fairness bar below drives a much lower-stakes reward
-// (one bonus card, not necessarily tied to a single "worst" deck), so it
-// intentionally uses a friendlier bar: separation from the GROUP AVERAGE
-// rather than from every individual rival, at a looser ~68% confidence.
-// Requiring separation from every rival at once is a much higher bar than
-// this feature needs, and with only a handful of players it made the
-// signal nearly impossible to ever fire — see the conversation that led to
-// this change for the numbers.
+// Shared confidence level for the "one bonus card" family of signals —
+// the player fairness bar below, and (since both rewards turned out to be
+// the same one-card stakes in practice) `flagWeakDecks` above. Separation
+// from the GROUP AVERAGE rather than from every individual rival, at a
+// looser ~68% confidence, deliberately trades rigor for responsiveness:
+// requiring separation from every rival at once (the old `flagWeakDecks`
+// rule) is a much higher bar than a fun, low-stakes signal needs, and with
+// only a handful of players/decks it made the signal nearly impossible to
+// ever fire — see the conversation that led to this change for the numbers.
 export const FAIRNESS_CONFIDENCE_Z = 1.0;
 
 function averageOf(ratings) {
@@ -197,6 +198,33 @@ export function computeBoostProgress(fit, players, playerIds, deckIds, matches, 
     const marginProgress = marginBelowValue(r, average, confidenceZ);
     const dataProgress = Math.min((counts.get(r.id) || 0) / minMatches, 1);
     results.push({ playerId: r.id, progress: dataProgress * marginProgress, flagged: fairness.weak.includes(r.id) });
+  }
+  return results;
+}
+
+// Deck analog of computeBoostProgress: every active deck currently below
+// the GROUP AVERAGE of the other decks gets a progress bar toward the same
+// one-card reward flagWeakDecks now grants (see the comment above
+// FAIRNESS_CONFIDENCE_Z), using the identical two-factor shape
+// (dataProgress * marginProgress) — just keyed on a deck's own rating
+// rather than a player+deck combination. Returns [] if fewer than 2 active
+// decks, or if no deck is currently below average.
+export function computeDeckBoostProgress(fit, activeDeckIds, matches, minMatches = 5, confidenceZ = FAIRNESS_CONFIDENCE_Z) {
+  if (activeDeckIds.length < 2) return [];
+
+  const ratings = meanCenteredRatings(fit, 'deck', activeDeckIds);
+  const counts = countMatchesByDeck(matches);
+  const flagged = flagWeakDecks(fit, activeDeckIds, matches, minMatches, confidenceZ);
+
+  const results = [];
+  for (const deckId of activeDeckIds) {
+    const others = activeDeckIds.filter((other) => other !== deckId).map((other) => ratings[other]);
+    const average = averageOf(others);
+    if (ratings[deckId].value >= average) continue;
+
+    const marginProgress = marginBelowValue(ratings[deckId], average, confidenceZ);
+    const dataProgress = Math.min((counts.get(deckId) || 0) / minMatches, 1);
+    results.push({ deckId, progress: dataProgress * marginProgress, flagged: flagged.includes(deckId) });
   }
   return results;
 }

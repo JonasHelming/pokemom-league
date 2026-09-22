@@ -6,6 +6,7 @@ import {
   renderWeakDeckBannersHTML,
   renderFairnessBannersHTML,
   renderBoostProgressHTML,
+  renderDeckBoostProgressHTML,
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from '../src/render.js';
@@ -56,6 +57,14 @@ assert.ok(bannerHTML.includes('Water'));
 assert.ok(bannerHTML.includes('Umbau'));
 assert.ok(bannerHTML.includes('Konfidenz-Schwellenwert'), 'banner should not claim a specific, not-quite-accurate percentage');
 
+// Now that flagWeakDecks can flag multiple decks below average at once (not
+// just a single "clearly worst" deck), the banner must render one item per
+// flagged deck.
+const multiDeckBannerHTML = renderWeakDeckBannersHTML(['x', 'y'], namesById);
+assert.ok(multiDeckBannerHTML.includes('Fire'));
+assert.ok(multiDeckBannerHTML.includes('Water'));
+assert.equal((multiDeckBannerHTML.match(/<li/g) || []).length, 2, 'each flagged deck should get its own list item');
+
 const fairnessPlayers = [
   { id: 'A', name: 'A', defaultDeck: 'x' },
   { id: 'B', name: 'B', defaultDeck: 'y' },
@@ -90,6 +99,28 @@ assert.ok(flaggedProgressHTML.includes('Bob'), 'flagged player should still be n
 // render rather than shipping "undefined" text.
 assert.equal(
   renderBoostProgressHTML([{ playerId: 'unknown', progress: 0.5, flagged: false }], namesById, namesById, fairnessPlayers),
+  ''
+);
+
+// renderDeckBoostProgressHTML: the deck analog of renderBoostProgressHTML —
+// same progress-bar / "flagged" card shape, just keyed by deck id and
+// needing only decksById (no player/default-deck lookup).
+assert.equal(renderDeckBoostProgressHTML([], namesById), '', 'empty list renders nothing');
+
+const deckInProgressHTML = renderDeckBoostProgressHTML([{ deckId: 'y', progress: 0.42, flagged: false }], namesById);
+assert.ok(deckInProgressHTML.includes('Water'), 'spotlighted deck should be named');
+assert.ok(deckInProgressHTML.includes('42%'), 'progress percentage should be shown');
+assert.ok(deckInProgressHTML.includes('width: 42%'), 'fill bar width should reflect progress');
+assert.ok(!deckInProgressHTML.includes('verfügbar'), 'not yet flagged -> no "available" state');
+
+const deckFlaggedHTML = renderDeckBoostProgressHTML([{ deckId: 'y', progress: 1, flagged: true }], namesById);
+assert.ok(deckFlaggedHTML.includes('verfügbar'), 'flagged -> visually distinct "available" state');
+assert.ok(deckFlaggedHTML.includes('Water'), 'flagged deck should still be named');
+
+// A deck id not present in decksById degrades to an empty render rather
+// than shipping "undefined" text.
+assert.equal(
+  renderDeckBoostProgressHTML([{ deckId: 'unknown', progress: 0.5, flagged: false }], namesById),
   ''
 );
 

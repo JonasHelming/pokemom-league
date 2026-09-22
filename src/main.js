@@ -5,6 +5,7 @@ import {
   flagWeakDecks,
   flagFairnessOutliers,
   computeBoostProgress,
+  computeDeckBoostProgress,
   playersWithActiveDefaultDeck,
   suggestMatchups,
 } from './recommendations.js';
@@ -15,6 +16,7 @@ import {
   renderWeakDeckBannersHTML,
   renderFairnessBannersHTML,
   renderBoostProgressHTML,
+  renderDeckBoostProgressHTML,
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from './render.js';
@@ -84,6 +86,9 @@ async function main() {
 
   const boostProgress = computeBoostProgress(fit, players, playerIds, deckIds, matches);
   document.getElementById('boost-progress').innerHTML = renderBoostProgressHTML(boostProgress, namesById, namesById, players);
+
+  const deckBoostProgress = computeDeckBoostProgress(fit, deckIds, matches);
+  document.getElementById('deck-boost-progress').innerHTML = renderDeckBoostProgressHTML(deckBoostProgress, namesById);
 
   const flagged = flagWeakDecks(fit, deckIds, matches);
   document.getElementById('weak-deck-banners').innerHTML = renderWeakDeckBannersHTML(flagged, namesById);
