@@ -14,5 +14,6 @@
   { "player1": "T", "deck1": "electric", "player2": "J", "deck2": "darkness", "winner": "J", "date": "2026-09-21" },
   { "player1": "J", "deck1": "fire", "player2": "C", "deck2": "fighting", "winner": "J", "date": "2026-09-21" },
   { "player1": "C", "deck1": "darkness", "player2": "T", "deck2": "electric", "winner": "C", "date": "2026-09-22" },
-  { "player1": "T", "deck1": "electric", "player2": "J", "deck2": "darkness", "winner": "T", "date": "2026-09-22" }
+  { "player1": "T", "deck1": "electric", "player2": "J", "deck2": "darkness", "winner": "T", "date": "2026-09-22" },
+  { "player1": "J", "deck1": "darkness", "player2": "T", "deck2": "fighting", "winner": "J", "date": "2026-09-23" }
 ]
