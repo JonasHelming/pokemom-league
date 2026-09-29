@@ -1,5 +1,12 @@
 import { loadLeagueData } from './data.js';
-import { fitBradleyTerry, meanCenteredRatings, combinedPlayerDeckRating, toEloScale, ELO_SCALE } from './bradley-terry.js';
+import {
+  fitBradleyTerry,
+  meanCenteredRatings,
+  combinedPlayerDeckRating,
+  computeDeckPriors,
+  toEloScale,
+  ELO_SCALE,
+} from './bradley-terry.js';
 import { computeRatingHistory } from './history.js';
 import {
   flagWeakDecks,
@@ -27,12 +34,20 @@ async function main() {
   const playerIds = players.map((p) => p.id);
   const activeDecks = decks.filter((d) => !d.retired);
   const deckIds = activeDecks.map((d) => d.id);
+  // The fit itself runs over EVERY deck version, retired ones included — a
+  // retired deck's past matches still need to feed the model (dropping them
+  // would silently zero out that deck's contribution to opponents' player
+  // skill, and would leave computeDeckPriors nothing to anchor a rebuild's
+  // carry-over prior to). `deckIds` above (active-only) stays the family
+  // used for everything actually shown or flagged.
+  const allDeckIds = decks.map((d) => d.id);
   const namesById = {
     ...Object.fromEntries(players.map((p) => [p.id, p.name])),
     ...Object.fromEntries(decks.map((d) => [d.id, d.name])),
   };
 
-  const fit = fitBradleyTerry(matches, playerIds, deckIds);
+  const deckPriors = computeDeckPriors(matches, playerIds, allDeckIds, decks);
+  const fit = fitBradleyTerry(matches, playerIds, allDeckIds, deckPriors);
   const playerRatings = meanCenteredRatings(fit, 'player', playerIds);
   const deckRatings = meanCenteredRatings(fit, 'deck', deckIds);
 
@@ -98,9 +113,12 @@ async function main() {
 
   document.getElementById('match-history').innerHTML = renderMatchHistoryHTML(matches, namesById, namesById);
 
-  const history = computeRatingHistory(matches, playerIds, deckIds);
+  const history = computeRatingHistory(matches, playerIds, allDeckIds, decks);
   renderRatingChart(document.getElementById('player-rating-chart'), buildChartDatasets(history, playerIds, namesById, 'player'));
-  renderRatingChart(document.getElementById('deck-rating-chart'), buildChartDatasets(history, deckIds, namesById, 'deck', getTypeColor));
+  renderRatingChart(
+    document.getElementById('deck-rating-chart'),
+    buildChartDatasets(history, deckIds, namesById, 'deck', getTypeColor, decks),
+  );
 }
 
 document.addEventListener('DOMContentLoaded', main);

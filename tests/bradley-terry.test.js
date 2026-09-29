@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict';
-import { fitBradleyTerry, predictWinProbability, meanCenteredRatings, combinedPlayerDeckRating, toEloScale } from '../src/bradley-terry.js';
+import {
+  fitBradleyTerry,
+  predictWinProbability,
+  meanCenteredRatings,
+  combinedPlayerDeckRating,
+  computeDeckPriors,
+  toEloScale,
+  PREDECESSOR_PRIOR_VIRTUAL_MATCHES,
+} from '../src/bradley-terry.js';
 
 // Balanced dataset: A/x and B/y trade wins evenly -> ratings should stay at 0.5/0.5.
 const balancedMatches = [
@@ -158,6 +166,80 @@ const naiveSeWithoutCovariance = Math.sqrt(playerRatingsA.P1.se ** 2 + deckRatin
 assert.ok(
   Math.abs(combinedP1d1.se - naiveSeWithoutCovariance) > 1e-6,
   `combined se (${combinedP1d1.se}) should differ from the naive no-covariance se (${naiveSeWithoutCovariance}) on this fixture, where P1 and d1 are correlated`
+);
+
+// --- Deck-rebuild carry-over prior (computeDeckPriors + fitBradleyTerry) ---
+//
+// Deck y beats deck x 5/6, alternating pilots (A and B each play both y and
+// x) so player skill and deck strength stay identifiable, with one upset to
+// avoid quasi-complete separation (same reasoning as the lopsided/richMatches
+// fixtures above). Deck y is then "rebuilt" into y-1 (predecessor: 'y') with
+// zero matches of its own yet.
+const predecessorMatches = [
+  { player1: 'A', deck1: 'y', player2: 'B', deck2: 'x', winner: 'A', date: '2026-01-01' },
+  { player1: 'B', deck1: 'y', player2: 'A', deck2: 'x', winner: 'B', date: '2026-01-02' },
+  { player1: 'A', deck1: 'y', player2: 'B', deck2: 'x', winner: 'A', date: '2026-01-03' },
+  { player1: 'B', deck1: 'y', player2: 'A', deck2: 'x', winner: 'B', date: '2026-01-04' },
+  { player1: 'A', deck1: 'y', player2: 'B', deck2: 'x', winner: 'A', date: '2026-01-05' },
+  { player1: 'B', deck1: 'y', player2: 'A', deck2: 'x', winner: 'A', date: '2026-01-06' }, // upset
+];
+const rebuildPlayerIds = ['A', 'B'];
+const rebuildDeckIds = ['x', 'y', 'y-1'];
+const rebuildDecks = [{ id: 'x' }, { id: 'y' }, { id: 'y-1', predecessor: 'y' }];
+
+assert.equal(PREDECESSOR_PRIOR_VIRTUAL_MATCHES, 8);
+
+const deckPriors = computeDeckPriors(predecessorMatches, rebuildPlayerIds, rebuildDeckIds, rebuildDecks);
+assert.ok(deckPriors.has('y-1'), 'a fresh rebuild with a known predecessor should get a prior');
+assert.ok(!deckPriors.has('x') && !deckPriors.has('y'), 'decks without a predecessor never get a prior');
+// 8 virtual matches * 0.25 (max Fisher information per match, at p=0.5) = 2.0, at zero real matches so far.
+assert.equal(deckPriors.get('y-1').weight, 2.0);
+assert.ok(deckPriors.get('y-1').mean > 0, 'predecessor y beat x, so its frozen rating should be above the x/y average');
+
+// With the prior applied, y-1 (still zero real matches) should sit much
+// closer to y's rating than it does under a plain ridge-only fit, which has
+// nothing but the family mean to pull it toward.
+const fitNoPrior = fitBradleyTerry(predecessorMatches, rebuildPlayerIds, rebuildDeckIds);
+const fitWithPrior = fitBradleyTerry(predecessorMatches, rebuildPlayerIds, rebuildDeckIds, deckPriors);
+const ratingsNoPrior = meanCenteredRatings(fitNoPrior, 'deck', rebuildDeckIds);
+const ratingsWithPrior = meanCenteredRatings(fitWithPrior, 'deck', rebuildDeckIds);
+const gapWithoutPrior = Math.abs(ratingsNoPrior['y-1'].value - ratingsNoPrior['y'].value);
+const gapWithPrior = Math.abs(ratingsWithPrior['y-1'].value - ratingsWithPrior['y'].value);
+assert.ok(
+  gapWithPrior < gapWithoutPrior,
+  `expected the prior to pull y-1 closer to y (with prior: ${gapWithPrior}, without: ${gapWithoutPrior})`,
+);
+
+// After exactly 1 real match, the prior weight should have decayed linearly:
+// (8 - 1) * 0.25 = 1.75.
+const oneRealMatch = [
+  ...predecessorMatches,
+  { player1: 'A', deck1: 'y-1', player2: 'B', deck2: 'x', winner: 'B', date: '2026-01-07' },
+];
+const deckPriorsAfterOne = computeDeckPriors(oneRealMatch, rebuildPlayerIds, rebuildDeckIds, rebuildDecks);
+assert.equal(deckPriorsAfterOne.get('y-1').weight, 1.75);
+
+// After 8 real matches (the full virtual-match count) of y-1 losing
+// decisively, the prior should have fully decayed, and the fit should
+// reflect y-1's own (weak) record rather than still leaning on y's old
+// (strong) rating.
+const rebuildLosses = Array.from({ length: 8 }, (_, i) => ({
+  player1: i % 2 === 0 ? 'A' : 'B',
+  deck1: 'y-1',
+  player2: i % 2 === 0 ? 'B' : 'A',
+  deck2: 'x',
+  winner: i % 2 === 0 ? 'B' : 'A',
+  date: `2026-01-${String(7 + i).padStart(2, '0')}`,
+}));
+const afterDecayMatches = [...predecessorMatches, ...rebuildLosses];
+const deckPriorsAfterDecay = computeDeckPriors(afterDecayMatches, rebuildPlayerIds, rebuildDeckIds, rebuildDecks);
+assert.ok(!deckPriorsAfterDecay.has('y-1'), 'prior should be fully decayed once real matches reach the virtual-match count');
+
+const fitAfterDecay = fitBradleyTerry(afterDecayMatches, rebuildPlayerIds, rebuildDeckIds, deckPriorsAfterDecay);
+const ratingsAfterDecay = meanCenteredRatings(fitAfterDecay, 'deck', rebuildDeckIds);
+assert.ok(
+  ratingsAfterDecay['y-1'].value < ratingsAfterDecay['y'].value,
+  'y-1 should now rate below the old y, reflecting its own losing record once the prior has faded',
 );
 
 console.log('OK: bradley-terry.test.js');

@@ -97,11 +97,30 @@ rebuild" recommendation possible instead of a gut call:
   level, avoiding flagging decks on truly thin, noisy data.
 - **Versioning on rebuild**: when a flagged deck is boosted/rebuilt, it gets
   a new id (e.g. `fire` → `fire-1`) with `predecessor: "fire"` and the old
-  entry is marked `retired: true`. The new version starts with no match
-  history and is rated independently, so it collects clean data on the
-  rebuilt list rather than inheriting the old build's rating. The site can
-  still show a deck's full lineage (e.g. `fire → fire-1 → fire-2`) by
-  following `predecessor` links, purely as a historical view.
+  entry is marked `retired: true`. The new version is fit as its own free
+  parameter and collects its own match data from zero, but a rebuild in this
+  family is typically a 1-2 card swap, not a new deck — so rather than
+  starting from a blank ("average deck") slate, it starts anchored at
+  `fire`'s own rating, frozen at the moment `fire` was retired. This is a
+  genuine Bayesian prior in the joint fit (see `PREDECESSOR_PRIOR_VIRTUAL_MATCHES`
+  in `src/bradley-terry.js`), not a display-only smoothing trick: its
+  "confidence" is worth `PREDECESSOR_PRIOR_VIRTUAL_MATCHES` (8) virtual
+  matches, and it decays linearly to zero as `fire-1` accumulates that many
+  real matches of its own — at which point its rating is driven purely by
+  its own results, same as any other deck. That number started lower (3,
+  reasoning it should be a smaller signal than the family's 5-match
+  "genuinely tested" floor used elsewhere), but a real sweep against a
+  simulated mixed-result rebuild showed 3 let individual match results
+  whipsaw the rating 60-80 Elo points match to match — at that weight, one
+  real match's own information is comparable to nearly the WHOLE remaining
+  prior after just 1-2 matches, which reads as noise, not the gradual
+  evolution this was meant to produce. 8 damps swings to roughly 25 Elo
+  points while still clearly reflecting the new build's actual record within
+  a realistic evening's worth of matches. The site shows a deck's full lineage (e.g.
+  `fire → fire-1 → fire-2`) as a single continuous line on the rating-history
+  chart (grouping snapshots by `predecessor` chain), with one visible gap
+  inserted at each rebuild's first real match, marking the upgrade event
+  without implying the two ratings were ever directly interpolated.
 - **Surfacing**: purely informational — a small banner/callout next to a
   flagged deck on the deck leaderboard (e.g. "significantly behind — consider
   a rebuild"). No workflow, approval step, or state beyond what's already in
