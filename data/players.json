@@ -1,5 +1,5 @@
 [
-  { "id": "M", "name": "M", "defaultDeck": "electric" },
+  { "id": "M", "name": "M", "defaultDeck": "electric-2" },
   { "id": "T", "name": "T", "defaultDeck": "fighting-2" },
   { "id": "C", "name": "C", "defaultDeck": "darkness-2" },
   { "id": "J", "name": "J", "defaultDeck": "fire-2" }

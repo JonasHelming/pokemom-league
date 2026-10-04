@@ -1,9 +1,10 @@
 [
   { "id": "fire", "name": "Feuer", "owner": "J", "retired": true },
-  { "id": "electric", "name": "Elektro", "owner": "M" },
+  { "id": "electric", "name": "Elektro", "owner": "M", "retired": true },
   { "id": "fighting", "name": "Kampf", "owner": "T", "retired": true },
   { "id": "darkness", "name": "Finsternis", "owner": "C", "retired": true },
   { "id": "fire-2", "name": "Feuer", "owner": "J", "predecessor": "fire" },
   { "id": "fighting-2", "name": "Kampf", "owner": "T", "predecessor": "fighting" },
-  { "id": "darkness-2", "name": "Finsternis", "owner": "C", "predecessor": "darkness" }
+  { "id": "darkness-2", "name": "Finsternis", "owner": "C", "predecessor": "darkness" },
+  { "id": "electric-2", "name": "Elektro", "owner": "M", "predecessor": "electric" }
 ]
