@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildChartDatasets, buildDeckLineages, buildDeckLineageIndex } from '../src/charts.js';
+import { buildChartDatasets, buildDeckLineages, buildDeckLineageIndex, REBUILD_POINT_STYLE } from '../src/charts.js';
 
 const history = [
   {
@@ -33,10 +33,14 @@ assert.deepEqual(waterDataset.data, [995, 990]);
 // --- Rebuild lineage merging ---
 //
 // y (retired) -> y-1 (active, predecessor: y) should merge into ONE dataset
-// labeled after the active version's name, showing y's own history, a
-// single null gap exactly at y-1's first real match (the upgrade event),
-// then y-1's own history -- one continuous line with a visible break, not
-// two disconnected lines and not a misleading straight interpolation.
+// labeled after the active version's name: y's own history, then a MARKED
+// point at y-1's first real match (the upgrade event), then y-1's own
+// history -- one continuous line whose rebuild is called out by a marker.
+//
+// The rebuild point must carry a real rating, never a null standing in for
+// the marker. Dropping it loses y-1's first match outright, and when the
+// rebuild IS the most recent match the whole series ends on a null, so the
+// line just stops dead instead of showing where the deck now sits.
 const lineageDecks = [
   { id: 'x', name: 'Fire' },
   { id: 'y', name: 'Water', retired: true },
@@ -63,8 +67,23 @@ const lineageChart = buildChartDatasets(
   lineageDecks,
 );
 const merged = lineageChart.datasets.find((d) => d.label === 'Water');
-assert.deepEqual(merged.data, [1050, 1060, null, 1030], 'gap must land exactly at y-1\'s first real match');
-assert.equal(merged.spanGaps, false, 'spanGaps must stay false so Chart.js actually renders the gap rather than interpolating across it');
+assert.deepEqual(merged.data, [1050, 1060, 1040, 1030], 'every snapshot keeps its real rating -- the rebuild is marked, not blanked out');
+assert.equal(merged.pointStyle[2], REBUILD_POINT_STYLE, 'y-1\'s first match is the upgrade event and must be marked');
+assert.deepEqual(merged.pointStyle.filter((s) => s === REBUILD_POINT_STYLE).length, 1, 'exactly one marker per rebuild');
+assert.ok(merged.pointRadius[2] > merged.pointRadius[1], 'the rebuild marker must be visibly larger than an ordinary point');
+
+// A series whose rebuild is its LAST point still has to plot that point --
+// this is the case that made real lines stop short of the chart edge.
+const endsOnRebuild = buildChartDatasets(
+  lineageHistory.slice(0, 3),
+  ['x', 'y-1'],
+  { x: 'Fire', 'y-1': 'Water' },
+  'deck',
+  () => null,
+  lineageDecks,
+);
+const endingWater = endsOnRebuild.datasets.find((d) => d.label === 'Water');
+assert.equal(endingWater.data.at(-1), 1040, 'a rebuild as the most recent match must still be plotted, not left as a trailing null');
 
 // --- Lineage colors survive a rebuild ---
 //

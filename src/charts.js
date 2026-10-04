@@ -32,32 +32,47 @@ export function buildDeckLineageIndex(decks) {
   return index;
 }
 
+// Chart.js point style marking the match where a rebuilt deck took over
+// from its predecessor — a diamond, visibly different from the round points
+// of ordinary matches.
+export const REBUILD_POINT_STYLE = 'rectRot';
+const REBUILD_POINT_RADIUS = 7;
+const NORMAL_POINT_RADIUS = 3;
+
 // Merges a lineage's chain of deck-version ids into a single chart series:
 // one continuous line using whichever version has actually been played so
-// far, with exactly one `null` point forced in at each rebuild transition
-// (the new version's own first real match) so Chart.js renders a visible
-// gap marking the upgrade event, rather than either a misleading straight
-// interpolation across two different rating fits or a hard restart to a
-// separate line.
+// far, with the match where a new version takes over marked by a diamond
+// and reached by a dashed segment.
+//
+// The rebuild match keeps its real rating. Blanking it out to draw the
+// break instead would throw away the new version's first result, and a
+// rebuild that happens to be the league's most recent match would end the
+// series on a null — the line stopping dead short of the chart edge rather
+// than showing where the rebuilt deck now sits.
+//
+// Returns the series alongside the indices where a rebuild took over, so
+// the caller can style exactly those points.
 function lineageSeries(history, chain) {
   let activeIndex = -1;
+  const rebuildIndices = [];
 
-  return history.map((snapshot) => {
+  const data = history.map((snapshot, i) => {
     const counts = snapshot.deckMatchCounts || {};
     let latest = -1;
-    for (let i = 0; i < chain.length; i++) {
-      if ((counts[chain[i]] || 0) > 0) latest = i;
+    for (let j = 0; j < chain.length; j++) {
+      if ((counts[chain[j]] || 0) > 0) latest = j;
     }
 
     if (latest === -1) return null; // lineage hasn't started yet
     if (latest !== activeIndex) {
-      const isRebuildTransition = activeIndex !== -1;
+      if (activeIndex !== -1) rebuildIndices.push(i);
       activeIndex = latest;
-      if (isRebuildTransition) return null;
     }
 
     return snapshot.deckRatings[chain[latest]];
   });
+
+  return { data, rebuildIndices };
 }
 
 export function buildChartDatasets(history, ids, namesById, family, colorFor = () => null, decks = []) {
@@ -70,10 +85,18 @@ export function buildChartDatasets(history, ids, namesById, family, colorFor = (
       // dataset with no borderColor renders in Chart.js's near-transparent
       // default — an invisible line on this dark background.
       const color = colorFor(lineage.chain[0]);
+      const { data, rebuildIndices } = lineageSeries(history, lineage.chain);
+      const isRebuild = new Set(rebuildIndices);
       return {
         label: namesById[lineage.id] ?? lineage.name,
-        data: lineageSeries(history, lineage.chain),
+        data,
         spanGaps: false,
+        pointStyle: data.map((_, i) => (isRebuild.has(i) ? REBUILD_POINT_STYLE : 'circle')),
+        pointRadius: data.map((_, i) => (isRebuild.has(i) ? REBUILD_POINT_RADIUS : NORMAL_POINT_RADIUS)),
+        // Dash only the segment arriving at the rebuild marker: the ratings
+        // either side of it come from two different decks, so the line is
+        // continuous but that one hop is explicitly not a like-for-like step.
+        segment: { borderDash: (ctx) => (isRebuild.has(ctx.p1DataIndex) ? [6, 4] : undefined) },
         ...(color ? { borderColor: color, backgroundColor: color, pointBackgroundColor: color } : {}),
       };
     });
