@@ -15,6 +15,14 @@ handwritten notes, a one-line summary — rather than editing
    decks were used, and who won.
 2. If a player's deck isn't mentioned, use their `defaultDeck` from
    `data/players.json` — don't guess a different deck.
+2b. Decks get rebuilt, and a rebuilt version gets a new id (`fighting` →
+   `fighting-2`) while the old one is marked `retired: true` in
+   `data/decks.json`. A deck named without a version suffix — in German or
+   English, e.g. "Kampf", "fighting" — always means the **currently active
+   version** of that lineage, so "Kampf" means `fighting-2` once the rebuild
+   is recorded. Look the current id up in `data/decks.json` rather than
+   assuming; see the table in `data/README.md`. Use an older id only when
+   the report explicitly backdates to before that rebuild.
 3. If a report says a player used a deck other than their default (e.g.
    borrowing another player's deck), use the deck actually stated, not the
    default.
