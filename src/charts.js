@@ -18,6 +18,20 @@ export function buildDeckLineages(decks) {
     });
 }
 
+// Maps every deck version id — retired ancestors included — to both ends of
+// its lineage: `root`, the original id that type colors and other id-keyed
+// tables are filed under, and `head`, the active version a rebuild's history
+// should be folded into. Anything that has to survive a rebuild goes through
+// here rather than using a match's raw deck id, which stops matching the
+// active family the moment that deck is rebuilt.
+export function buildDeckLineageIndex(decks) {
+  const index = new Map();
+  for (const lineage of buildDeckLineages(decks)) {
+    for (const id of lineage.chain) index.set(id, { root: lineage.chain[0], head: lineage.id });
+  }
+  return index;
+}
+
 // Merges a lineage's chain of deck-version ids into a single chart series:
 // one continuous line using whichever version has actually been played so
 // far, with exactly one `null` point forced in at each rebuild transition
@@ -51,7 +65,11 @@ export function buildChartDatasets(history, ids, namesById, family, colorFor = (
 
   if (family === 'deck') {
     const datasets = buildDeckLineages(decks).map((lineage) => {
-      const color = colorFor(lineage.id);
+      // Colors are filed under the lineage root (the id that names the
+      // type); a rebuild's minted id is absent from any color table, and a
+      // dataset with no borderColor renders in Chart.js's near-transparent
+      // default — an invisible line on this dark background.
+      const color = colorFor(lineage.chain[0]);
       return {
         label: namesById[lineage.id] ?? lineage.name,
         data: lineageSeries(history, lineage.chain),

@@ -35,7 +35,11 @@ export function renderLeaderboardHTML(title, entries, colorFor = () => null) {
   return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">${title}</h2><table class="${TABLE_CLASS}"><thead><tr><th class="${CELL_CLASS}">#</th><th class="${CELL_CLASS}">Name</th><th class="${CELL_CLASS}">Wertung</th></tr></thead><tbody>${rows}</tbody></table></section>`;
 }
 
-export function renderHeadToHeadHTML(title, ids, namesById, matches, field) {
+// `resolveId` folds a match's raw id onto the id the grid is actually drawn
+// over. For decks that means mapping a retired version onto the rebuild that
+// replaced it — otherwise every match played before a rebuild matches no
+// cell and the grid silently collapses to zeroes.
+export function renderHeadToHeadHTML(title, ids, namesById, matches, field, resolveId = (id) => id) {
   const wins = new Map();
   const key = (a, b) => `${a}|${b}`;
 
@@ -45,8 +49,10 @@ export function renderHeadToHeadHTML(title, ids, namesById, matches, field) {
       const loserId = winnerId === m.player1 ? m.player2 : m.player1;
       wins.set(key(winnerId, loserId), (wins.get(key(winnerId, loserId)) || 0) + 1);
     } else {
-      const winningDeck = m.winner === m.player1 ? m.deck1 : m.deck2;
-      const losingDeck = winningDeck === m.deck1 ? m.deck2 : m.deck1;
+      const playedWinningDeck = m.winner === m.player1 ? m.deck1 : m.deck2;
+      const playedLosingDeck = playedWinningDeck === m.deck1 ? m.deck2 : m.deck1;
+      const winningDeck = resolveId(playedWinningDeck);
+      const losingDeck = resolveId(playedLosingDeck);
       wins.set(key(winningDeck, losingDeck), (wins.get(key(winningDeck, losingDeck)) || 0) + 1);
     }
   }

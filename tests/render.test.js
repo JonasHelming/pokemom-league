@@ -48,6 +48,21 @@ const deckHeadToHeadHTML = renderHeadToHeadHTML('Deck H2H', ['x', 'y'], namesByI
 assert.ok(deckHeadToHeadHTML.includes('Fire'));
 assert.ok(deckHeadToHeadHTML.includes('Water'));
 
+// A rebuild retires 'y' in favour of 'y-1', so the grid is drawn over the
+// ACTIVE ids only. Without folding each match's deck onto its lineage head,
+// every match ever played on 'y' stops matching any cell and the whole grid
+// collapses to zeroes -- the league's entire deck-vs-deck record silently
+// disappears the moment a deck is rebuilt.
+const rebuildNames = { ...namesById, 'y-1': 'Water' };
+const toHead = (id) => (id === 'y' ? 'y-1' : id);
+const rebuiltH2H = renderHeadToHeadHTML('Deck H2H', ['x', 'y-1'], rebuildNames, matches, 'deck', toHead);
+const yWins = matches.filter((m) => (m.winner === m.player1 ? m.deck1 : m.deck2) === 'y').length;
+assert.ok(yWins > 0, 'fixture sanity: Water must have won at least one match on its pre-rebuild version');
+assert.ok(
+  rebuiltH2H.includes(`>${yWins}<`),
+  'wins earned on the retired version must carry over to the rebuilt version\'s row, not vanish',
+);
+
 const historyHTML = renderMatchHistoryHTML(matches, namesById, namesById);
 assert.ok(historyHTML.indexOf('2026-01-02') < historyHTML.indexOf('2026-01-01'), 'newest match should appear first');
 

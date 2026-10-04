@@ -27,7 +27,7 @@ import {
   renderSuggestionsPanelHTML,
   getTypeColor,
 } from './render.js';
-import { buildChartDatasets, renderRatingChart } from './charts.js';
+import { buildChartDatasets, buildDeckLineageIndex, renderRatingChart } from './charts.js';
 
 async function main() {
   const { players, decks, matches } = await loadLeagueData();
@@ -41,6 +41,12 @@ async function main() {
   // carry-over prior to). `deckIds` above (active-only) stays the family
   // used for everything actually shown or flagged.
   const allDeckIds = decks.map((d) => d.id);
+  // Rebuilds mint a new deck id, so anything keyed by the id a match was
+  // actually played on has to be resolved through the lineage first: colors
+  // live under the lineage root, cross-rebuild tallies under the active head.
+  const lineageIndex = buildDeckLineageIndex(decks);
+  const deckColorFor = (id) => getTypeColor(lineageIndex.get(id)?.root ?? id);
+  const toActiveDeck = (id) => lineageIndex.get(id)?.head ?? id;
   const namesById = {
     ...Object.fromEntries(players.map((p) => [p.id, p.name])),
     ...Object.fromEntries(decks.map((d) => [d.id, d.name])),
@@ -89,9 +95,9 @@ async function main() {
   document.getElementById('player-head-to-head').innerHTML =
     renderHeadToHeadHTML('Spieler im direkten Vergleich', playerIds, namesById, matches, 'player');
 
-  document.getElementById('deck-leaderboard').innerHTML = renderLeaderboardHTML('Decks', deckEntries, getTypeColor);
+  document.getElementById('deck-leaderboard').innerHTML = renderLeaderboardHTML('Decks', deckEntries, deckColorFor);
   document.getElementById('deck-head-to-head').innerHTML =
-    renderHeadToHeadHTML('Deck im direkten Vergleich', deckIds, namesById, matches, 'deck');
+    renderHeadToHeadHTML('Deck im direkten Vergleich', deckIds, namesById, matches, 'deck', toActiveDeck);
 
   document.getElementById('player-deck-leaderboard').innerHTML = renderLeaderboardHTML('Spieler + Deck', playerDeckEntries);
 
