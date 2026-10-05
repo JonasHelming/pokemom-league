@@ -29,9 +29,11 @@ handwritten notes, a one-line summary — rather than editing
 4. Every entry appended to `data/matches.json` must be fully explicit:
    `{ player1, deck1, player2, deck2, winner, date }`, where `winner` is the
    winning player's `id` and `date` is `"YYYY-MM-DD"`.
-5. If no date is given, ask what date to use rather than silently assuming
-   one — unless the user has already said to use a specific date (e.g.
-   "today") for the whole batch.
+5. If no date is given, use today's date. Don't ask — this is a standing
+   instruction from the user (2026-10-05), who reports results the same day
+   they're played. Only use a different date when the report says so
+   ("gestern", "am Freitag", an explicit date), and still ask if a report
+   names a date you can't resolve to a specific day.
 6. If a report is ambiguous (unclear handwriting, an unclear player
    reference, an unclear winner), confirm your reading with the user before
    writing anything — a wrong guess corrupts the rating history for
