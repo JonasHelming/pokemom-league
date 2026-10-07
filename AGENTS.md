@@ -13,12 +13,14 @@ handwritten notes, a one-line summary — rather than editing
 
 1. Identify each match: who played (player ids `M`, `T`, `C`, `J`), which
    decks were used, and who won.
-1b. Reports often use first names rather than ids: **Mattis → `M`**,
-   **Theo → `T`**, **Caro → `C`**, **Jonas → `J`** (Jonas is the repo
-   owner, so "ich"/"I" in a report means `J`). A name outside this list
-   may well be a guest rather than a typo for an existing player, so
-   confirm instead of assuming — adding a guest means a new entry in
-   `data/players.json` first.
+1b. Reports often use first names rather than player ids. **Never write a
+   real name into this repo** — not here, not in `data/`, not in a commit
+   message. The repo is public and GitHub Pages serves every file in it,
+   including this one, so anything committed here is published. Player
+   identity stays as the ids `M`, `T`, `C`, `J`; the name-to-id mapping
+   lives only outside the repo. A name you can't resolve may be a guest
+   rather than a typo, so ask rather than assume — and adding a guest
+   means a new `data/players.json` entry using an initial, not a name.
 2. If a player's deck isn't mentioned, use their `defaultDeck` from
    `data/players.json` — don't guess a different deck.
 2b. Decks get rebuilt, and a rebuilt version gets a new id (`fighting` →
