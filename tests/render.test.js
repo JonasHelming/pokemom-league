@@ -8,6 +8,7 @@ import {
   renderBoostProgressHTML,
   renderDeckBoostProgressHTML,
   renderSuggestionsPanelHTML,
+  renderNewsReportHTML,
   getTypeColor,
 } from '../src/render.js';
 
@@ -147,5 +148,37 @@ const suggestionsHTML = renderSuggestionsPanelHTML(
 assert.ok(suggestionsHTML.includes('Alice'));
 assert.ok(suggestionsHTML.includes('60%'));
 assert.ok(suggestionsHTML.includes('Beste Deck-Paarung pro Spielerpaar'));
+
+// --- News ticker ---
+//
+// The ticker is hand-written prose stored as data, so it is content, not
+// markup: it must be escaped on the way in, with exactly one formatting
+// affordance (**bold**) for the numbers worth shouting about.
+const report = {
+  title: 'Liga-Ticker',
+  date: '2026-10-10',
+  sections: [{ emoji: '🏆', heading: 'J führt', body: 'Aktuell **14 Siege** in Serie.' }],
+};
+const reportHTML = renderNewsReportHTML(report);
+assert.ok(reportHTML.includes('Liga-Ticker'));
+assert.ok(reportHTML.includes('🏆'));
+assert.ok(reportHTML.includes('<strong'), '**...** should become bold');
+assert.ok(reportHTML.includes('14 Siege</strong>'), 'the bolded run itself must survive');
+assert.ok(!reportHTML.includes('**'), 'no literal asterisks should leak into the page');
+
+// Single asterisks are emphasis too -- without this they render as literal
+// *Sternchen* in the middle of the prose.
+const emphHTML = renderNewsReportHTML({
+  title: 't',
+  sections: [{ emoji: '', heading: 'h', body: 'Kleines Detail: *alle* sechs Niederlagen.' }],
+});
+assert.ok(emphHTML.includes('<em>alle</em>'), '*...* should become italic');
+assert.ok(!emphHTML.includes('*'), 'no stray asterisk should survive rendering');
+
+assert.equal(renderNewsReportHTML(null), '', 'a missing report renders nothing rather than breaking the page');
+assert.equal(renderNewsReportHTML({ title: 'x', sections: [] }), '', 'an empty report renders nothing');
+
+const unsafe = { title: 'T', date: 'd', sections: [{ emoji: '', heading: 'h', body: '<img src=x onerror=alert(1)>' }] };
+assert.ok(!renderNewsReportHTML(unsafe).includes('<img'), 'report text must be escaped, never injected as HTML');
 
 console.log('OK: render.test.js');

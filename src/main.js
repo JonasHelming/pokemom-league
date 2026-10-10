@@ -25,12 +25,13 @@ import {
   renderBoostProgressHTML,
   renderDeckBoostProgressHTML,
   renderSuggestionsPanelHTML,
+  renderNewsReportHTML,
   getTypeColor,
 } from './render.js';
 import { buildChartDatasets, buildDeckLineageIndex, renderRatingChart } from './charts.js';
 
 async function main() {
-  const { players, decks, matches } = await loadLeagueData();
+  const { players, decks, matches, report } = await loadLeagueData();
   const playerIds = players.map((p) => p.id);
   const activeDecks = decks.filter((d) => !d.retired);
   const deckIds = activeDecks.map((d) => d.id);
@@ -90,6 +91,8 @@ async function main() {
       };
     })
     .sort((a, b) => b.value - a.value);
+
+  document.getElementById('news-report').innerHTML = renderNewsReportHTML(report);
 
   document.getElementById('player-leaderboard').innerHTML = renderLeaderboardHTML('Spieler', playerEntries);
   document.getElementById('player-head-to-head').innerHTML =

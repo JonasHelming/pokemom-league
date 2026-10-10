@@ -23,6 +23,37 @@ export function getTypeColor(deckId) {
   return TYPE_COLORS[deckId] || null;
 }
 
+const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const escapeHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ESCAPES[c]);
+
+// The ticker in `data/report.json` is prose written fresh for whatever the
+// standings currently are, not a template filled from the fit — so it's
+// content, and gets escaped like content. Exactly one formatting
+// affordance survives escaping: **bold**, for the numbers worth shouting
+// about. Rendering nothing when the file is absent keeps the rest of the
+// page working if a deploy ever lands without it.
+export function renderNewsReportHTML(report) {
+  if (!report || !Array.isArray(report.sections) || report.sections.length === 0) return '';
+
+  // `**` first, then `*` — otherwise the single-asterisk pass would chew
+  // through the inner edges of a bold run and leave stray markers behind.
+  const rich = (s) =>
+    escapeHTML(s)
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="text-amber-200">$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+  const date = report.date
+    ? `<p class="text-slate-400 text-sm mb-4 tv:text-xl tv:mb-8">Stand ${escapeHTML(report.date)}</p>`
+    : '';
+  const sections = report.sections
+    .map(
+      (s) =>
+        `<article class="mb-5 last:mb-0 tv:mb-10"><h3 class="font-bold text-amber-300 mb-1 tv:text-3xl tv:mb-3">${escapeHTML(s.emoji)} ${rich(s.heading)}</h3><p class="text-slate-300 leading-relaxed tv:text-2xl tv:leading-relaxed">${rich(s.body)}</p></article>`,
+    )
+    .join('');
+
+  return `<section class="${SECTION_CLASS}"><h2 class="${HEADING_CLASS}">📰 ${escapeHTML(report.title)}</h2>${date}${sections}</section>`;
+}
+
 export function renderLeaderboardHTML(title, entries, colorFor = () => null) {
   const rows = entries
     .map((e, i) => {
