@@ -48,3 +48,35 @@ handwritten notes, a one-line summary — rather than editing
    everyone, and it's cheap to just ask.
 7. Append the new matches to the existing array (don't reorder or rewrite
    existing entries), verify the file still parses as JSON, and commit.
+8. Rewrite `data/report.json` in the same commit — see below. A match
+   almost always invalidates a number the ticker is currently claiming,
+   and a stale ticker publishes a falsehood.
+
+## The Liga-Ticker (`data/report.json`)
+
+A short German news report shown at the top of the site, written fresh
+from the current standings. It is prose, not a template — there is
+deliberately no fixed schema.
+
+- **Rewrite it on every new match**, as part of the same commit. The
+  previous text will usually contain a number the new result just broke
+  (a streak, a win count, a rating).
+- **Rethink the structure each time, don't just swap numbers.** The
+  sections exist to carry whatever the story currently is. When the story
+  changes, the sections change: a broken streak earns a new lead item, a
+  topic that has gone quiet gets dropped, a new rivalry earns its own
+  heading. Reusing last week's outline out of habit is the failure mode
+  to avoid.
+- **Verify every figure against the data before writing it.** Recompute
+  records, ratings, head-to-head and streaks rather than carrying numbers
+  over from the previous version.
+- **Tone:** funny, a little tabloid. Warm and genuinely positive toward
+  the two boys (`M` and `T`) — find the angle that makes them look good,
+  it's usually in the data. Honest rather than artificially flattering
+  about the adults; a light roast is fine and welcome.
+- **Never name the rating model** or use jargon from it. Say what
+  happened, not how it was computed.
+- **Letters only** (`M`, `T`, `C`, `J`) — see rule 1b. The boys' ages (7
+  and 5) may be mentioned; adults' ages may not.
+- Formatting available in the body text: `**fett**` and `*kursiv*`.
+  Anything else is escaped and shows up literally.
