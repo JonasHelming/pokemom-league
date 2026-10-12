@@ -1,46 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-10-11",
+  "date": "2026-10-12",
   "sections": [
     {
-      "emoji": "🎴",
-      "heading": "J legt Finsternis weg — und gewinnt sofort wieder",
-      "body": "Drei Niederlagen in Folge, alle drei mit Finsternis. Dann griff J zu **Feuer** und schlug T auf Anhieb. Die Zahlen dahinter sind eindeutig: mit Feuer steht J bei **18:3**, mit Finsternis nur bei **10:6**. Der Fluch ist gebrochen, und zwar auf die unspektakulärste Art überhaupt — Deck gewechselt."
+      "emoji": "🌑",
+      "heading": "J holt Finsternis zurück — und gewinnt",
+      "body": "Einen Tag nachdem er das Deck nach drei Niederlagen weggelegt hatte, griff J wieder zu **Finsternis** und schlug T. Damit steht er mit der neuen Version bei **6:4**. Alle anderen zusammen: weiterhin **0 aus 5**. Die Mutprobe bleibt also Chefsache — auch wenn J mit jedem anderen Deck bei **22:3** steht und Finsternis damit sein mit Abstand schwächstes bleibt."
     },
     {
-      "emoji": "💪",
-      "heading": "Das Verdienst gehört trotzdem den Jungs",
-      "body": "Vergessen wir nicht, *warum* J das Deck wechseln musste: T hatte ihn zweimal geschlagen, M einmal. Die beiden haben den Tabellenführer so unter Druck gesetzt, dass er sein Lieblingsexperiment aufgeben musste. **9 Niederlagen** hat J in dieser Liga kassiert — *alle neun* von seinen Söhnen."
-    },
-    {
-      "emoji": "🃏",
-      "heading": "Deck-News: Elektro bleibt das Maß der Dinge",
-      "body": "**Elektro** führt mit **1174** souverän, dahinter **Feuer** (1088) und **Kampf** (1022), das sich langsam herankämpft. Schlusslicht bleibt **Finsternis** mit **717** — siehe unten."
-    },
-    {
-      "emoji": "🏅",
-      "heading": "Rarität des Tages: beide mit eigenem Deck",
-      "body": "T mit Kampf, J mit Feuer — in **54 Partien** war das erst das **vierte Mal**, dass beide Spieler ihr eigenes Deck benutzt haben. In dieser Familie ist es die große Ausnahme, mit den eigenen Karten anzutreten."
+      "emoji": "🏆",
+      "heading": "J wieder bei zwei Siegen in Folge",
+      "body": "Die Krise ist abgehakt: **33:9** und **1274 Punkte**. Nach dem kurzen Einbruch auf drei Niederlagen am Stück hat J zweimal nacheinander zurückgeschlagen. Unverändert bleibt die Besonderheit dieser Liga — *alle neun* Niederlagen stammen von den eigenen Kindern, kein erwachsener Gegner hat je gegen ihn gewonnen."
     },
     {
       "emoji": "⚡",
       "heading": "M bleibt der heimliche Tabellenführer",
-      "body": "**1086 Punkte**, Bilanz **9:6** — die einzige positive neben J, und das mit deutlichem Abstand zum Rest. Gegen den kleinen Bruder steht es **5:1**, gegen J **2:5**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "body": "**1084 Punkte** und eine Bilanz von **9:6** — die einzige positive neben J, und mit rund 240 Punkten Vorsprung auf Platz 3 ziemlich einsam. Im Bruderduell steht es **5:1**, gegen den Papa **2:5**. Rechnet man J heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
     },
     {
       "emoji": "🔥",
-      "heading": "T: der gefährlichste Gegner des Tabellenführers",
-      "body": "Diesmal hat es nicht gereicht, aber an der Grundlage ändert das nichts: **7 Siege gegen J** stehen für T zu Buche, mehr als doppelt so viele wie alle anderen zusammen. Mit **37 Partien** ist T außerdem weiterhin der fleißigste Spieler der Liga. Mit 5 Jahren."
+      "heading": "T hat J öfter geschlagen als alle anderen zusammen",
+      "body": "Die letzten Partien liefen nicht, aber die Bestmarke steht: **7 Siege gegen J** — M kommt auf 2, C auf 0. Dazu ist T mit **38 Partien** mit großem Abstand der fleißigste Spieler der Liga und tritt gegen jeden an, egal mit welchem Deck. Mit 5 Jahren."
     },
     {
       "emoji": "🎯",
-      "heading": "C: weiter 0:8 gegen J",
-      "body": "**795 Punkte**, Bilanz **3:12**. Während beide Söhne den Tabellenführer inzwischen regelmäßig schlagen, wartet C nach 54 Ligapartien immer noch auf den ersten Sieg gegen J."
+      "heading": "C klettert zurück über 800",
+      "body": "**800 Punkte**, Bilanz **3:12** — und das, obwohl C heute gar nicht gespielt hat. So etwas passiert, wenn die direkten Konkurrenten verlieren. Gegen J steht es weiterhin **0:8**."
     },
     {
-      "emoji": "🌑",
-      "heading": "Finsternis: Chefsache",
-      "body": "Seit dem Umbau hat genau **ein** Mitglied dieser Familie mit Finsternis eine Partie gewonnen — J, fünfmal. Alle anderen zusammen: **0 aus 5**. M, T und C haben es versucht und sind ausnahmslos gescheitert. Nur mit dem Loben sollte man vorsichtig sein: Auch J kommt damit bloß auf **5:4**, während er mit jedem anderen Deck bei **22:3** steht. Finsternis ist weniger ein Deck als eine Mutprobe — und J ist der Einzige, der sie gelegentlich besteht."
+      "emoji": "🃏",
+      "heading": "Deck-News: Kampf verliert den Anschluss",
+      "body": "**Elektro** baut die Führung auf **1185** aus, **Feuer** folgt mit **1092**. **Kampf** dagegen rutscht auf **994** und fällt erstmals unter die 1000er-Marke. **Finsternis** bleibt Schlusslicht (**729**), hat aber heute immerhin wieder einen Sieg beigesteuert."
     }
   ]
 }
