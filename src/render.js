@@ -1,8 +1,15 @@
+// Keyed by the lineage ROOT id, not the active version — a rebuild mints a
+// new id (`darkness-3`) that no colour table can anticipate, so callers
+// resolve through buildDeckLineageIndex first. A genuinely new deck type,
+// however, needs its own entry here: without one its chart line falls back
+// to Chart.js's near-transparent default and is invisible on this
+// background.
 const TYPE_COLORS = {
   fire: '#f87171',
   electric: '#facc15',
   fighting: '#ea580c',
   darkness: '#a78bfa',
+  psychic: '#f472b6',
 };
 
 // bg/border are parameterized rather than baked into a shared constant so a

@@ -1,36 +1,46 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-10-12",
+  "date": "2026-10-18",
   "sections": [
     {
+      "emoji": "🔮",
+      "heading": "Neu in der Liga: M steigt mit Psycho ein",
+      "body": "Die Liga hat erstmals **fünf aktive Decks**: Zu Feuer, Elektro, Kampf und Finsternis gesellt sich **Psycho**, das neue Deck von M. Anders als bei einem Umbau startet es ohne jede Vorgeschichte — die Wertung muss komplett neu erspielt werden. Elektro bleibt M's Standard-Deck, Psycho kommt zusätzlich dazu."
+    },
+    {
+      "emoji": "🃏",
+      "heading": "Unglücklicher Einstand: die Karten standen schlecht",
+      "body": "Das Debüt ging gegen J verloren, aber wer zugesehen hat, weiß: Die Karten steckten für M ausgesprochen ungünstig. Aus einer solchen Hand ist gegen den Tabellenführer wenig zu holen. **Eine Partie** ist ohnehin keine Stichprobe — Psycho startet bei 737 Punkten, und das sagt bisher mehr über den Kartenstapel als über das Deck."
+    },
+    {
       "emoji": "🌑",
-      "heading": "J holt Finsternis zurück — und gewinnt",
-      "body": "Einen Tag nachdem er das Deck nach drei Niederlagen weggelegt hatte, griff J wieder zu **Finsternis** und schlug T. Damit steht er mit der neuen Version bei **6:4**. Alle anderen zusammen: weiterhin **0 aus 5**. Die Mutprobe bleibt also Chefsache — auch wenn J mit jedem anderen Deck bei **22:3** steht und Finsternis damit sein mit Abstand schwächstes bleibt."
+      "heading": "Finsternis umgebaut — und J gewinnt damit sofort",
+      "body": "C hat Finsternis neu gebaut, die dritte Version des Decks. Erster Einsatz: J leiht es sich und gewinnt prompt. Damit steht J mit Finsternis insgesamt bei **12:6**. Die Mutprobe bleibt also Chefsache — kein anderes Familienmitglied hat seit dem letzten Umbau damit je gewonnen."
     },
     {
       "emoji": "🏆",
-      "heading": "J wieder bei zwei Siegen in Folge",
-      "body": "Die Krise ist abgehakt: **33:9** und **1274 Punkte**. Nach dem kurzen Einbruch auf drei Niederlagen am Stück hat J zweimal nacheinander zurückgeschlagen. Unverändert bleibt die Besonderheit dieser Liga — *alle neun* Niederlagen stammen von den eigenen Kindern, kein erwachsener Gegner hat je gegen ihn gewonnen."
+      "heading": "J auf dem höchsten Stand der Saison",
+      "body": "**Drei Siege in Folge**, Bilanz **34:9**, und mit **1295 Punkten** steht J so gut da wie nie. Der kurze Einbruch Mitte Oktober ist vollständig abgearbeitet. Die Konstante der Liga bleibt: *alle neun* Niederlagen gehen auf das Konto der eigenen Kinder."
     },
     {
       "emoji": "⚡",
       "heading": "M bleibt der heimliche Tabellenführer",
-      "body": "**1084 Punkte** und eine Bilanz von **9:6** — die einzige positive neben J, und mit rund 240 Punkten Vorsprung auf Platz 3 ziemlich einsam. Im Bruderduell steht es **5:1**, gegen den Papa **2:5**. Rechnet man J heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "body": "Trotz des Dämpfers im Psycho-Debüt: **1070 Punkte** und **9:7** bedeuten weiterhin Platz 2 mit über 220 Punkten Vorsprung auf Rang 3. Im Bruderduell führt M klar mit **5:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
     },
     {
       "emoji": "🔥",
-      "heading": "T hat J öfter geschlagen als alle anderen zusammen",
-      "body": "Die letzten Partien liefen nicht, aber die Bestmarke steht: **7 Siege gegen J** — M kommt auf 2, C auf 0. Dazu ist T mit **38 Partien** mit großem Abstand der fleißigste Spieler der Liga und tritt gegen jeden an, egal mit welchem Deck. Mit 5 Jahren."
+      "heading": "T gewinnt gegen C — und zieht im Duell gleich",
+      "body": "Mit **Kampf** schlug T am 15. Oktober C und glich das direkte Duell auf **3:3** aus. Dazu bleiben **7 Siege gegen J** die beste Bilanz aller Herausforderer, und mit **39 Partien** ist T weiterhin der mit Abstand fleißigste Spieler der Liga. Mit 5 Jahren."
     },
     {
       "emoji": "🎯",
-      "heading": "C klettert zurück über 800",
-      "body": "**800 Punkte**, Bilanz **3:12** — und das, obwohl C heute gar nicht gespielt hat. So etwas passiert, wenn die direkten Konkurrenten verlieren. Gegen J steht es weiterhin **0:8**."
+      "heading": "C baut um und hofft",
+      "body": "**793 Punkte** und **3:13** — und ausgerechnet das frisch umgebaute Finsternis hat als Erstes J einen Sieg beschert, nicht C selbst. Gegen J steht es weiterhin **0:8**. Der Umbau ist die Hoffnung, dass sich das ändert."
     },
     {
-      "emoji": "🃏",
-      "heading": "Deck-News: Kampf verliert den Anschluss",
-      "body": "**Elektro** baut die Führung auf **1185** aus, **Feuer** folgt mit **1092**. **Kampf** dagegen rutscht auf **994** und fällt erstmals unter die 1000er-Marke. **Finsternis** bleibt Schlusslicht (**729**), hat aber heute immerhin wieder einen Sieg beigesteuert."
+      "emoji": "📊",
+      "heading": "Deck-News: Elektro enteilt endgültig",
+      "body": "**Elektro** zieht auf **1260** davon, dahinter **Feuer** (1164) und **Kampf** (1079). **Finsternis** liegt nach dem Umbau bei **760**, **Psycho** startet bei **737** — beide haben ihre Geschichte noch vor sich."
     }
   ]
 }
