@@ -1,41 +1,41 @@
 {
-  "title": "Liga-Ticker",
+  "title": "Liga-Ticker — Der Tag im Rückblick",
   "date": "2026-10-18",
   "sections": [
     {
-      "emoji": "🏆",
-      "heading": "J schlägt doppelt zurück — einmal mit geliehenem Psycho",
-      "body": "Nach zwei Niederlagen gegen T meldet sich der Tabellenführer mit **zwei Siegen** zurück, beide gegen C. Beim zweiten griff J ausgerechnet zu **Psycho**, dem brandneuen Deck von M — und gewann damit im ersten Versuch. Bilanz jetzt **36:10**, Wertung **1259**."
-    },
-    {
-      "emoji": "🔮",
-      "heading": "Psycho: 2:1 und schon vor Finsternis",
-      "body": "Das jüngste Deck der Liga macht sich erstaunlich gut. Nach dem unglücklichen Debüt steht **Psycho** bei **2:1** und ist von 737 auf **870 Punkte** geklettert — vorbei an Finsternis. Gewonnen haben damit bisher beide, die es angefasst haben: M einmal, J einmal."
+      "emoji": "📅",
+      "heading": "Sechs Partien, zwei Umbauten, ein neues Deck",
+      "body": "Was für ein Tag: **6 Partien** an einem einzigen Sonntag, dazu der Umbau von **Kampf** und **Finsternis** sowie das Debüt von **Psycho**. Die Tagesbilanz: **J 4:1**, **T 1:0**, **M 1:1**, **C 0:4**. Vier der fünf aktiven Decks sind jetzt umgebaut oder brandneu — diese Liga hat sich an einem Tag komplett gehäutet."
     },
     {
       "emoji": "🥊",
-      "heading": "Kampf bleibt oben — T ohne Partie weiter Dritter",
-      "body": "Der frisch umgebaute **Kampf** verteidigt mit **1182 Punkten** Platz 1 der Deckwertung vor **Elektro** (1150). T selbst war heute nicht im Einsatz, bleibt aber bei **879 Punkten**, **8 Siegen gegen J** und **40 Partien** — weiterhin der fleißigste Spieler der Liga. Mit 5 Jahren."
+      "heading": "Der Moment des Tages: T schlägt J mit dem brandneuen Kampf",
+      "body": "T baute Kampf um, trat damit sofort gegen den Tabellenführer an — und gewann. Es war die **einzige Niederlage von J an diesem Tag** und T's **achter Sieg** gegen ihn insgesamt. Zur Einordnung: M kommt auf 2, C auf 0. Das neue Kampf führt die Deckwertung prompt mit **1153 Punkten** an. Mit 5 Jahren."
     },
     {
-      "emoji": "⚡",
-      "heading": "M hält Platz 2 und bleibt ungeschlagen gegen C",
-      "body": "**1084 Punkte**, Bilanz **10:7** — die einzige positive neben J, mit über 200 Punkten Vorsprung auf Rang 3. Gegen C steht M bei makellosen **3:0**, im Bruderduell bei **5:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "emoji": "🔮",
+      "heading": "Psycho: vom Fehlstart zum drittbesten Deck",
+      "body": "M's neues Deck startete mit einer Niederlage — die Karten steckten ausgesprochen ungünstig —, holte dann aber gegen C den ersten Sieg. Von **737 auf 900 Punkte** an einem Tag, Bilanz **2:1**, und damit schon vor Finsternis. Ein gelungener Einstand, trotz des holprigen Auftakts."
+    },
+    {
+      "emoji": "🏆",
+      "heading": "J gewinnt vier von fünf — mit drei verschiedenen Decks",
+      "body": "Finsternis, Feuer, Psycho: J hatte heute **drei verschiedene Decks** in der Hand und gewann mit **jedem** davon. Zwei gehören anderen Familienmitgliedern. Am Ende stehen **37:10** und **1271 Punkte**. Die Konstante der Liga bleibt: *alle zehn* Niederlagen stammen von den eigenen Kindern."
     },
     {
       "emoji": "🎯",
-      "heading": "C in der längsten Durststrecke der Liga-Geschichte",
-      "body": "**Zwölf Niederlagen in Folge**, Bilanz **3:16**, gegen J mittlerweile **0:10**. Eines muss man dabei allerdings sehen: **13 der 16 Niederlagen** gingen gegen J und M, also gegen die beiden stärksten Spieler der Liga. Gegen T, den einzigen Gegner auf Augenhöhe, steht C ausgeglichen bei **3:3**. Es fehlt nicht am Spiel, es fehlt am Spielplan."
+      "heading": "C: 0:4 — und das mit dem besten Deck der Liga",
+      "body": "Ein bitterer Tag: vier Partien, vier Niederlagen, inzwischen **13 am Stück**. Besonders grausam die letzte — C trat mit dem **frisch umgebauten Kampf** an, dem **bestbewerteten Deck der Liga**, und verlor gegen J mit **Finsternis**, dem schlechtesten. Immerhin: **drei ihrer vier** Gegner heute hießen J, und gegen den steht die ganze Liga schlecht da."
+    },
+    {
+      "emoji": "⚡",
+      "heading": "M bleibt der heimliche Tabellenführer",
+      "body": "Trotz ausgeglichenem Tag: **1090 Punkte** und **10:7** bedeuten Platz 2 mit über 200 Punkten Vorsprung auf Rang 3. Gegen C steht M bei **3:0**, im Bruderduell bei **5:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
     },
     {
       "emoji": "📊",
-      "heading": "Deck-News: Feuer rutscht weiter ab",
-      "body": "**Kampf** (1182) führt vor **Elektro** (1150). **Feuer** fällt auf **1013** und ist nur noch Mittelmaß — das Deck, mit dem J den Großteil seiner Siege geholt hat, verliert rapide an Ansehen. Dahinter **Psycho** (870) und **Finsternis** (784)."
-    },
-    {
-      "emoji": "🔄",
-      "heading": "Zahl des Tages",
-      "body": "In den letzten vier Partien hatte J **drei verschiedene Decks** in der Hand: Finsternis, Feuer und Psycho — und hat mit jedem davon **mindestens einmal gewonnen**. Zwei davon gehören anderen. Wer in dieser Familie ein neues Deck baut, sollte es besser gut verstecken."
+      "heading": "Deck-News: Feuer fällt unter 1000",
+      "body": "Die neue Rangfolge nach dem turbulenten Tag: **Kampf** (1153), **Elektro** (1130), **Feuer** (981), **Psycho** (900), **Finsternis** (836). Ausgerechnet **Feuer**, lange das Prunkstück von J, rutscht erstmals unter die 1000er-Marke — während **Finsternis** dank J's zwei Siegen um über 50 Punkte zulegt."
     }
   ]
 }
