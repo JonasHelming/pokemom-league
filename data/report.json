@@ -1,41 +1,41 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-10-19",
+  "date": "2026-10-20",
   "sections": [
     {
-      "emoji": "🔥",
-      "heading": "J stoppt den Psycho-Lauf — mit dem alten Feuer",
-      "body": "Vier Siege am Stück hatte Psycho gesammelt, dann trat J mit seinem eigenen **Feuer** an und beendete die Serie. Die Zahl dahinter ist bemerkenswert: J steht mit Feuer bei **20:4**, obwohl das Deck in der Wertung nur noch **949 Punkte** hat. In anderen Händen ein Mittelklasse-Deck, in seinen eine Waffe."
+      "emoji": "🌑",
+      "heading": "Dasselbe Deck, zwei Welten: Finsternis steht 3:0 und 0:3",
+      "body": "Das neu gebaute Finsternis hat jetzt sechs Partien hinter sich — und das Ergebnis ist von erschreckender Klarheit: In J's Händen steht es bei **3:0**, in C's bei **0:3**. Dasselbe Deck, dieselben Karten, exakt gegenteilige Bilanz. Heute schlug J damit M, der mit Psycho antrat. Über alle Versionen hinweg kommt J mit Finsternis auf **14:6**."
     },
     {
-      "emoji": "📊",
-      "heading": "Elektro erobert die Deckspitze zurück",
-      "body": "Nur zehn Punkte trennen oben alles: **Elektro** (1099) schiebt sich wieder an **Kampf** (1089) vorbei. **Psycho** folgt nach der ersten Niederlage mit **1031**, dahinter **Feuer** (949) und **Finsternis** (833). Drei Decks kämpfen um Platz 1 — eines davon gab es vor drei Tagen noch nicht."
-    },
-    {
-      "emoji": "🔮",
-      "heading": "Psycho: erste Niederlage, Bilanz trotzdem stark",
-      "body": "Nach dem perfekten Lauf ging die erste Partie verloren — ausgerechnet in T's Händen, der zuvor damit gewonnen hatte. **4:2** steht jetzt zu Buche, immer noch die beste Quote aller neuen Decks. Von 737 Punkten beim Debüt auf **1031** in drei Tagen."
-    },
-    {
-      "emoji": "⚡",
-      "heading": "M gewinnt, baut Decks, führt heimlich",
-      "body": "**1090 Punkte**, Bilanz **11:7**, gegen C makellose **4:0** — und nebenbei das Deck gebaut, um das sich gerade die ganze Liga reißt. Im Bruderduell steht es **5:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
-    },
-    {
-      "emoji": "🥊",
-      "heading": "T: ein Sieg, eine Niederlage, Platz 3 gefestigt",
-      "body": "Erst der Sieg über C, dann der Dämpfer gegen J — unterm Strich ein ordentlicher Tag. **892 Punkte**, Bilanz **13:29**, und mit **42 Partien** weiterhin mit großem Abstand der fleißigste Spieler der Liga. Die **8 Siege gegen J** bleiben Liga-Rekord unter den Herausforderern. Mit 5 Jahren."
-    },
-    {
-      "emoji": "🎯",
-      "heading": "C: zwei Niederlagen, Serie bei 15",
-      "body": "Zweimal mit dem damals bestbewerteten Kampf angetreten, zweimal verloren. Bilanz **3:19**, Wertung **734**. In Schlagdistanz bleibt allein T mit **3:4** — gegen J (**0:11**) und M (**0:4**) steht es weiterhin bei null."
+      "emoji": "📈",
+      "heading": "Finsternis erholt sich — um 166 Punkte",
+      "body": "Vor einer Woche war Finsternis mit **743 Punkten** das Schlusslicht der Liga und galt als unspielbar. Heute steht es bei **909** und ist fast gleichauf mit Feuer (935). Die komplette Erholung geht auf das Konto eines einzigen Spielers, der es sich immer wieder ausleiht."
     },
     {
       "emoji": "🏆",
-      "heading": "J baut die Führung aus",
-      "body": "**38:10** und **1283 Punkte**, der höchste Stand seit einer Woche. Der Vorsprung auf Platz 2 beträgt fast **200 Punkte**. Und weiterhin gilt: *alle zehn* Niederlagen gehen auf das Konto der eigenen Kinder."
+      "heading": "J bei fünf Siegen in Folge",
+      "body": "**39:10** und **1290 Punkte** — J hat die kleine Krise von Mitte Oktober vollständig abgeschüttelt und ist seit fünf Partien ungeschlagen. Der Vorsprung auf Platz 2 beträgt über **200 Punkte**. Und weiterhin gilt: *alle zehn* Niederlagen stammen von den eigenen Kindern."
+    },
+    {
+      "emoji": "🔮",
+      "heading": "Psycho kommt auf dem Boden an",
+      "body": "Nach dem Raketenstart die zweite Niederlage in Folge: **4:3** steht nun zu Buche, die Wertung fällt von 1071 auf **989**. Für ein Deck, das vor vier Tagen bei 737 anfing, ist das immer noch eine Ansage — aber die Liga hat sich darauf eingestellt."
+    },
+    {
+      "emoji": "⚡",
+      "heading": "M: erster Rückschlag mit dem eigenen Deck",
+      "body": "Mit Psycho steht M jetzt bei **2:2** — das Deck gewinnt bei allen anderen zuverlässiger als beim Erbauer selbst. An der Gesamtlage ändert das wenig: **1085 Punkte**, Bilanz **11:8**, gegen C makellose **4:0**, im Bruderduell **5:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+    },
+    {
+      "emoji": "🥊",
+      "heading": "T hält Platz 3 — und den Rekord",
+      "body": "Heute ohne Einsatz, aber mit **895 Punkten** komfortabel vor C. Die **8 Siege gegen J** bleiben unerreicht: M kommt auf 2, C auf 0. Mit **42 Partien** bleibt T der fleißigste Spieler der Liga. Mit 5 Jahren."
+    },
+    {
+      "emoji": "🎯",
+      "heading": "C wartet weiter",
+      "body": "Ohne Partie heute, weiterhin **3:19** und **730 Punkte**. Die bittere Pointe des Tages: Das Deck, das C selbst umgebaut hat, gewinnt gerade reihenweise — nur eben in J's Händen."
     }
   ]
 }
