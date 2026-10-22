@@ -1,41 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-10-21",
+  "date": "2026-10-22",
   "sections": [
     {
-      "emoji": "🎉",
-      "heading": "ENDLICH! C beendet die Serie nach 29 Tagen",
-      "body": "Der letzte Sieg von C datierte vom **22. September**. Dazwischen lagen **15 Niederlagen in Folge** — die längste Durststrecke, die diese Liga je gesehen hat. Heute ist sie vorbei: C schlägt M und holt den ersten Sieg seit vier Wochen. Die Liga gratuliert."
+      "emoji": "🚀",
+      "heading": "C gewinnt schon wieder — die Aufholjagd läuft",
+      "body": "Zwei Tage, zwei Siege: Nach dem Erfolg über M schlägt C nun auch T. Das sind **zwei Siege in Folge** — so gut lief es für C zuletzt am **20. September**, also vor über einem Monat. Von 15 Niederlagen am Stück zur besten Serie ihrer Liga-Geschichte in nur zwei Tagen."
     },
     {
-      "emoji": "🥇",
-      "heading": "Und es ist gleich ein Premierensieg",
-      "body": "Noch bemerkenswerter: Es ist C's **erster Sieg gegen M überhaupt**. Zuvor stand es **0:4**. Alle drei früheren Siege ihrer Liga-Karriere gingen gegen T — heute kam zum ersten Mal ein anderer Name dazu. Das direkte Duell steht nun **1:4**."
+      "emoji": "⚖️",
+      "heading": "Das Duell C gegen T ist ausgeglichen",
+      "body": "Mit dem heutigen Sieg steht es im direkten Vergleich **4:4**. Damit hat die Liga ihre erste wirklich offene Rechnung: zwei Spieler, die sich über die gesamte Saison exakt die Waage halten. In der Wertung liegt T mit **879** zu **781** zwar noch knapp 100 Punkte vorn — aber die Richtung stimmt gerade eindeutig für C."
     },
     {
       "emoji": "🥊",
-      "heading": "Ausgerechnet mit dem Deck, das nie funktioniert hatte",
-      "body": "C trat mit dem geliehenen **Kampf** an — jenem Deck, mit dem sie zuvor **drei Niederlagen am Stück** kassiert hatte. Im vierten Anlauf hat es endlich geklappt, und zwar gegen M, der mit Finsternis spielte. Bilanz mit dem neuen Kampf: **1:3**."
+      "heading": "Kampf ist dank C das klar beste Deck",
+      "body": "Die Wendung des Tages: Das umgebaute **Kampf**, mit dem C zunächst **0:3** stand, hat sie jetzt zweimal hintereinander zum Sieg getragen — und schießt damit auf **1160 Punkte**, deutlich vor Psycho (1057). C's Bilanz mit dem Deck steht bei **2:3** und zeigt steil nach oben."
     },
     {
-      "emoji": "🏆",
-      "heading": "J auf dem höchsten Stand aller Zeiten",
-      "body": "Mit geliehenem **Elektro** besiegte J T und knackt die **40-Siege-Marke**: Bilanz **40:10**, Wertung **1320** — Allzeithoch. Sechs Siege in Folge. Der Vorsprung auf Platz 2 ist auf über **300 Punkte** angewachsen. Und *alle zehn* Niederlagen stammen nach wie vor von den eigenen Kindern."
-    },
-    {
-      "emoji": "📉",
-      "heading": "M in der ersten echten Krise",
-      "body": "Dritte Niederlage in Folge, und diesmal gegen C, gegen die M zuvor nie verloren hatte. Von 1090 Punkten vor zwei Tagen auf jetzt **1010**, Bilanz **11:10**. Platz 2 ist zwar nicht in Gefahr, aber die Luft ist dünner geworden. Immerhin: Das Deck an der Ligaspitze hat M immer noch selbst gebaut. Mit 7 Jahren."
-    },
-    {
-      "emoji": "📊",
-      "heading": "Punktgleich an der Deckspitze",
-      "body": "**Psycho** und **Kampf** stehen exakt gleichauf bei **1095 Punkten** — der Newcomer und der frisch Umgebaute teilen sich Platz 1. Dahinter **Elektro** (1044), während **Feuer** (887) und **Finsternis** (879) das Tabellenende unter sich ausmachen."
+      "emoji": "🔮",
+      "heading": "Psycho fällt auf 50 Prozent",
+      "body": "Der Höhenflug ist vorbei: Nach drei Niederlagen in Folge steht M's Eigenbau bei exakt **5:5** und ist von 1095 auf **1057 Punkte** gefallen. Platz 2 der Deckwertung ist immer noch beachtlich für ein Deck, das vor sechs Tagen noch gar nicht existierte."
     },
     {
       "emoji": "🔥",
-      "heading": "T: Niederlage, aber Platz 3 bleibt",
-      "body": "Gegen J mit Elektro war diesmal nichts zu holen. **892 Punkte**, Bilanz **14:30**, und mit **44 Partien** weiterhin der mit großem Abstand fleißigste Spieler der Liga. Die **8 Siege gegen J** bleiben Rekord unter den Herausforderern. Mit 5 Jahren."
+      "heading": "T erwischt eine schwierige Phase",
+      "body": "Zweite Niederlage in Folge, die Wertung sinkt auf **879**. An den Bestmarken ändert das nichts: **8 Siege gegen J** sind und bleiben Liga-Rekord unter den Herausforderern, und mit **45 Partien** hat T mehr als doppelt so oft gespielt wie M (21) und fast doppelt so oft wie C (24). Wer so oft antritt, kassiert eben auch mal eine Serie. Mit 5 Jahren."
+    },
+    {
+      "emoji": "🏆",
+      "heading": "J bleibt unangefochten",
+      "body": "Ohne Partie heute, aber mit **1318 Punkten** und **40:10** weiter souverän an der Spitze — fast **300 Punkte** vor Platz 2. Die Liga-Konstante gilt unverändert: *alle zehn* Niederlagen gehen auf das Konto der eigenen Kinder."
     }
   ]
 }
