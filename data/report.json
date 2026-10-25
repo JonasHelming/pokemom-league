@@ -1,36 +1,41 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-10-22",
+  "date": "2026-10-24",
   "sections": [
     {
-      "emoji": "🚀",
-      "heading": "C gewinnt schon wieder — die Aufholjagd läuft",
-      "body": "Zwei Tage, zwei Siege: Nach dem Erfolg über M schlägt C nun auch T. Das sind **zwei Siege in Folge** — so gut lief es für C zuletzt am **20. September**, also vor über einem Monat. Von 15 Niederlagen am Stück zur besten Serie ihrer Liga-Geschichte in nur zwei Tagen."
+      "emoji": "🌑",
+      "heading": "M entdeckt Finsternis für sich — Krise beendet",
+      "body": "Nach drei Niederlagen am Stück schlug M gleich **zweimal an einem Tag** zurück, beide Male mit geliehenem **Finsternis** und beide Male gegen C. Tagesbilanz **2:0**, Wertung zurück auf **1052**, Gesamtbilanz **13:10**. Gegen C steht M jetzt bei **6:1**. Mit 7 Jahren."
     },
     {
-      "emoji": "⚖️",
-      "heading": "Das Duell C gegen T ist ausgeglichen",
-      "body": "Mit dem heutigen Sieg steht es im direkten Vergleich **4:4**. Damit hat die Liga ihre erste wirklich offene Rechnung: zwei Spieler, die sich über die gesamte Saison exakt die Waage halten. In der Wertung liegt T mit **879** zu **781** zwar noch knapp 100 Punkte vorn — aber die Richtung stimmt gerade eindeutig für C."
-    },
-    {
-      "emoji": "🥊",
-      "heading": "Kampf ist dank C das klar beste Deck",
-      "body": "Die Wendung des Tages: Das umgebaute **Kampf**, mit dem C zunächst **0:3** stand, hat sie jetzt zweimal hintereinander zum Sieg getragen — und schießt damit auf **1160 Punkte**, deutlich vor Psycho (1057). C's Bilanz mit dem Deck steht bei **2:3** und zeigt steil nach oben."
-    },
-    {
-      "emoji": "🔮",
-      "heading": "Psycho fällt auf 50 Prozent",
-      "body": "Der Höhenflug ist vorbei: Nach drei Niederlagen in Folge steht M's Eigenbau bei exakt **5:5** und ist von 1095 auf **1057 Punkte** gefallen. Platz 2 der Deckwertung ist immer noch beachtlich für ein Deck, das vor sechs Tagen noch gar nicht existierte."
-    },
-    {
-      "emoji": "🔥",
-      "heading": "T erwischt eine schwierige Phase",
-      "body": "Zweite Niederlage in Folge, die Wertung sinkt auf **879**. An den Bestmarken ändert das nichts: **8 Siege gegen J** sind und bleiben Liga-Rekord unter den Herausforderern, und mit **45 Partien** hat T mehr als doppelt so oft gespielt wie M (21) und fast doppelt so oft wie C (24). Wer so oft antritt, kassiert eben auch mal eine Serie. Mit 5 Jahren."
+      "emoji": "📈",
+      "heading": "Finsternis knackt die 1000 — das Comeback des Jahres",
+      "body": "Vor neun Tagen lag Finsternis bei **743 Punkten** und galt als unspielbar. Heute steht es bei **1008** und ist drittbestes Deck der Liga. Die bittere Pointe für die Besitzerin: In C's eigenen Händen steht das Deck bei **0:3** — bei J (**3:0**) und M (**2:1**) gewinnt es dagegen fast immer."
     },
     {
       "emoji": "🏆",
-      "heading": "J bleibt unangefochten",
-      "body": "Ohne Partie heute, aber mit **1318 Punkten** und **40:10** weiter souverän an der Spitze — fast **300 Punkte** vor Platz 2. Die Liga-Konstante gilt unverändert: *alle zehn* Niederlagen gehen auf das Konto der eigenen Kinder."
+      "heading": "J: sieben Siege in Folge und 41 insgesamt",
+      "body": "Mit **Feuer** gegen T gab es den nächsten Pflichtsieg. Bilanz **41:10**, Wertung **1318**, und seit **sieben Partien** ist J ungeschlagen. Bis zum eigenen Rekord von 14 Siegen in Folge ist es trotzdem noch ein Stück. Die Liga-Konstante hält: *alle zehn* Niederlagen gehen auf das Konto der eigenen Kinder."
+    },
+    {
+      "emoji": "🔥",
+      "heading": "Feuer ist abgeschlagen Letzter — und gewinnt trotzdem",
+      "body": "**819 Punkte**, Platz 5 von 5, **353 Punkte** hinter Kampf. Und das, obwohl J gestern damit schon wieder gewonnen hat. Die beiden Zahlen dazu sagen alles: Mit Feuer steht **J bei 21:4** — alle anderen zusammen bei **3:9**. Es lag noch nie an den Karten."
+    },
+    {
+      "emoji": "🥊",
+      "heading": "T erwischt eine zähe Woche",
+      "body": "Dritte Niederlage in Folge, die Wertung sinkt auf **870**. Halb so wild — im September stand T schon mal bei neun Niederlagen am Stück und hat sich davon prächtig erholt. Unverändert gilt: **8 Siege gegen J** hat niemand sonst geschafft, M kommt auf 2, C auf 0. Und mit **46 Partien** ist T weiterhin der mit Abstand fleißigste Spieler der Liga. Mit 5 Jahren."
+    },
+    {
+      "emoji": "🎯",
+      "heading": "C: die schöne Serie ist gerissen",
+      "body": "Nach zwei Siegen am Stück folgten zwei Niederlagen gegen M, beide Male gegen dasselbe geliehene Finsternis. Bilanz **5:21**, Wertung **760**. Das Duell mit T bleibt dennoch bei **4:4** die ausgeglichenste Rechnung der Liga."
+    },
+    {
+      "emoji": "📊",
+      "heading": "Deck-News: Kampf einsam an der Spitze",
+      "body": "**Kampf** (1172) hat sich klar abgesetzt, dahinter folgen **Psycho** (1039) und **Finsternis** (1008). **Elektro** ist auf **962** abgerutscht, **Feuer** bildet mit **819** das Schlusslicht. Vier der fünf Decks liegen damit unter ihrem Höchstwert — nur Kampf zeigt nach oben."
     }
   ]
 }
