@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-10-25",
+  "date": "2026-10-31",
   "sections": [
     {
-      "emoji": "💡",
-      "heading": "Lieber T: Dein eigenes Deck ist das beste der Liga",
-      "body": "Eine Zahl, die man kaum glauben mag: Das umgebaute **Kampf** führt die Deckwertung mit **1175 Punkten** an — und es gehört T. Seine Bilanz damit: **1:0**. Seitdem hat er es kein einziges Mal mehr angefasst. In den letzten sechs Partien griff er **fünfmal zu geliehenem Psycho**, wo er bei **2:5** steht. Das beste Deck der Liga steht ungenutzt im Regal."
-    },
-    {
-      "emoji": "🔥",
-      "heading": "T: fünfte Niederlage in Folge — aber die Lösung liegt bereit",
-      "body": "**858 Punkte** nach dem nächsten Rückschlag gegen J. Zur Beruhigung: Im September stand T schon mal bei **neun** Niederlagen am Stück und kam prächtig zurück. Und die Bestmarke der Liga gehört unverändert ihm: **8 Siege gegen J** — M kommt auf 2, C auf 0. Mit **48 Partien** ist er weiterhin mit Abstand der Fleißigste. Mit 5 Jahren."
-    },
-    {
       "emoji": "🏆",
-      "heading": "J bei acht Siegen in Folge und neuem Allzeithoch",
-      "body": "Mit **Feuer** gegen T gab es den nächsten Sieg: Bilanz **42:10**, Wertung **1326** — Bestwert. Acht Siege in Serie bedeuten die Halbzeit zu seinem eigenen Rekord von 14. Die Liga-Konstante hält: *alle zehn* Niederlagen gehen auf das Konto der eigenen Kinder."
+      "heading": "Neun in Folge — J nähert sich dem eigenen Rekord",
+      "body": "Nach einer Woche Liga-Pause ging es genau da weiter, wo es aufgehört hatte: J schlägt M und steht bei **neun Siegen in Serie**. Bilanz **43:10**, Wertung **1332** — schon wieder ein Allzeithoch. Bis zu seiner eigenen Bestmarke von **14** fehlen noch fünf. Und weiterhin gilt: *alle zehn* Niederlagen stammen von den eigenen Kindern."
     },
     {
-      "emoji": "🎴",
-      "heading": "Feuer: Letzter in der Wertung, 22:4 in J's Händen",
-      "body": "**822 Punkte**, Platz 5 von 5 — und trotzdem die Basis für den Großteil der Siege des Tabellenführers. Die beiden Zahlen nebeneinander bleiben das schönste Rätsel der Liga: **J 22:4**, **alle anderen zusammen 3:9**. Dasselbe Deck, dieselben Karten."
+      "emoji": "🌑",
+      "heading": "Mit geliehenem Finsternis ist J makellos",
+      "body": "Schon wieder griff J zum umgebauten **Finsternis** von C — und gewann zum **vierten Mal in vier Versuchen**. Über alle Versionen hinweg steht er mit dem Deck bei **15:6**. Die Besitzerin selbst kommt mit der neuen Version auf **0:3**. Es bleibt das kurioseste Deck der Liga."
+    },
+    {
+      "emoji": "🔮",
+      "heading": "M's Eigenbau wendet sich gegen seinen Erfinder",
+      "body": "Mit **Psycho** verlor M nun schon zum dritten Mal — persönlich steht er damit bei **3:3**, das Deck insgesamt bei **6:8**. Kurios: In fremden Händen lief es anfangs deutlich besser als beim Erbauer. Trotzdem bleibt Psycho mit **1038 Punkten** das zweitbeste Deck der Liga. Gebaut hat es M. Mit 7 Jahren."
     },
     {
       "emoji": "⚡",
-      "heading": "M ruht sich auf drei Siegen aus",
-      "body": "Ohne Partie gestern, aber mit **1055 Punkten** und **14:10** komfortabel auf Platz 2 — fast **200 Punkte** vor Rang 3. Die drei Siege in Folge bleiben sein Saisonrekord, und das Bruderduell steht bei **6:2**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "heading": "M: Serie gerissen, Platz 2 ungefährdet",
+      "body": "Nach drei Siegen am Stück folgte der Dämpfer gegen den Tabellenführer. An der Gesamtlage ändert das nichts: **1048 Punkte**, Bilanz **14:11**, fast **190 Punkte** Vorsprung auf Rang 3, Bruderduell **6:2**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an."
+    },
+    {
+      "emoji": "💡",
+      "heading": "Erinnerung an T: Das beste Deck der Liga gehört immer noch dir",
+      "body": "Unverändert seit einer Woche: **Kampf** führt die Deckwertung mit **1174 Punkten** an, gehört T, und T steht damit bei **1:0**. Angefasst hat er es seitdem nicht mehr. Die **8 Siege gegen J** bleiben derweil Liga-Rekord unter den Herausforderern — M kommt auf 2, C auf 0. Mit 5 Jahren."
     },
     {
       "emoji": "📊",
-      "heading": "Deck-News: Psycho rutscht unter 50 Prozent",
-      "body": "**Kampf** (1175) bleibt einsam vorn, dahinter **Psycho** (1047), das mit **6:7** erstmals eine negative Bilanz hat, und **Finsternis** (1009). **Elektro** steht bei **947**, **Feuer** bei **822**. Der Abstand zwischen bestem und schlechtestem Deck beträgt inzwischen **353 Punkte**."
+      "heading": "Deck-News: Finsternis klopft an Platz 2",
+      "body": "**Kampf** (1174) bleibt unangefochten vorn. Dahinter wird es eng: **Psycho** (1038) und **Finsternis** (1028) trennen nur noch **10 Punkte** — das Deck, das vor zwei Wochen bei 743 im Keller lag, ist drauf und dran, den gefeierten Newcomer zu überholen. **Elektro** (942) und **Feuer** (817) folgen abgeschlagen."
     }
   ]
 }
