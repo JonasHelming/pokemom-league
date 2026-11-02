@@ -1,36 +1,36 @@
 {
-  "title": "Liga-Ticker",
+  "title": "Liga-Ticker — Der Tag im Rückblick",
   "date": "2026-11-02",
   "sections": [
     {
-      "emoji": "🌑",
-      "heading": "Sechs aus sechs: J und Finsternis sind unschlagbar",
-      "body": "Zweimal an einem Abend griff J zum geliehenen **Finsternis**, zweimal gewann er — erst gegen T, dann gegen M. Macht **6:0** mit der neuen Version und **17:6** über alle Versionen hinweg. Beide Gegner traten übrigens mit **Kampf** an, dem bestbewerteten Deck der Liga. Es half ihnen nichts."
+      "emoji": "📅",
+      "heading": "Sechs Partien, und einer räumt alles ab",
+      "body": "Ein voller Liga-Tag mit **6 Partien**. Die Tagesbilanz: **J 4:0**, **M 1:1**, **C 1:3**, **T 0:2**. J schlug dabei **alle drei** Familienmitglieder an einem Abend — T, M und C — und das mit zwei verschiedenen Decks. Am Ende stehen **48:11** und **1357 Punkte**, ein neues Allzeithoch."
     },
     {
-      "emoji": "🧮",
-      "heading": "Dasselbe Deck, drei Spieler, drei Welten",
-      "body": "Die Bilanz des umgebauten Finsternis bleibt das kurioseste Dokument der Liga: **J 6:0**, **M 2:1**, **C 0:3**. Zwölf Partien, dieselben Karten — und **alle acht Siege** gingen an Spieler, die sich das Deck nur ausgeliehen hatten. Die Besitzerin selbst wartet weiter auf den ersten."
+      "emoji": "🔥",
+      "heading": "Feuer: Vorletzter in der Wertung, 25:5 in J's Händen",
+      "body": "Zweimal trat J am Abend mit **Feuer** an, zweimal gewann er gegen C mit Kampf — obwohl Kampf in der Wertung **389 Punkte** besser dasteht. J kommt mit Feuer inzwischen auf **25:5**, alle anderen zusammen auf **3:9**. Das Deck ist nicht gut. Der Spieler ist es."
     },
     {
-      "emoji": "🏆",
-      "heading": "J knackt die 1350 und steht bei 46 Siegen",
-      "body": "Drei Siege in Folge, Bilanz **46:11**, Wertung **1350** — schon wieder ein Allzeithoch, der Vorsprung auf Platz 2 wächst auf **280 Punkte**. Gegen M steht es inzwischen **9:2**. Die Liga-Konstante hält: *alle elf* Niederlagen stammen von den eigenen Kindern."
-    },
-    {
-      "emoji": "📉",
-      "heading": "Kampf verliert seinen Nimbus",
-      "body": "Noch gestern stand **Kampf** bei 1226 Punkten und galt als übermächtig. Heute ging es **viermal** mit diesem Deck in die Partie — und **dreimal** ging es daneben. T und M verloren damit sogar gegen ein Finsternis, das **134 Punkte** schlechter bewertet ist. Die Wertung sinkt auf **1194**. Vorsprung hat Kampf immer noch, Respekt gerade weniger."
-    },
-    {
-      "emoji": "⚡",
-      "heading": "M mit ausgeglichenem Tag",
-      "body": "Sieg gegen C, Niederlage gegen den Papa — Tagesbilanz **1:1**. Mit **16 Siegen** aus **28 Partien** bleibt M der effizienteste Spieler der Liga: T braucht für dieselbe Zahl **52** Partien. Wertung **1070**, gegen C steht es **8:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "emoji": "🎯",
+      "heading": "C und die 13: eine Rechnung, die nicht aufgeht",
+      "body": "Mit **0:13** steht C gegen J nach wie vor ohne einen einzigen Sieg da — und das, obwohl sie heute zweimal mit dem bestbewerteten Deck der Liga antrat. Zum Trost: J hat heute **gegen alle** gewonnen, gegen M und T genauso. Und im Duell mit T liegt C weiterhin mit **5:4** vorn."
     },
     {
       "emoji": "🥊",
-      "heading": "T: zwei Niederlagen, aber der Rekord bleibt",
-      "body": "Kein guter Abend für T — **843 Punkte** nach der dritten Niederlage in Folge. Unverändert gilt: **9 Siege gegen J** hat sonst niemand geschafft, M kommt auf 2, C auf 0. Und mit **52 Partien** hat T fast doppelt so oft gespielt wie M. Im September kam er aus einer Serie von neun Niederlagen zurück — das hier sind erst drei. Mit 5 Jahren."
+      "heading": "Kampf stürzt vom Thron — 5:11 insgesamt",
+      "body": "Gestern noch das übermächtige Deck der Liga, heute der große Verlierer: **Sechsmal** war Kampf im Einsatz, **fünfmal** ging es schief. Die Gesamtbilanz des Decks steht bei **5:11**, die Wertung fällt von 1226 auf **1178**. Platz 1 hält es noch — aber der Abstand schmilzt."
+    },
+    {
+      "emoji": "⚡",
+      "heading": "M bleibt der effizienteste Spieler der Liga",
+      "body": "Tagesbilanz **1:1**, darunter ein Sieg über C. Mit **16 Siegen** aus **28 Partien** hat M mehr gewonnen als T — der dafür **52** Partien gebraucht hat. Wertung **1066**, gegen C **8:1**, im Bruderduell **6:2**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+    },
+    {
+      "emoji": "💪",
+      "heading": "T: zäher Tag, unangetasteter Rekord",
+      "body": "Zwei Niederlagen, keine Siege — so läuft es eben manchmal. Und trotzdem: **9 Siege gegen J** hat in dieser Familie sonst niemand geschafft. M kommt auf 2, C auf 0. Mit **52 Partien** hat T fast doppelt so oft gespielt wie M, und aus der Neunerserie im September kam er auch zurück. Mit 5 Jahren."
     }
   ]
 }
