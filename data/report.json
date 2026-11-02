@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-01",
+  "date": "2026-11-02",
   "sections": [
     {
-      "emoji": "🔄",
-      "heading": "Dieselbe Partie, zweimal, gegenteiliger Ausgang",
-      "body": "Eine Kuriosität, wie sie diese Liga noch nicht gesehen hat: **T mit Kampf gegen J mit Feuer** — exakt dieselbe Paarung, exakt dieselben Decks, am selben Tag **zweimal** gespielt. Am Vormittag gewann T und beendete damit J's Serie von neun Siegen. Am Abend holte sich J die Revanche. Unentschieden, 1:1, und niemand kann sagen, es hätte an den Karten gelegen."
+      "emoji": "🎉",
+      "heading": "C übernimmt die Führung im Dauerduell mit T",
+      "body": "Monatelang stand es Kopf an Kopf, jetzt ist der Bann gebrochen: Mit dem Sieg über T geht C im direkten Vergleich erstmals in Führung — **5:4**. Es ist eine bemerkenswerte Statistik: **Fünf der sechs Siege** ihrer gesamten Liga-Karriere hat C gegen T geholt. Diese Rivalität ist ihr Spezialgebiet."
     },
     {
-      "emoji": "🏆",
-      "heading": "J schlägt zurück und steht bei 44 Siegen",
-      "body": "Nach der Niederlage am Mittag war die Antwort prompt: **44:11** und **1337 Punkte**. Mit **Feuer** steht J nun bei **23:5** — mit einem Deck, das in der Wertung **788 Punkte** hat und damit abgeschlagen Letzter ist. Alle anderen kommen damit auf **3:9**. Es lag noch nie an den Karten."
+      "emoji": "😅",
+      "heading": "T verliert gegen sein eigenes Deck",
+      "body": "Die Ironie des Tages: C gewann mit **Kampf** — jenem Deck, das T selbst umgebaut hat und das die Liga mit **1226 Punkten** anführt. T selbst trat derweil mit geliehenem **Psycho** an. Er hat also gegen seine eigenen Karten verloren, in fremder Hand. Vielleicht doch mal wieder selbst benutzen?"
     },
     {
-      "emoji": "🥊",
-      "heading": "T: Tagesbilanz 1:1 gegen den Tabellenführer",
-      "body": "Ein Remis gegen den Besten der Liga ist ein guter Tag. Die **9 Siege gegen J** bleiben Liga-Rekord — M kommt auf 2, C auf 0, T hat den Papa also häufiger geschlagen als der Rest der Familie zusammen, und zwar **viereinhalbmal so oft**. Mit seinem eigenen Kampf steht T bei **2:1**. Mit 5 Jahren."
+      "emoji": "🔮",
+      "heading": "T und Psycho werden keine Freunde",
+      "body": "Die Zahlen sind inzwischen eindeutig: Mit **Psycho** steht T bei **2:6**. Zum Vergleich: Mit seinem eigenen **Kampf** steht er bei **2:1**. Trotzdem bleibt die Bestmarke der Liga seine — **9 Siege gegen J**, mehr als alle anderen zusammen, und mit **51 Partien** ist er weiterhin unangefochten der fleißigste Spieler. Mit 5 Jahren."
     },
     {
       "emoji": "⚡",
-      "heading": "M gewinnt als Einziger ungeschlagen durch den Tag",
-      "body": "Während sich T und J gegenseitig Punkte abnahmen, machte M in aller Ruhe sein Ding: Sieg über C mit dem eigenen **Elektro**, Tagesbilanz **1:0**. Bilanz **15:11**, Wertung **1076**, gegen C inzwischen **7:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "heading": "M zieht bei den Siegen an T vorbei",
+      "body": "Mit dem Erfolg über C steht M bei **16 Siegen** — einer mehr als T, bei nicht einmal halb so vielen Partien (**27** zu **51**). Zweiter Sieg in Folge, Wertung **1089**, gegen C inzwischen **8:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
     },
     {
-      "emoji": "🎯",
-      "heading": "C: die Kampf-Kurve will sich nicht drehen",
-      "body": "Mit dem bestbewerteten Deck der Liga verlor C gegen M's Elektro — **300 Punkte** Unterschied auf dem Papier. Bilanz **5:22**, Wertung **723**. Das Duell mit T bleibt trotzdem mit **4:4** die ausgeglichenste Rechnung der Liga: Es liegt nicht am Können, sondern daran, dass die Gegner meistens J und M heißen."
+      "emoji": "🏆",
+      "heading": "J schaut zu und bleibt vorn",
+      "body": "Ohne Partie heute, weiter **44:11** und **1338 Punkte**. Die Konstante dieser Liga gilt unverändert: *alle elf* Niederlagen stammen von den eigenen Kindern. Erwachsene Gegner haben J in 55 Partien noch nie geschlagen."
     },
     {
       "emoji": "📊",
-      "heading": "Deck-News: Psycho und Finsternis Kopf an Kopf",
-      "body": "**Kampf** (1216) bleibt klar vorn. Dahinter liegen **Psycho** (1014) und **Finsternis** (1013) mit **einem einzigen Punkt** Abstand praktisch gleichauf — das brandneue Deck und das zweimal umgebaute Sorgenkind, exakt auf Augenhöhe. **Elektro** (969) und **Feuer** (788) folgen."
+      "heading": "Deck-News: Finsternis zieht an Psycho vorbei",
+      "body": "**Kampf** bleibt mit **1226** einsam an der Spitze. Dahinter hat **Finsternis** (1015) den Newcomer **Psycho** (1010) um fünf Punkte überholt — vor zweieinhalb Wochen lag Finsternis noch bei 743 und galt als unspielbar. **Elektro** (969) und **Feuer** (779) komplettieren das Feld."
     }
   ]
 }
