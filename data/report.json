@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-03",
+  "date": "2026-11-04",
   "sections": [
     {
-      "emoji": "5️⃣",
-      "heading": "Einer fehlt: J steht vor dem 50. Liga-Sieg",
-      "body": "Mit dem Erfolg über T steht J bei **49:11** — der nächste Sieg wäre der fünfzigste. Dazu **sechs Siege in Folge** und mit **1359 Punkten** schon wieder ein Allzeithoch. Bis zu seiner eigenen Rekordserie von 14 fehlen noch acht. Unverändert gilt: *alle elf* Niederlagen stammen von den eigenen Kindern."
+      "emoji": "🎉",
+      "heading": "M stoppt den Tabellenführer — und verhindert den 50. Sieg",
+      "body": "J stand bei **49 Siegen** und sechs Erfolgen in Folge. Dann kam M mit **Psycho** und beendete beides auf einen Schlag. Es ist M's **dritter Sieg** über den Papa und der erste seit dem 11. Oktober. Die Jubiläumspartie muss warten."
     },
     {
-      "emoji": "🔥",
-      "heading": "Das Feuer-Paradox wird immer absurder",
-      "body": "Schon wieder gewann J mit **Feuer**, diesmal gegen T mit dem besser bewerteten Kampf. Die Bilanz des Decks spaltet sich immer weiter: **J 26:5**, **alle anderen zusammen 3:9**. In der Wertung steht Feuer trotzdem nur bei **803 Punkten** auf Platz 4 von 5 — weil das Deck eben nur mit einem bestimmten Spieler dahinter funktioniert."
+      "emoji": "🧠",
+      "heading": "Genau die Partie, die M eigentlich schwerfällt",
+      "body": "Das Bemerkenswerte ist, *gegen wen* dieser Sieg fiel. M's Stärke lag bisher im sicheren Abräumen der Partien gegen schwächere Gegner — gegen C steht er bei **8:1**. Gegen den Tabellenführer dagegen hinkte er der Erwartung hinterher. Heute hat er genau diese Lücke geschlossen. Mit 7 Jahren."
     },
     {
-      "emoji": "📉",
-      "heading": "Kampf im freien Fall: 5:12",
-      "body": "Vor zwei Tagen stand **Kampf** noch bei 1226 Punkten und galt als übermächtig. Nach einer Serie von Niederlagen ist es auf **1160** gefallen, die Gesamtbilanz steht bei **5:12**. Platz 1 der Deckwertung hält es noch — aber **Finsternis** (1043) kommt näher."
-    },
-    {
-      "emoji": "💪",
-      "heading": "T: vierte Niederlage, aber der Rekord bleibt sein",
-      "body": "**845 Punkte** nach dem nächsten Rückschlag gegen den Papa. Und trotzdem die unverrückbare Wahrheit dieser Liga: **9 Siege gegen J** hat sonst niemand geschafft — M kommt auf 2, C auf 0. Mit **53 Partien** hat T zudem fast doppelt so oft gespielt wie M. Aus der Neunerserie im September kam er zurück, das hier sind erst vier. Mit 5 Jahren."
+      "emoji": "🃏",
+      "heading": "Kurios: beide Decks gehörten M",
+      "body": "Eine Premiere der besonderen Art — M trat mit seinem eigenen **Psycho** an, J mit **Elektro**, das ebenfalls M gehört. Der Tabellenführer verlor also mit geliehenen Karten gegen deren Besitzer. Elektro stürzt daraufhin auf **906 Punkte** ab, Psycho klettert auf **1061**."
     },
     {
       "emoji": "⚡",
-      "heading": "M: zweiter Platz mit der besten Quote der Liga",
-      "body": "Ohne Partie heute, weiter **1061 Punkte** und **16:12**. Die interessanteste Zahl bleibt die Effizienz: M hat **mehr Siege als T** geholt und dafür **28 statt 53** Partien gebraucht. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga an. Mit 7 Jahren."
+      "heading": "M klettert auf 17 Siege — zwei mehr als T bei halber Partienzahl",
+      "body": "**1078 Punkte**, Bilanz **17:12** aus nur **29 Partien**. T braucht für 15 Siege deren **53**. Im Bruderduell steht es **6:2**, gegen C **8:1**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga souverän an."
     },
     {
-      "emoji": "🎯",
-      "heading": "C hält die Führung gegen T",
-      "body": "Ebenfalls ohne Einsatz heute, Wertung **736**, Bilanz **6:25**. Im Dauerduell mit T bleibt C mit **5:4** vorn — die einzige Rechnung dieser Liga, die wirklich offen ist."
+      "emoji": "📉",
+      "heading": "J fällt unter 1340",
+      "body": "Die Serie ist gerissen, die Wertung sinkt von 1359 auf **1336**, Bilanz **49:12**. Der Vorsprung auf Platz 2 beträgt immer noch **258 Punkte**. Und die Konstante der Liga hält unverändert: *alle zwölf* Niederlagen stammen von den eigenen Kindern."
+    },
+    {
+      "emoji": "📊",
+      "heading": "Deck-News: Psycho zieht an Finsternis heran",
+      "body": "**Kampf** führt weiter mit **1160**, dahinter liegen **Finsternis** (1069) und **Psycho** (1061) nur noch **8 Punkte** auseinander. Abgeschlagen folgen **Elektro** (906) und **Feuer** (804) — die beiden ältesten Decks der Liga bilden inzwischen das Schlusslicht."
     }
   ]
 }
