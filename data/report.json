@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "sections": [
     {
-      "emoji": "🚀",
-      "heading": "M's Rekordtag: vier Partien, vier Siege",
-      "body": "Erst der Papa, dann der Bruder, dann zweimal C — M hat heute **alle vier Partien gewonnen**. Das sind **vier Siege in Folge** und damit eine neue persönliche Bestmarke; mehr als drei am Stück waren es nie. Mit 7 Jahren."
-    },
-    {
-      "emoji": "🎯",
-      "heading": "20 Siege geknackt, Wertung auf Karrierehoch",
-      "body": "Mit **20:12** hat M die 20er-Marke erreicht — und das in nur **32 Partien**. Die Wertung klettert auf **1106 Punkte**, so hoch stand er noch nie. Gegen C steht es inzwischen **10:1**, im Bruderduell **7:2**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga mit **260 Punkten** Vorsprung an."
-    },
-    {
       "emoji": "🔥",
-      "heading": "Das Feuer-Rätsel sortiert sich neu",
-      "body": "Bisher hieß es: Feuer funktioniert nur bei J. Das stimmt so nicht mehr. Die Bilanz nach Spieler: **J 27:5**, **M 5:1**, **T 0:8**. Das Deck funktioniert also bei zwei von vier Leuten hervorragend — und bei den anderen beiden überhaupt nicht. Ein Deck mit sehr klaren Ansprüchen."
+      "heading": "Fünf in Folge: M ist nicht mehr zu stoppen",
+      "body": "Schon wieder M, schon wieder gegen den Papa: Mit geliehenem **Feuer** schlug er J, der mit Finsternis antrat. Das ist der **fünfte Sieg in Serie** und damit erneut eine neue persönliche Bestmarke. Bilanz **21:12**, Wertung **1120** — Karrierehoch. Gegen J steht es jetzt **4:9**. Mit 7 Jahren."
     },
     {
       "emoji": "📉",
-      "heading": "J's Vorsprung schmilzt auf 200 Punkte",
-      "body": "Noch vor zwei Tagen lagen fast **300 Punkte** zwischen Platz 1 und 2, jetzt sind es nur noch **200**. J steht weiter bei **50:12** und **1306 Punkten**, hat aber am heutigen Tag nur **1:1** geholt. Die Liga-Konstante gilt unverändert: *alle zwölf* Niederlagen stammen von den eigenen Kindern."
+      "heading": "Der Vorsprung schmilzt: von 300 auf 147 Punkte",
+      "body": "Vor drei Tagen stand J bei **1359 Punkten** und fast 300 Zählern Vorsprung. Heute sind es **1267** und nur noch **147**. Die Bilanz bleibt mit **50:13** überragend, aber **drei Niederlagen in fünf Novembertagen** sind für seine Verhältnisse viel — im ganzen Oktober waren es nur fünf. Und *alle dreizehn* stammen von den eigenen Kindern."
+    },
+    {
+      "emoji": "🌑",
+      "heading": "Das makellose Finsternis ist Geschichte",
+      "body": "**6:0** stand J mit dem umgebauten Finsternis — bis heute. Die erste Niederlage mit diesem Deck beendet eine Serie, die drei Wochen gehalten hat. Die Gesamtbilanz der neuen Version: **J 6:1**, **M 3:1**, **C 0:3**. Die Besitzerin wartet weiter auf ihren ersten Sieg damit."
+    },
+    {
+      "emoji": "📈",
+      "heading": "Feuer erholt sich — dank M",
+      "body": "Noch vor zwei Tagen war **Feuer** mit 800 Punkten abgeschlagen Letzter. Jetzt steht es bei **928** und ist dem Mittelfeld nahe. Verantwortlich ist M, der mit dem geliehenen Deck inzwischen bei **6:1** steht. Zum Vergleich: **J 27:5**, **T 0:8**. Es ist ein Deck für zwei bestimmte Leute."
     },
     {
       "emoji": "💪",
-      "heading": "T: die Serie hält, der Rekord auch",
-      "body": "Sechs Niederlagen in Folge, Wertung **846**. Aber die Zahl, die zählt, bleibt seine: **9 Siege gegen J** — mehr als M (3) und C (0) zusammen. Mit **55 Partien** hat T zudem fast doppelt so oft gespielt wie M. Nach der Neunerserie im September kam der Aufschwung; es spricht nichts dagegen, dass es diesmal genauso läuft. Mit 5 Jahren."
+      "heading": "T wartet auf die Wende",
+      "body": "Ohne Partie heute, Wertung **861**. Die sechs Niederlagen in Folge ändern nichts an der Bestmarke: **9 Siege gegen J** hat sonst niemand geschafft — M kommt trotz seines Laufs erst auf 4, C auf 0. Mit **55 Partien** bleibt T der fleißigste Spieler der Liga. Mit 5 Jahren."
     },
     {
-      "emoji": "🎯",
-      "heading": "C: zwei Niederlagen gegen denselben Gegner",
-      "body": "Zweimal trat C mit **Kampf** gegen M an, zweimal verlor sie — Bilanz jetzt **6:27**, Wertung **742**. Gegen M steht es **1:10**. Der Lichtblick bleibt unverändert das Duell mit T, wo C mit **5:4** weiterhin vorn liegt."
+      "emoji": "📊",
+      "heading": "Deck-News: alles rückt zusammen",
+      "body": "So eng war die Deckwertung noch nie. **Kampf** (1107) führt, dahinter **Finsternis** (1012), **Psycho** (999), **Elektro** (954) und **Feuer** (928). Zwischen Platz 1 und Platz 5 liegen nur noch **179 Punkte** — vor einer Woche waren es über 400."
     }
   ]
 }
