@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-07",
+  "date": "2026-11-08",
   "sections": [
     {
+      "emoji": "🛑",
+      "heading": "J stoppt den Lauf von M",
+      "body": "Fünf Siege in Folge hatte M angehäuft, darunter zwei gegen den Papa. Jetzt ist die Serie vorbei: J gewann mit **Feuer** gegen M, der die neue dritte Elektro-Version ausprobierte. J steht damit bei **52:13** und **1276 Punkten**, im direkten Duell bei **10:4**."
+    },
+    {
       "emoji": "🔌",
-      "heading": "Elektro umgebaut — und verliert gleich sein Debüt",
-      "body": "M hat sein **Elektro** neu gebaut, es ist bereits die **dritte Version** des Decks. Den ersten Einsatz übernahm allerdings T, der es sich auslieh — und gegen J mit Feuer verlor. Damit haben jetzt **drei der fünf Decklinien** drei Generationen hinter sich: Elektro, Kampf und Finsternis."
+      "heading": "Das neue Elektro findet keinen Anschluss",
+      "body": "Zwei Einsätze, zwei Niederlagen: Die dritte Version von **Elektro** steht bei **0:2** und ist mit **900 Punkten** auf den letzten Platz der Deckwertung durchgereicht worden. Erst verlor T damit, nun der Besitzer selbst. Ein Umbau, der noch auf seinen ersten Moment wartet."
     },
     {
-      "emoji": "🏆",
-      "heading": "J wehrt sich und steht bei 51 Siegen",
-      "body": "Nach drei Niederlagen in fünf Tagen kam die Antwort: **51:13**, Wertung **1270**. Der Vorsprung auf M beträgt wieder **150 Punkte** — komfortabel ist anders, aber die Richtung stimmt wieder. Und *alle dreizehn* Niederlagen stammen weiterhin von den eigenen Kindern."
-    },
-    {
-      "emoji": "💪",
-      "heading": "T: diesmal liegt es nicht am Deck",
-      "body": "Siebte Niederlage in Folge — und der naheliegende Rat greift diesmal nicht. In **fünf seiner letzten acht** Partien trat T mit seinem **eigenen Kampf** an, dem bestbewerteten Deck der Liga. Es ist also keine Deckfrage, sondern schlicht eine zähe Phase. Zur Einordnung: Sein Negativrekord liegt bei **neun**, und danach folgte im Herbst die beste Serie seiner Saison. Mit 5 Jahren."
-    },
-    {
-      "emoji": "🥇",
-      "heading": "Der Rekord gegen den Papa bleibt T's",
-      "body": "Trotz der Durststrecke ist die Bestmarke unangetastet: **9 Siege gegen J**. M kommt trotz seines famosen Laufs erst auf **4**, C auf **0**. Mit **56 Partien** hat T außerdem fast doppelt so oft gespielt wie M — niemand in dieser Familie stellt sich so oft."
+      "emoji": "🔥",
+      "heading": "Feuer dagegen ist wieder da",
+      "body": "Während Elektro abstürzt, hat sich **Feuer** erholt: von **800 Punkten** vor einer Woche auf jetzt **949**, Platz 4 von 5 und nur noch 70 Punkte hinter Psycho. J steht damit inzwischen bei **29:5** — **56 Prozent** seiner gesamten Liga-Siege hat er mit diesem einen Deck geholt."
     },
     {
       "emoji": "⚡",
-      "heading": "M pausiert auf fünf Siegen in Folge",
-      "body": "Ohne Einsatz heute, aber mit **1120 Punkten** und **21:12** so stark wie nie. Die Serie von **fünf Siegen** bleibt bestehen, im Bruderduell steht es **7:2**, gegen C **10:1**, gegen J **4:9**. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga mit großem Abstand an. Mit 7 Jahren."
+      "heading": "M: Serie gerissen, Platz 2 unangefochten",
+      "body": "Die erste Niederlage nach fünf Siegen, Wertung **1111**, Bilanz **21:13**. Daran, wer hier Zweiter ist, ändert das nichts: **250 Punkte** Vorsprung auf Platz 3, dazu **10:1** gegen C und **7:2** im Bruderduell. Rechnet man den Papa heraus, und das tun wir hiermit, führt M diese Liga klar an. Mit 7 Jahren."
+    },
+    {
+      "emoji": "💪",
+      "heading": "T bleibt der Rekordhalter",
+      "body": "Ohne Partie heute, Wertung **861**. Die Zahl, die ihn auszeichnet, steht unverändert: **9 Siege gegen J**. M kommt auf 4, C auf 0. Und mit **56 Partien** hat sich T deutlich öfter gestellt als M (34) oder C (33). Mit 5 Jahren."
     },
     {
       "emoji": "📊",
-      "heading": "Deck-News: vier Decks innerhalb von 180 Punkten",
-      "body": "**Kampf** (1111) führt, aber dahinter ist alles zusammengerückt: **Finsternis** (1014), **Psycho** (1003), **Elektro** (939) und **Feuer** (933) liegen in einem Band von nicht einmal **180 Punkten**. Vor zwei Wochen lagen zwischen Erstem und Letztem noch über 400."
+      "heading": "Deck-News: Kampf wieder einsam vorn",
+      "body": "**Kampf** (1120) hat sich vom Feld abgesetzt. Dahinter liegen **Finsternis** (1016) und **Psycho** (1014) praktisch gleichauf, dann **Feuer** (949) und abgeschlagen das brandneue **Elektro** (900). Ein Trost für M: Finsternis stand nach seinem Umbau auch ganz unten — und führte drei Wochen später beinahe die Tabelle an."
     }
   ]
 }
