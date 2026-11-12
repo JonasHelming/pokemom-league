@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-09",
+  "date": "2026-11-11",
   "sections": [
     {
-      "emoji": "🔄",
-      "heading": "Kompletter Decktausch — und M gewinnt mit T's Kampf",
-      "body": "Eine Partie wie ein Tauschgeschäft: M trat mit **T's Kampf** an, T mit **M's Elektro**. Am Ende gewann M — mit den Karten seines Gegners. Das Bruderduell steht damit **8:2**, M's Bilanz bei **22:13** und **1114 Punkten**. Mit 7 Jahren."
-    },
-    {
-      "emoji": "🧾",
-      "heading": "Die Zahl, die T's Bilanz erklärt",
-      "body": "T hat **67 Prozent** seiner Partien gegen J bestritten — **38 von 57**. Bei M sind es 40 Prozent, bei C 39. T tritt also doppelt so oft gegen den stärksten Spieler der Liga an wie alle anderen, und dort kommen **29 seiner 42 Niederlagen** her. Wer sich dauernd den Besten vornimmt, hat eben eine andere Bilanz."
-    },
-    {
-      "emoji": "⚠️",
-      "heading": "T einen Schritt vor dem eigenen Negativrekord",
-      "body": "**Acht Niederlagen in Folge** — nur eine weniger als seine schlechteste Serie der Saison. Die endete Mitte September, und was danach kam, war die stärkste Phase seiner Liga-Karriere mit mehreren Siegen über den Tabellenführer. Die **9 Siege gegen J** sind weiterhin Liga-Rekord: M kommt auf 4, C auf 0. Mit 5 Jahren."
+      "emoji": "🎉",
+      "heading": "T beendet die Durststrecke — eine Niederlage vor dem Negativrekord",
+      "body": "**Acht Niederlagen in Folge** standen zu Buche, sein Saison-Negativrekord liegt bei neun. Diesmal reichte es nicht so weit: T schlug C und holte den ersten Sieg seit über einer Woche. Wertung rauf auf **874**, Bilanz **16:42**. Mit 5 Jahren."
     },
     {
       "emoji": "🔌",
-      "heading": "Das neue Elektro bleibt sieglos",
-      "body": "Dritter Einsatz, dritte Niederlage: **0:3** steht die neue Version jetzt, die Wertung fällt auf **886 Punkte** — abgeschlagen Letzter. Weder T noch M konnten damit bisher etwas anfangen. Zum Vergleich: Die Vorgängerversion stand zu ihren besten Zeiten bei über 1200."
+      "heading": "Und das neue Elektro gewinnt endlich auch",
+      "body": "Zwei Serien auf einen Schlag beendet: Die dritte Version von **Elektro** stand nach drei Einsätzen noch bei **0:3** und abgeschlagen auf dem letzten Platz. Jetzt ist der erste Sieg da, die Bilanz steht bei **1:3** und die Wertung springt von 886 auf **959** — vorbei an Feuer und raus aus dem Keller."
     },
     {
-      "emoji": "🏆",
-      "heading": "J unverändert vorn",
-      "body": "Ohne Partie heute, weiter **52:13** und **1277 Punkte**. Der Vorsprung auf Platz 2 beträgt **163 Punkte**. Die Konstante der Liga gilt unverändert: *alle dreizehn* Niederlagen stammen von den eigenen Kindern."
+      "emoji": "⚖️",
+      "heading": "Das Dauerduell ist wieder ausgeglichen",
+      "body": "Mit dem Sieg gleicht T im direkten Vergleich mit C auf **5:5** aus. Seit Wochen wechselt hier die Führung hin und her — es bleibt die einzige wirklich offene Rechnung dieser Liga. Alle anderen Paarungen sind längst klar verteilt."
+    },
+    {
+      "emoji": "🎯",
+      "heading": "C in der zweitlängsten Durststrecke ihrer Saison",
+      "body": "Sechste Niederlage in Folge, Bilanz **6:28**, Wertung **740**. Zur Einordnung: Im Oktober stand C schon einmal bei fünfzehn Niederlagen am Stück — und beendete die Serie danach ausgerechnet mit einem Sieg über M, gegen den sie vorher nie gewonnen hatte."
     },
     {
       "emoji": "📊",
-      "heading": "Deck-News: Kampf baut die Führung aus",
-      "body": "**Kampf** (1127) zieht wieder davon, dahinter **Finsternis** (1020) und **Psycho** (1017) nahezu gleichauf, dann **Feuer** (949) und **Elektro** (886). Kurios: Kampf ist das beste Deck der Liga, aber seine Gesamtbilanz steht bei **6:15** — es gewinnt fast nur, wenn die richtigen Leute es halten."
+      "heading": "Die Deckwertung rückt zusammen wie nie",
+      "body": "**Kampf** (1098) führt, dahinter **Finsternis** (1004), **Psycho** (992), **Elektro** (959) und **Feuer** (948). Zwischen Platz 1 und Platz 5 liegen nur noch **150 Punkte** — zu Monatsbeginn waren es über 400. Die Decks gleichen sich an, die Unterschiede macht inzwischen fast nur noch, wer sie hält."
+    },
+    {
+      "emoji": "🏆",
+      "heading": "J und M pausieren",
+      "body": "Beide ohne Partie: J bleibt bei **52:13** und **1274 Punkten**, M bei **22:13** und **1112**. Der Abstand zwischen Platz 1 und 2 beträgt **162 Punkte**. Und weiterhin gilt: *alle dreizehn* Niederlagen von J stammen von den eigenen Kindern."
     }
   ]
 }
