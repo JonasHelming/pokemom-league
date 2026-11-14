@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-11",
+  "date": "2026-11-14",
   "sections": [
     {
-      "emoji": "🎉",
-      "heading": "T beendet die Durststrecke — eine Niederlage vor dem Negativrekord",
-      "body": "**Acht Niederlagen in Folge** standen zu Buche, sein Saison-Negativrekord liegt bei neun. Diesmal reichte es nicht so weit: T schlug C und holte den ersten Sieg seit über einer Woche. Wertung rauf auf **874**, Bilanz **16:42**. Mit 5 Jahren."
+      "emoji": "💧",
+      "heading": "Neu in der Liga: Wasser",
+      "body": "T hat ein neues Deck gebaut — **Wasser**, das sechste aktive Deck der Liga und das zweite, das komplett neu entsteht statt umgebaut zu werden. Kampf bleibt T's Standard-Deck, Wasser kommt dazu. Damit stehen sich jetzt **sechs Decks** aus drei Generationen gegenüber."
     },
     {
-      "emoji": "🔌",
-      "heading": "Und das neue Elektro gewinnt endlich auch",
-      "body": "Zwei Serien auf einen Schlag beendet: Die dritte Version von **Elektro** stand nach drei Einsätzen noch bei **0:3** und abgeschlagen auf dem letzten Platz. Jetzt ist der erste Sieg da, die Bilanz steht bei **1:3** und die Wertung springt von 886 auf **959** — vorbei an Feuer und raus aus dem Keller."
+      "emoji": "🔄",
+      "heading": "Debüt mit Decktausch — und prompt gegen den Erbauer",
+      "body": "Die erste Partie mit Wasser bestritt ausgerechnet **J**, der es sich auslieh — gegen T, der mit J's **Feuer** antrat. Ein kompletter Tausch also, und J gewann. T hat damit die Premiere seines eigenen neuen Decks verloren, ohne es selbst in der Hand gehabt zu haben."
     },
     {
-      "emoji": "⚖️",
-      "heading": "Das Dauerduell ist wieder ausgeglichen",
-      "body": "Mit dem Sieg gleicht T im direkten Vergleich mit C auf **5:5** aus. Seit Wochen wechselt hier die Führung hin und her — es bleibt die einzige wirklich offene Rechnung dieser Liga. Alle anderen Paarungen sind längst klar verteilt."
-    },
-    {
-      "emoji": "🎯",
-      "heading": "C in der zweitlängsten Durststrecke ihrer Saison",
-      "body": "Sechste Niederlage in Folge, Bilanz **6:28**, Wertung **740**. Zur Einordnung: Im Oktober stand C schon einmal bei fünfzehn Niederlagen am Stück — und beendete die Serie danach ausgerechnet mit einem Sieg über M, gegen den sie vorher nie gewonnen hatte."
-    },
-    {
-      "emoji": "📊",
-      "heading": "Die Deckwertung rückt zusammen wie nie",
-      "body": "**Kampf** (1098) führt, dahinter **Finsternis** (1004), **Psycho** (992), **Elektro** (959) und **Feuer** (948). Zwischen Platz 1 und Platz 5 liegen nur noch **150 Punkte** — zu Monatsbeginn waren es über 400. Die Decks gleichen sich an, die Unterschiede macht inzwischen fast nur noch, wer sie hält."
+      "emoji": "⚠️",
+      "heading": "Wasser auf Platz 2 — und die Zahl bedeutet noch nichts",
+      "body": "Nach einem einzigen Sieg steht Wasser bereits bei **1025 Punkten** und damit auf Rang 2 der Deckwertung. Bevor jemand jubelt: Die Unsicherheit dieser Zahl liegt bei **±743**. Mit einer Partie weiß die Liga schlicht noch gar nichts über dieses Deck. Zum Vergleich: Bei Kampf sind es ±247."
     },
     {
       "emoji": "🏆",
-      "heading": "J und M pausieren",
-      "body": "Beide ohne Partie: J bleibt bei **52:13** und **1274 Punkten**, M bei **22:13** und **1112**. Der Abstand zwischen Platz 1 und 2 beträgt **162 Punkte**. Und weiterhin gilt: *alle dreizehn* Niederlagen von J stammen von den eigenen Kindern."
+      "heading": "J bei 53 Siegen und drei in Folge",
+      "body": "**53:13** und **1276 Punkte**. Dass J auch mit einem Deck gewinnt, das er zum ersten Mal in der Hand hält, passt ins Bild: Er hat inzwischen mit **allen sechs** Decks der Liga mindestens einen Sieg geholt. *Alle dreizehn* Niederlagen stammen weiterhin von den eigenen Kindern."
+    },
+    {
+      "emoji": "🥊",
+      "heading": "T: Deckbauer mit dem besten Händchen der Liga",
+      "body": "Die Niederlage ärgert, aber eine Bilanz sollte man festhalten: T hat **Kampf** umgebaut, und es führt die Deckwertung seitdem fast durchgehend an (**1094**). Jetzt hat er **Wasser** gebaut, das auf Anhieb gewonnen hat. Dazu die **9 Siege gegen J**, die sonst niemand erreicht. Mit 5 Jahren."
+    },
+    {
+      "emoji": "📊",
+      "heading": "Deck-News: sechs Decks, 155 Punkte Spanne",
+      "body": "**Kampf** (1094), **Wasser** (1025), **Finsternis** (998), **Psycho** (988), **Elektro** (955), **Feuer** (939). Zwischen Erstem und Letztem liegen nur **155 Punkte** — bei sechs Decks ist das bemerkenswert eng. Die Karten sind weitgehend ausgeglichen; den Unterschied macht, wer sie spielt."
     }
   ]
 }

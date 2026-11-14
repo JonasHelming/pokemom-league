@@ -10,5 +10,6 @@
   { "id": "darkness-3", "name": "Finsternis", "owner": "C", "predecessor": "darkness-2" },
   { "id": "psychic", "name": "Psycho", "owner": "M" },
   { "id": "fighting-3", "name": "Kampf", "owner": "T", "predecessor": "fighting-2" },
-  { "id": "electric-3", "name": "Elektro", "owner": "M", "predecessor": "electric-2" }
+  { "id": "electric-3", "name": "Elektro", "owner": "M", "predecessor": "electric-2" },
+  { "id": "water", "name": "Wasser", "owner": "T" }
 ]

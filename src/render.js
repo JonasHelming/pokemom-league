@@ -10,6 +10,7 @@ const TYPE_COLORS = {
   fighting: '#ea580c',
   darkness: '#a78bfa',
   psychic: '#f472b6',
+  water: '#38bdf8',
 };
 
 // bg/border are parameterized rather than baked into a shared constant so a
