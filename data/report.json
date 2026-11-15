@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-14",
+  "date": "2026-11-15",
   "sections": [
     {
       "emoji": "💧",
-      "heading": "Neu in der Liga: Wasser",
-      "body": "T hat ein neues Deck gebaut — **Wasser**, das sechste aktive Deck der Liga und das zweite, das komplett neu entsteht statt umgebaut zu werden. Kampf bleibt T's Standard-Deck, Wasser kommt dazu. Damit stehen sich jetzt **sechs Decks** aus drei Generationen gegenüber."
+      "heading": "Wasser ist nach zwei Partien das beste Deck der Liga",
+      "body": "Zweiter Einsatz, zweiter Sieg: **Wasser** steht bei **2:0** und mit **1108 Punkten** an der Spitze der Deckwertung, vorbei an Kampf (1074). Beide Siege holte J damit — gegen T, dem das Deck gehört."
     },
     {
-      "emoji": "🔄",
-      "heading": "Debüt mit Decktausch — und prompt gegen den Erbauer",
-      "body": "Die erste Partie mit Wasser bestritt ausgerechnet **J**, der es sich auslieh — gegen T, der mit J's **Feuer** antrat. Ein kompletter Tausch also, und J gewann. T hat damit die Premiere seines eigenen neuen Decks verloren, ohne es selbst in der Hand gehabt zu haben."
+      "emoji": "🙃",
+      "heading": "T verliert zum zweiten Mal gegen sein eigenes Deck",
+      "body": "Eine kuriose Serie: T hat **Wasser** gebaut, aber noch **keine einzige Partie damit gespielt**. Stattdessen stand er zweimal auf der anderen Seite des Tisches und verlor beide Male — erst mit Feuer, jetzt mit seinem eigenen Kampf. Das Deck gewinnt also ausschließlich gegen seinen Erbauer."
     },
     {
       "emoji": "⚠️",
-      "heading": "Wasser auf Platz 2 — und die Zahl bedeutet noch nichts",
-      "body": "Nach einem einzigen Sieg steht Wasser bereits bei **1025 Punkten** und damit auf Rang 2 der Deckwertung. Bevor jemand jubelt: Die Unsicherheit dieser Zahl liegt bei **±743**. Mit einer Partie weiß die Liga schlicht noch gar nichts über dieses Deck. Zum Vergleich: Bei Kampf sind es ±247."
+      "heading": "Trotzdem: Die Zahl taugt noch nichts",
+      "body": "Platz 1 nach zwei Partien klingt stark, bedeutet aber wenig. Die Unsicherheit der Wasser-Wertung liegt bei **±648 Punkten** — bei allen anderen Decks sind es zwischen 219 und 272. Erst nach einer Handvoll weiterer Partien lässt sich sagen, ob das Deck wirklich gut ist oder J einfach gut war."
+    },
+    {
+      "emoji": "🏗️",
+      "heading": "T baut die besten Decks der Liga",
+      "body": "Bei aller Häme über die verlorenen Premieren: T hat **Kampf** umgebaut, das seitdem wochenlang die Deckwertung anführte, und er hat **Wasser** gebaut, das jetzt ganz oben steht. Zwei Decks, zwei Volltreffer. Dazu die **9 Siege gegen J**, die sonst niemand erreicht. Mit 5 Jahren."
     },
     {
       "emoji": "🏆",
-      "heading": "J bei 53 Siegen und drei in Folge",
-      "body": "**53:13** und **1276 Punkte**. Dass J auch mit einem Deck gewinnt, das er zum ersten Mal in der Hand hält, passt ins Bild: Er hat inzwischen mit **allen sechs** Decks der Liga mindestens einen Sieg geholt. *Alle dreizehn* Niederlagen stammen weiterhin von den eigenen Kindern."
-    },
-    {
-      "emoji": "🥊",
-      "heading": "T: Deckbauer mit dem besten Händchen der Liga",
-      "body": "Die Niederlage ärgert, aber eine Bilanz sollte man festhalten: T hat **Kampf** umgebaut, und es führt die Deckwertung seitdem fast durchgehend an (**1094**). Jetzt hat er **Wasser** gebaut, das auf Anhieb gewonnen hat. Dazu die **9 Siege gegen J**, die sonst niemand erreicht. Mit 5 Jahren."
+      "heading": "J bei 54 Siegen und vier in Folge",
+      "body": "**54:13** und **1276 Punkte**. J hat inzwischen mit **jedem der sechs Decks** mindestens einmal gewonnen — Wasser war das letzte auf der Liste, und zwar im ersten Versuch. Die Liga-Konstante hält: *alle dreizehn* Niederlagen stammen von den eigenen Kindern."
     },
     {
       "emoji": "📊",
-      "heading": "Deck-News: sechs Decks, 155 Punkte Spanne",
-      "body": "**Kampf** (1094), **Wasser** (1025), **Finsternis** (998), **Psycho** (988), **Elektro** (955), **Feuer** (939). Zwischen Erstem und Letztem liegen nur **155 Punkte** — bei sechs Decks ist das bemerkenswert eng. Die Karten sind weitgehend ausgeglichen; den Unterschied macht, wer sie spielt."
+      "heading": "Deck-News: fünf Decks innerhalb von 150 Punkten",
+      "body": "Sieht man vom Wackelkandidaten Wasser ab, ist das Feld bemerkenswert eng: **Kampf** (1074), **Finsternis** (982), **Psycho** (973), **Elektro** (940), **Feuer** (924). Gerade einmal **150 Punkte** trennen diese fünf — die Karten sind ausgeglichen, den Unterschied macht die Hand, die sie hält."
     }
   ]
 }
