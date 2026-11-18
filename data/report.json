@@ -1,36 +1,36 @@
 {
-  "title": "Liga-Ticker",
-  "date": "2026-11-17",
+  "title": "Liga-Ticker — 100 Partien",
+  "date": "2026-11-18",
   "sections": [
     {
       "emoji": "💯",
-      "heading": "Partie 99 — die nächste ist die Hundertste",
-      "body": "Seit dem **20. September** läuft diese Liga, und sie hat gerade ihre **99. Partie** hinter sich gebracht. Die nächste ist das Jubiläum. Bisherige Bilanz der Saison: **J 54:13**, **M 23:13**, **T 16:44**, **C 6:29** — und **sechs aktive Decks**, die aus insgesamt **13 gebauten Versionen** übrig geblieben sind."
-    },
-    {
-      "emoji": "⚡",
-      "heading": "M gewinnt wieder und baut gegen C auf 11:1 aus",
-      "body": "Mit geliehenem **Feuer** schlug M C, die mit ihrem eigenen Finsternis antrat. Zweiter Sieg in Folge, Bilanz **23:13**, Wertung **1115**. Gegen C steht es inzwischen **11:1** — die einseitigste Paarung der Liga nach J gegen C. Mit 7 Jahren."
-    },
-    {
-      "emoji": "🔥",
-      "heading": "Feuer: ein Deck, zwei Welten",
-      "body": "Die Bilanz dieses Decks bleibt das sauberste Argument dafür, dass es nicht an den Karten liegt. **J 29:5**, **M 7:1** — zusammen **36:6**. Und **T 0:9**, kein einziger Sieg in neun Versuchen. Dasselbe Deck, dieselben Karten, drei völlig verschiedene Geschichten."
-    },
-    {
-      "emoji": "🎯",
-      "heading": "C in ihrer zweitlängsten Durststrecke",
-      "body": "Siebte Niederlage in Folge, Bilanz **6:29**, Wertung **735**. Nur die Fünfzehnerserie im Oktober war länger — und die beendete C ausgerechnet mit ihrem ersten Sieg über M überhaupt. Im Duell mit T steht es weiterhin **5:5**, die einzige ausgeglichene Rechnung der Liga."
+      "heading": "Die 100. Partie: J gewinnt mit Wasser",
+      "body": "Zwei Monate nach der ersten Partie am **20. September** hat die Familien-Liga ihr Jubiläum erreicht — und ausgerechnet der Tabellenführer macht es voll. Mit geliehenem **Wasser** schlug J seinen Sohn M, der mit dem eigenen Elektro antrat. Es war J's **fünfter Sieg in Folge**."
     },
     {
       "emoji": "🏆",
-      "heading": "J ruht auf vier Siegen in Folge",
-      "body": "Ohne Partie heute, weiter **54:13** und **1278 Punkte**, **163** vor Platz 2. Die Liga-Konstante gilt unverändert: *alle dreizehn* Niederlagen stammen von den eigenen Kindern — in **67 Partien** hat kein erwachsener Gegner je gegen ihn gewonnen."
+      "heading": "Die Abschlusstabelle nach 100 Partien",
+      "body": "**J 55:13** (81 %), **M 23:14** (62 %), **T 16:44** (27 %), **C 6:29** (17 %). In Punkten: **1279**, **1113**, **874**, **734**. J führt klar — aber die Siegquote allein erzählt nicht die ganze Geschichte, dafür sind die Spielpläne zu verschieden."
     },
     {
-      "emoji": "📊",
-      "heading": "Deck-News: Wasser hält Platz 1, mit allen Vorbehalten",
-      "body": "**Wasser** (1111) führt vor **Kampf** (1078), **Finsternis** (971), **Psycho** (969), **Elektro** (942) und **Feuer** (930). Der Hinweis von gestern gilt weiter: Wasser hat erst **zwei Partien** und eine Unsicherheit von **±647** — bei allen anderen sind es gut 230. Die Rangfolge an der Spitze ist noch reine Behauptung."
+      "emoji": "⚔️",
+      "heading": "Die sechs Duelle der Saison",
+      "body": "**J–T 31:9**, **J–M 11:4**, **J–C 13:0**, **M–T 8:2**, **M–C 11:1** — und als einzige wirklich offene Rechnung **T–C 5:5**. Fünf der sechs Paarungen sind klar verteilt. Die spannendste Rivalität der Liga ist die zwischen Platz 3 und Platz 4."
+    },
+    {
+      "emoji": "🥇",
+      "heading": "Die Rekorde: je einer für jeden",
+      "body": "**J**: längste Siegesserie der Saison mit **14**. **T**: die meisten Partien (**60**) und **9 Siege gegen den Tabellenführer**, mehr als M und C zusammen. **M**: beste Siegquote nach J und eine Serie von **5**. **C**: hält als Einzige den Tabellenführer der Kinder-Wertung auf Distanz — ihr **5:5 gegen T** ist die einzige Paarung der Liga, die nach 100 Partien noch völlig offen ist."
+    },
+    {
+      "emoji": "🃏",
+      "heading": "13 Deckversionen, 6 übrig",
+      "body": "Die Liga startete mit vier Decks. Seitdem gab es **neun Umbauten und Neubauten**: Finsternis und Kampf wurden zweimal umgebaut, Elektro ebenfalls, dazu kamen **Psycho** und **Wasser** komplett neu. Aktuelle Rangfolge: **Wasser** (1176), **Kampf** (1067), **Finsternis** (958), **Psycho** (958), **Elektro** (923), **Feuer** (918)."
+    },
+    {
+      "emoji": "🔎",
+      "heading": "Die Erkenntnis der ersten 100 Partien",
+      "body": "Es liegt nicht an den Karten. Das deutlichste Beispiel bleibt **Feuer**: **J 29:5**, **M 7:1**, **T 0:9** — dasselbe Deck, drei völlig verschiedene Bilanzen. Und in **68 der 100 Partien** hielt der schwächer bewertete Spieler das bessere Deck — gewonnen hat er davon nur **17**, also **25 Prozent**. Ein Deckvorteil wird in dieser Familie routinemäßig weggespielt."
     }
   ]
 }
