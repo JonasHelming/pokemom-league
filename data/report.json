@@ -1,36 +1,36 @@
 {
   "title": "Liga-Ticker",
-  "date": "2026-11-18",
+  "date": "2026-11-19",
   "sections": [
     {
+      "emoji": "🎉",
+      "heading": "C beendet die Durststrecke — und bezwingt das beste Deck der Liga",
+      "body": "Sieben Niederlagen in Folge lagen hinter ihr, dann das: C schlug T, der mit dem bis dahin **ungeschlagenen Wasser** antrat, dem höchstbewerteten Deck, das diese Liga je hatte. C selbst spielte das geliehene Kampf. Bilanz **7:29**, Wertung rauf auf **752**."
+    },
+    {
+      "emoji": "⚖️",
+      "heading": "C übernimmt wieder die Führung gegen T",
+      "body": "Im direkten Vergleich steht es jetzt **6:5** für C. Seit Wochen wechselt die Führung in dieser Paarung hin und her — es ist und bleibt die einzige Rechnung der Liga, die wirklich offen ist. Alle anderen fünf Duelle sind längst klar verteilt."
+    },
+    {
+      "emoji": "🧾",
+      "heading": "Sechs von sieben: T ist C's Spezialgebiet",
+      "body": "Die Verteilung ihrer Siege ist bemerkenswert eindeutig: **Sechs ihrer sieben** Liga-Siege hat C gegen T geholt, der siebte ging gegen M. Gegen den Tabellenführer steht sie weiterhin bei **0:13**. Wenn C gewinnt, dann gegen denselben Gegner."
+    },
+    {
       "emoji": "💧",
-      "heading": "T spielt endlich sein eigenes Wasser — und gewinnt sofort",
-      "body": "Die Geschichte hat ein Ende gefunden: T hatte **Wasser** gebaut, zweimal dagegen verloren und es nie selbst in die Hand genommen. Heute tat er es zum ersten Mal — und schlug damit auf Anhieb den Tabellenführer, der mit Finsternis antrat. Das Deck steht jetzt bei **4:0**."
+      "heading": "Wasser verliert zum ersten Mal — und 279 Punkte",
+      "body": "Nach vier Siegen zum Auftakt die erste Niederlage: **4:1**. Die Wertung stürzt von **1441** auf **1162**, Platz 1 hält das Deck aber weiterhin. Interessant ist die zweite Zahl: Die Unsicherheit ist von **±510** auf **±357** gefallen. Eine Niederlage verrät über ein Deck eben mehr als vier Siege."
     },
     {
-      "emoji": "🔟",
-      "heading": "Zehn Siege gegen den Papa",
-      "body": "Es ist T's **zehnter Sieg über J** — zweistellig, und damit mehr als doppelt so viele wie alle anderen zusammen: M kommt auf 4, C auf 0. In **41 Duellen** hat T dem Tabellenführer zehnmal eine Niederlage beigebracht. Mit 5 Jahren."
-    },
-    {
-      "emoji": "⚠️",
-      "heading": "Wasser bei 1441 — die Zahl ist ein Ausrufezeichen und eine Warnung",
-      "body": "Vier Partien, vier Siege, und die Wertung schießt auf **1441 Punkte** — **428** vor Kampf. So hoch stand noch nie ein Deck in dieser Liga. Aber: Die Unsicherheit liegt bei **±510**, bei allen anderen Decks zwischen 213 und 275. Ein Deck, das nie verloren hat, bekommt eben eine Wertung, die mehr Hoffnung als Wissen ist."
-    },
-    {
-      "emoji": "🏆",
-      "heading": "J's Serie ist gerissen",
-      "body": "Nach fünf Siegen in Folge die erste Niederlage: **55:14** und **1267 Punkte**. Immerhin bleibt die Liga-Konstante erhalten — *alle vierzehn* Niederlagen stammen von den eigenen Kindern. In **69 Partien** hat kein erwachsener Gegner je gegen ihn gewonnen."
+      "emoji": "🥊",
+      "heading": "T mit dem Pech des Tages",
+      "body": "Erst gestern hatte T mit seinem eigenen Wasser den Tabellenführer geschlagen, heute verlor er damit gegen C. Die Bestmarke bleibt davon unberührt: **10 Siege gegen J**, mehr als doppelt so viele wie M (4) und C (0) zusammen, aus **62 Partien** — niemand in dieser Familie stellt sich öfter. Mit 5 Jahren."
     },
     {
       "emoji": "📊",
-      "heading": "Hinter Wasser rückt alles zusammen",
-      "body": "Lässt man den Ausreißer beiseite, ist das Feld enger denn je: **Kampf** (1013), **Psycho** (897), **Finsternis** (893), **Feuer** (879), **Elektro** (877). Zwischen Platz 2 und Platz 6 liegen gerade einmal **136 Punkte** — praktisch Gleichstand."
-    },
-    {
-      "emoji": "⚡",
-      "heading": "M und C ohne Partie",
-      "body": "M bleibt bei **23:14** und **1113 Punkten** auf Platz 2, C bei **6:29** und **736**. Für C hält die Durststrecke damit bei **sieben** Niederlagen — und das Duell mit T bleibt bei **5:5** die einzige offene Rechnung der Liga."
+      "heading": "Deck-News: das Feld ist wieder beisammen",
+      "body": "**Wasser** (1162) führt vor **Kampf** (1086), **Psycho** (962), **Feuer** (935), **Elektro** (932) und **Finsternis** (923). Zwischen Platz 3 und Platz 6 liegen nur noch **39 Punkte** — vier Decks praktisch gleichauf."
     }
   ]
 }
